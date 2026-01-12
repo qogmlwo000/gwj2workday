@@ -1177,6 +1177,223 @@
 
         .action-buttons { display: flex; gap: 10px; }
         
+        /* Calendar View Styles */
+        .calendar-view-container {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        
+        .calendar-view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .calendar-view-nav {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .calendar-view-nav button {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: none;
+            background: var(--bg-nav);
+            color: var(--text-main);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        .calendar-view-nav button:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .calendar-view-nav h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 800;
+            min-width: 180px;
+            text-align: center;
+        }
+        
+        .calendar-view-today-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        
+        .calendar-view-today-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        
+        .calendar-view-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .calendar-view-weekday {
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            padding: 12px 0;
+            text-transform: uppercase;
+        }
+        
+        .calendar-view-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+        
+        .calendar-view-day {
+            min-height: 120px;
+            background: var(--bg-nav);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .calendar-view-day:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .calendar-view-day.other-month {
+            opacity: 0.4;
+        }
+        
+        .calendar-view-day.today {
+            border: 2px solid var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+        
+        .calendar-view-day-number {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+        
+        .calendar-view-day.today .calendar-view-day-number {
+            color: var(--primary);
+        }
+        
+        .calendar-view-events {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            overflow-y: auto;
+            max-height: 90px;
+        }
+        
+        .calendar-view-events::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .calendar-view-events::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+        
+        .calendar-event {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: 0.2s;
+        }
+        
+        .calendar-event:hover {
+            transform: scale(1.02);
+        }
+        
+        .calendar-event.overtime {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .calendar-event.early {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+            border-left: 3px solid var(--warning);
+        }
+        
+        .calendar-event i {
+            font-size: 0.65rem;
+        }
+        
+        .calendar-event-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+        }
+        
+        .calendar-event-time {
+            font-size: 0.65rem;
+            opacity: 0.8;
+        }
+        
+        .calendar-legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .calendar-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .calendar-legend-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+        
+        .calendar-legend-icon.overtime {
+            background: var(--primary);
+        }
+        
+        .calendar-legend-icon.early {
+            background: var(--warning);
+        }
+        
         /* Search & Filter Bar */
         .search-filter-bar {
             background: var(--bg-glass);
@@ -1425,6 +1642,7 @@
             </div>
         </div>
         <div class="nav-item active" onclick="switchTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> 대시보드</div>
+        <div class="nav-item" onclick="switchTab('calendar')"><i class="fa-solid fa-calendar-days"></i> 캘린더 뷰</div>
         <div class="nav-item" onclick="switchTab('weekly')"><i class="fa-solid fa-chart-simple"></i> 주간 현황 (전체)</div>
         <div class="nav-item" onclick="switchTab('overtime')"><i class="fa-solid fa-clock"></i> 연장 신청</div>
         <div class="nav-item" onclick="switchTab('early')"><i class="fa-solid fa-sun"></i> 조출 신청</div>
@@ -1488,6 +1706,48 @@
                 <button class="btn btn-capture" onclick="captureSection('tcSection', 'TC_Status')"><i class="fa-solid fa-camera"></i> 캡처</button>
             </div>
             <div id="tcSection"><div class="dash-grid" id="tcGrid"></div></div>
+        </div>
+
+        <div id="tab-calendar" class="tab-content">
+            <div class="calendar-view-container">
+                <div class="calendar-view-header">
+                    <div class="calendar-view-nav">
+                        <button onclick="changeCalendarMonth(-1)">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <h2 id="calendarMonthYear">2026년 1월</h2>
+                        <button onclick="changeCalendarMonth(1)">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <button class="calendar-view-today-btn" onclick="goToToday()">
+                        <i class="fa-solid fa-calendar-day"></i> 오늘
+                    </button>
+                </div>
+                
+                <div class="calendar-view-weekdays">
+                    <div class="calendar-view-weekday">일</div>
+                    <div class="calendar-view-weekday">월</div>
+                    <div class="calendar-view-weekday">화</div>
+                    <div class="calendar-view-weekday">수</div>
+                    <div class="calendar-view-weekday">목</div>
+                    <div class="calendar-view-weekday">금</div>
+                    <div class="calendar-view-weekday">토</div>
+                </div>
+                
+                <div class="calendar-view-days" id="calendarViewDays"></div>
+                
+                <div class="calendar-legend">
+                    <div class="calendar-legend-item">
+                        <div class="calendar-legend-icon overtime"></div>
+                        <span>연장 근무</span>
+                    </div>
+                    <div class="calendar-legend-item">
+                        <div class="calendar-legend-icon early"></div>
+                        <span>조출 근무</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="tab-weekly" class="tab-content">
@@ -1740,7 +2000,28 @@
             </div>
             <div class="table-card" id="otTableArea" style="margin-top:24px;">
                 <div class="table-header">
-                    <h3>📋 연장 신청 내역</h3>
+                    <div style="flex:1;">
+                        <h3 style="margin:0 0 8px 0;">📋 연장 신청 내역</h3>
+                        <div style="display:flex; gap:12px; align-items:center;">
+                            <label style="font-size:0.85rem; color:var(--text-sub); font-weight:600;">
+                                <i class="fa-solid fa-calendar"></i> 신청일 필터:
+                            </label>
+                            <div style="display:flex; gap:8px;">
+                                <button class="filter-btn" id="otFilterToday" onclick="setRequestDateFilter('overtime', 'today')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-calendar-day"></i> 오늘
+                                </button>
+                                <button class="filter-btn" onclick="setRequestDateFilter('overtime', 'week')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-calendar-week"></i> 이번 주
+                                </button>
+                                <button class="filter-btn" onclick="setRequestDateFilter('overtime', 'all')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-calendar-days"></i> 전체
+                                </button>
+                            </div>
+                            <div style="margin-left:8px; font-size:0.75rem; color:var(--text-sub);">
+                                <span id="otFilterCount">0</span>건 표시중
+                            </div>
+                        </div>
+                    </div>
                     <div class="action-buttons">
                         <button class="btn btn-excel" onclick="exportToExcel('overtime')"><i class="fa-solid fa-file-excel"></i> 엑셀</button>
                         <button class="btn btn-capture" onclick="captureSection('otTableArea','Overtime_List')"><i class="fa-solid fa-camera"></i> 캡처</button>
@@ -1946,7 +2227,28 @@
             </div>
             <div class="table-card" id="earlyTableArea" style="margin-top:24px;">
                 <div class="table-header">
-                    <h3>📋 조출 신청 내역</h3>
+                    <div style="flex:1;">
+                        <h3 style="margin:0 0 8px 0;">📋 조출 신청 내역</h3>
+                        <div style="display:flex; gap:12px; align-items:center;">
+                            <label style="font-size:0.85rem; color:var(--text-sub); font-weight:600;">
+                                <i class="fa-solid fa-calendar"></i> 신청일 필터:
+                            </label>
+                            <div style="display:flex; gap:8px;">
+                                <button class="filter-btn" id="earlyFilterToday" onclick="setRequestDateFilter('early', 'today')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-calendar-day"></i> 오늘
+                                </button>
+                                <button class="filter-btn" onclick="setRequestDateFilter('early', 'week')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-calendar-week"></i> 이번 주
+                                </button>
+                                <button class="filter-btn" onclick="setRequestDateFilter('early', 'all')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-calendar-days"></i> 전체
+                                </button>
+                            </div>
+                            <div style="margin-left:8px; font-size:0.75rem; color:var(--text-sub);">
+                                <span id="earlyFilterCount">0</span>건 표시중
+                            </div>
+                        </div>
+                    </div>
                     <div class="action-buttons">
                         <button class="btn btn-excel" onclick="exportToExcel('early')"><i class="fa-solid fa-file-excel"></i> 엑셀</button>
                         <button class="btn btn-capture" onclick="captureSection('earlyTableArea','Early_List')"><i class="fa-solid fa-camera"></i> 캡처</button>
@@ -2003,6 +2305,12 @@
         let dashActiveFilters = { danger: false, warning: false, safe: false };
         let allWeeklyData = [];
         let allDashData = [];
+        
+        // Request date filters
+        let requestDateFilters = {
+            overtime: 'today',
+            early: 'today'
+        };
 
         window.onload = function() {
             renderDashboard(); initSelects(); renderRequestTable('overtime'); renderRequestTable('early'); renderTeamTable(); renderWeeklyTable();
@@ -2021,6 +2329,10 @@
             // Set today as default
             selectDate('ot', today);
             selectDate('early', today);
+            
+            // Set default filter buttons as active
+            document.getElementById('otFilterToday').classList.add('active');
+            document.getElementById('earlyFilterToday').classList.add('active');
             
             const savedTheme = localStorage.getItem('gwj2_theme') || 'dark'; document.documentElement.setAttribute('data-theme', savedTheme);
             
@@ -2243,13 +2555,141 @@
         }
 
         function toggleTheme() { const n = document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'; document.documentElement.setAttribute('data-theme',n); localStorage.setItem('gwj2_theme',n); }
+        
+        // --- Calendar View ---
+        let calendarViewState = { year: new Date().getFullYear(), month: new Date().getMonth() };
+        
+        function renderCalendarView() {
+            const { year, month } = calendarViewState;
+            const monthNames = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+            
+            document.getElementById('calendarMonthYear').textContent = `${year}년 ${monthNames[month]}`;
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+            
+            const container = document.getElementById('calendarViewDays');
+            container.innerHTML = '';
+            
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            
+            // Previous month days
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const day = daysInPrevMonth - i;
+                const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                container.appendChild(createCalendarDay(day, dateStr, true, false));
+            }
+            
+            // Current month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isToday = dateStr === todayStr;
+                container.appendChild(createCalendarDay(day, dateStr, false, isToday));
+            }
+            
+            // Next month days
+            const totalCells = container.children.length;
+            const remainingCells = Math.ceil(totalCells / 7) * 7 - totalCells;
+            for (let day = 1; day <= remainingCells; day++) {
+                const dateStr = `${year}-${String(month + 2).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                container.appendChild(createCalendarDay(day, dateStr, true, false));
+            }
+        }
+        
+        function createCalendarDay(dayNumber, dateStr, isOtherMonth, isToday) {
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'calendar-view-day';
+            if (isOtherMonth) dayDiv.classList.add('other-month');
+            if (isToday) dayDiv.classList.add('today');
+            
+            const dayNumDiv = document.createElement('div');
+            dayNumDiv.className = 'calendar-view-day-number';
+            dayNumDiv.textContent = dayNumber;
+            dayDiv.appendChild(dayNumDiv);
+            
+            const eventsDiv = document.createElement('div');
+            eventsDiv.className = 'calendar-view-events';
+            
+            // Get events for this date
+            const events = getEventsForDate(dateStr);
+            events.forEach(event => {
+                const eventDiv = document.createElement('div');
+                eventDiv.className = `calendar-event ${event.type}`;
+                eventDiv.title = `${event.name} - ${event.start}~${event.end} (${event.time})`;
+                
+                eventDiv.innerHTML = `
+                    <i class="fa-solid fa-${event.type === 'overtime' ? 'clock' : 'sun'}"></i>
+                    <span class="calendar-event-name">${event.name}</span>
+                    <span class="calendar-event-time">${event.time}</span>
+                `;
+                
+                eventsDiv.appendChild(eventDiv);
+            });
+            
+            dayDiv.appendChild(eventsDiv);
+            return dayDiv;
+        }
+        
+        function getEventsForDate(dateStr) {
+            const events = [];
+            
+            // Overtime requests
+            requests.overtime.forEach(r => {
+                if (r.date === dateStr) {
+                    events.push({
+                        type: 'overtime',
+                        name: r.name,
+                        start: r.start,
+                        end: r.end,
+                        time: r.time
+                    });
+                }
+            });
+            
+            // Early requests
+            requests.early.forEach(r => {
+                if (r.date === dateStr) {
+                    events.push({
+                        type: 'early',
+                        name: r.name,
+                        start: r.start,
+                        end: r.end,
+                        time: r.time
+                    });
+                }
+            });
+            
+            return events;
+        }
+        
+        function changeCalendarMonth(delta) {
+            calendarViewState.month += delta;
+            if (calendarViewState.month > 11) {
+                calendarViewState.month = 0;
+                calendarViewState.year++;
+            } else if (calendarViewState.month < 0) {
+                calendarViewState.month = 11;
+                calendarViewState.year--;
+            }
+            renderCalendarView();
+        }
+        
+        function goToToday() {
+            const today = new Date();
+            calendarViewState.year = today.getFullYear();
+            calendarViewState.month = today.getMonth();
+            renderCalendarView();
+        }
         function switchTab(t) { 
             document.querySelectorAll('.nav-item,.tab-content').forEach(e=>e.classList.remove('active')); 
             event.currentTarget.classList.add('active'); 
             document.getElementById(`tab-${t}`).classList.add('active'); 
-            const titles = {dashboard:'대시보드', weekly:'주간 현황 (전체)', overtime:'연장 신청', early:'조출 신청', team:'팀 설정'};
+            const titles = {dashboard:'대시보드', calendar:'캘린더 뷰', weekly:'주간 현황 (전체)', overtime:'연장 신청', early:'조출 신청', team:'팀 설정'};
             document.getElementById('pageTitle').innerText = titles[t];
             if(t==='dashboard')renderDashboard(); 
+            if(t==='calendar')renderCalendarView();
             if(t==='weekly')renderWeeklyTable(); 
         }
 
@@ -2725,16 +3165,56 @@
             alert("✅ 신청이 완료되었습니다!");
         }
         
-        function renderRequestTable(t) { 
-            const b=document.getElementById(`${t==='overtime'?'ot':'early'}Tbody`); 
-            b.innerHTML=''; 
-            requests[t].forEach((r,i)=>{ 
+        function renderRequestTable(type) {
+            // Map short names to full names
+            const tbodyId = type === 'overtime' ? 'ot' : 'early';
+            const requestKey = type; // 'overtime' or 'early'
+            
+            const b = document.getElementById(`${tbodyId}Tbody`); 
+            b.innerHTML='';
+            
+            // Ensure requests array exists
+            if (!requests[requestKey]) {
+                requests[requestKey] = [];
+            }
+            
+            const filter = requestDateFilters[requestKey] || 'today';
+            const today = new Date().toISOString().split('T')[0];
+            
+            let filteredRequests = requests[requestKey];
+            
+            if (filter === 'today') {
+                filteredRequests = requests[requestKey].filter(r => r.date === today);
+            } else if (filter === 'week') {
+                const d = new Date();
+                const day = d.getDay();
+                const diff = d.getDate() - day;
+                const sun = new Date(d.setDate(diff));
+                sun.setHours(0, 0, 0, 0);
+                const sat = new Date(sun);
+                sat.setDate(sun.getDate() + 6);
+                sat.setHours(23, 59, 59, 999);
+                
+                filteredRequests = requests[requestKey].filter(r => {
+                    const rd = new Date(r.date + 'T00:00:00');
+                    return rd >= sun && rd <= sat;
+                });
+            }
+            
+            // Update count
+            const countEl = document.getElementById(`${tbodyId}FilterCount`);
+            if (countEl) countEl.textContent = filteredRequests.length;
+            
+            filteredRequests.forEach((r,i)=>{ 
                 const total = 40 + calcTotalApprovedTime(r.name);
                 const remain = 52 - total;
                 const percent = Math.min((total/52)*100, 100);
                 let statusColor = 'var(--success)';
                 if(total >= 52) statusColor = 'var(--danger)';
                 else if(total >= 45) statusColor = 'var(--warning)';
+                
+                // Find original index for deletion
+                const originalIndex = requests[requestKey].findIndex(req => req.id === r.id);
                 
                 b.innerHTML+=`<tr>
                     <td>${r.name}</td>
@@ -2751,9 +3231,33 @@
                         </div>
                     </td>
                     <td>${r.reason}</td>
-                    <td><button class="btn btn-del" onclick="deleteRequest('${t}',${i})"><i class="fa-solid fa-trash"></i></button></td>
+                    <td><button class="btn btn-del" onclick="deleteRequest('${requestKey}',${originalIndex})"><i class="fa-solid fa-trash"></i></button></td>
                 </tr>`; 
             }); 
+        }
+        
+        function setRequestDateFilter(type, filter) {
+            requestDateFilters[type] = filter;
+            
+            // Update button states
+            const tbodyId = type === 'overtime' ? 'ot' : 'early';
+            
+            // Remove active from all filter buttons for this type
+            const buttonContainer = document.getElementById(`${tbodyId}FilterToday`).parentElement;
+            buttonContainer.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Add active to clicked button
+            if (filter === 'today') {
+                document.getElementById(`${tbodyId}FilterToday`).classList.add('active');
+            } else if (filter === 'week') {
+                buttonContainer.querySelectorAll('.filter-btn')[1].classList.add('active');
+            } else if (filter === 'all') {
+                buttonContainer.querySelectorAll('.filter-btn')[2].classList.add('active');
+            }
+            
+            renderRequestTable(type);
         }
         
         function deleteRequest(t,i) { 
