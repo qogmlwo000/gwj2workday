@@ -67,62 +67,131 @@
         /* Navigation */
         nav { width: 260px; background: var(--bg-nav); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px; z-index: 100; box-shadow: 4px 0 12px rgba(0,0,0,0.1); }
         
-        /* Premium Logo Design */
+        /* Premium Logo Design - Sophisticated & Elegant */
         .logo { 
             font-size: 1.3rem; 
-            font-weight: 800; 
-            color: var(--text-main); 
+            font-weight: 900; 
             margin-bottom: 40px; 
             display: flex; 
             align-items: center; 
-            gap: 12px; 
-            padding: 16px;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
-            border-radius: 16px;
-            border: 1px solid rgba(99, 102, 241, 0.2);
+            gap: 16px; 
+            padding: 20px;
+            background: linear-gradient(135deg, 
+                rgba(99, 102, 241, 0.08) 0%, 
+                rgba(139, 92, 246, 0.05) 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(99, 102, 241, 0.15);
             position: relative;
             overflow: hidden;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            backdrop-filter: blur(10px);
         }
         
+        /* Subtle gradient border on hover */
         .logo::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            background: linear-gradient(135deg, #6366f1, #a78bfa);
+            border-radius: 20px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        
+        .logo:hover::before {
+            opacity: 1;
+        }
+        
+        /* Elegant shine effect */
+        .logo::after {
             content: '';
             position: absolute;
             top: 0;
             left: -100%;
-            width: 100%;
+            width: 50%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            transition: 0.5s;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.08),
+                transparent
+            );
+            transition: left 0.6s;
         }
         
-        .logo:hover::before {
+        .logo:hover::after {
             left: 100%;
         }
         
         .logo:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
-            border-color: var(--primary);
+            box-shadow: 
+                0 12px 24px rgba(99, 102, 241, 0.15),
+                0 0 0 1px rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.3);
         }
         
-        .logo i {
-            font-size: 1.8rem;
-            background: linear-gradient(135deg, #6366f1, #a78bfa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: pulse 2s ease-in-out infinite;
+        /* Sophisticated icon with depth */
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                0 4px 12px rgba(99, 102, 241, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+        .logo:hover .logo-icon {
+            transform: scale(1.05);
+            box-shadow: 
+                0 6px 16px rgba(99, 102, 241, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
         
-        .logo-text { line-height: 1.3; }
-        .logo-text .main { font-size: 1.3rem; display: block; }
-        .logo-text .sub { font-size: 0.85rem; font-weight: 600; color: var(--text-sub); display: block; }
+        .logo-icon i {
+            font-size: 1.5rem;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Clean, readable text */
+        .logo-text { 
+            line-height: 1.2; 
+            position: relative;
+            z-index: 1;
+        }
+        
+        .logo-text .main { 
+            font-size: 1.5rem; 
+            display: block; 
+            color: var(--text-main);
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            margin-bottom: 2px;
+        }
+        
+        .logo-text .sub { 
+            font-size: 0.75rem; 
+            font-weight: 600; 
+            color: var(--text-sub);
+            display: block;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+        
+        .logo:hover .logo-text .sub {
+            color: var(--primary);
+            opacity: 1;
+        }
         
         /* Nav Items with Premium Hover */
         .nav-item { 
@@ -187,50 +256,100 @@
         main { flex: 1; padding: 40px; overflow-y: auto; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         
-        /* Premium Theme Button */
-        .theme-btn { 
-            background: linear-gradient(135deg, var(--primary), #8b5cf6); 
-            border: none;
-            color: white; 
-            padding: 10px 20px; 
-            border-radius: 50px; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-            transition: all 0.3s;
+        /* Sophisticated Theme Toggle Switch */
+        .theme-toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .theme-toggle {
             position: relative;
+            width: 140px;
+            height: 42px;
+            background: var(--bg-nav);
+            border: 2px solid var(--border);
+            border-radius: 24px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
         }
         
-        .theme-btn::before {
-            content: '';
+        .theme-toggle:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+        
+        /* Sliding background */
+        .theme-toggle-slider {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
+            top: 3px;
+            left: 3px;
+            width: 64px;
+            height: 32px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 20px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
         }
         
-        .theme-btn:hover::before {
-            width: 300px;
-            height: 300px;
+        [data-theme="light"] .theme-toggle-slider {
+            left: calc(100% - 67px);
+            background: linear-gradient(135deg, #f59e0b, #f97316);
         }
         
-        .theme-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
-        }
-        
-        .theme-btn i, .theme-btn span {
+        /* Options container */
+        .theme-options {
             position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 8px;
+        }
+        
+        .theme-option {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            transition: all 0.3s;
             z-index: 1;
+            color: var(--text-sub);
+        }
+        
+        .theme-option i {
+            font-size: 1rem;
+        }
+        
+        /* Active state colors */
+        [data-theme="dark"] .theme-option.dark {
+            color: white;
+        }
+        
+        [data-theme="light"] .theme-option.light {
+            color: white;
+        }
+        
+        /* Icons */
+        .theme-option.dark i {
+            color: #6366f1;
+        }
+        
+        .theme-option.light i {
+            color: #f59e0b;
+        }
+        
+        [data-theme="dark"] .theme-option.dark i {
+            color: white;
+        }
+        
+        [data-theme="light"] .theme-option.light i {
+            color: white;
         }
 
         /* Widgets */
@@ -328,6 +447,564 @@
 
         /* Form */
         .form-container { background: var(--bg-glass); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+        /* Form Redesign - Modern Input Style */
+        .form-container { background: var(--bg-glass); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+        
+        .modern-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        
+        .modern-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .modern-input-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .modern-input-group label i {
+            color: var(--primary);
+        }
+        
+        .modern-input-wrapper {
+            position: relative;
+        }
+        
+        .modern-input-wrapper input,
+        .modern-input-wrapper select {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-nav);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-family: var(--font-main);
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        
+        .modern-input-wrapper input:focus,
+        .modern-input-wrapper select:focus {
+            border-color: var(--primary);
+            background: var(--input-bg);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+        
+        .modern-input-wrapper input:hover,
+        .modern-input-wrapper select:hover {
+            border-color: rgba(99, 102, 241, 0.5);
+        }
+        
+        /* Time Preset Buttons */
+        .time-presets {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        
+        .time-preset-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+        }
+        
+        .time-preset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        .time-preset-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Calculated Result Display */
+        .calculated-result {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.05));
+            border: 2px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 8px;
+        }
+        
+        .calculated-result .label {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+        
+        .calculated-result .value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .calculated-result .value i {
+            font-size: 1.2rem;
+        }
+        
+        /* Submit Button Enhancement */
+        .submit-btn {
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+        
+        .submit-btn i {
+            font-size: 1.1rem;
+        }
+        
+        /* Reason Input Special Style */
+        .reason-input {
+            grid-column: 1 / -1;
+        }
+        
+        .reason-input textarea {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-nav);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-family: var(--font-main);
+            font-size: 0.95rem;
+            resize: vertical;
+            min-height: 80px;
+            transition: all 0.3s;
+        }
+        
+        .reason-input textarea:focus {
+            border-color: var(--primary);
+            background: var(--input-bg);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+        
+        .reason-input textarea:hover {
+            border-color: rgba(99, 102, 241, 0.5);
+        }
+        
+        /* Custom Modern Date Picker */
+        .custom-date-picker {
+            position: relative;
+        }
+        
+        .custom-date-input {
+            width: 100%;
+            padding: 14px 16px 14px 45px;
+            background: var(--bg-nav);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-family: var(--font-main);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .custom-date-input:hover {
+            border-color: rgba(99, 102, 241, 0.5);
+        }
+        
+        .custom-date-input.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+        
+        .date-display {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        
+        .date-display.placeholder {
+            color: var(--text-sub);
+            font-weight: 400;
+        }
+        
+        .calendar-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: var(--bg-nav);
+            border: 2px solid var(--primary);
+            border-radius: 16px;
+            padding: 12px;
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: none;
+            animation: slideDown 0.3s ease;
+            max-width: 320px;
+        }
+        
+        .calendar-dropdown.show {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .calendar-nav-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            border: none;
+            background: var(--border);
+            color: var(--text-main);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        
+        .calendar-nav-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .calendar-month-year {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+        
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            margin-bottom: 4px;
+        }
+        
+        .calendar-weekday {
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            padding: 6px 0;
+        }
+        
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            border: none;
+            background: transparent;
+            color: var(--text-main);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+            font-size: 0.85rem;
+            padding: 6px;
+        }
+        
+        .calendar-day:hover {
+            background: var(--border);
+        }
+        
+        .calendar-day.today {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        .calendar-day.selected {
+            background: var(--primary);
+            color: white;
+            font-weight: 700;
+        }
+        
+        .calendar-day.other-month {
+            color: var(--text-sub);
+            opacity: 0.4;
+        }
+        
+        .calendar-day:disabled {
+            cursor: not-allowed;
+            opacity: 0.3;
+        }
+        
+        /* Custom Modern Time Picker */
+        .custom-time-picker {
+            position: relative;
+        }
+        
+        .custom-time-input {
+            width: 100%;
+            padding: 14px 16px 14px 45px;
+            background: var(--bg-nav);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-family: var(--font-main);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .custom-time-input:hover {
+            border-color: rgba(99, 102, 241, 0.5);
+        }
+        
+        .custom-time-input.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+        
+        .time-display {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary);
+            letter-spacing: 1px;
+        }
+        
+        .time-display.placeholder {
+            color: var(--text-sub);
+            font-weight: 400;
+            font-size: 0.95rem;
+        }
+        
+        .time-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: var(--bg-nav);
+            border: 2px solid var(--primary);
+            border-radius: 16px;
+            padding: 20px;
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .time-dropdown.show {
+            display: block;
+        }
+        
+        .time-selector {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .time-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .time-label {
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .time-scroll {
+            height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 4px;
+            border-radius: 8px;
+            background: var(--input-bg);
+        }
+        
+        .time-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .time-scroll::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+        
+        .time-option {
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-main);
+            min-width: 60px;
+        }
+        
+        .time-option:hover {
+            background: var(--border);
+        }
+        
+        .time-option.selected {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .time-separator {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            padding-top: 50px;
+        }
+        
+        .time-confirm-btn {
+            margin-top: 16px;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        .time-confirm-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Modern Date/Time Input Icons */
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            pointer-events: none;
+            font-size: 1.1rem;
+        }
+        
+        .input-with-icon input,
+        .input-with-icon select {
+            padding-left: 42px;
+        }
+        
+        /* Quick Action Cards */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+        
+        .quick-action-card {
+            background: var(--bg-nav);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .quick-action-card:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+            transform: translateY(-2px);
+        }
+        
+        .quick-action-card.active {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        .quick-action-card .time {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .quick-action-card .label {
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            margin-top: 4px;
+        }
+        
         .input-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
         .input-group label { display: block; font-size: 0.8rem; color: var(--text-sub); margin-bottom: 8px; font-weight: 600; }
         .input-group input, .input-group select { width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-family: var(--font-main); transition: 0.2s; }
@@ -405,8 +1082,80 @@
         .safe .progress-fill { background: var(--success); }
         .warning .progress-fill { background: var(--warning); }
         .warning { border-color: var(--warning) !important; }
-        .danger { border-color: var(--danger) !important; animation: pulse-red 2s infinite; }
+        .warning { 
+            border-color: var(--warning) !important; 
+            animation: pulse-warning 2s ease-in-out infinite;
+        }
+        .danger { 
+            border-color: var(--danger) !important; 
+            animation: pulse-danger 1.5s ease-in-out infinite;
+        }
         .danger .progress-fill { background: var(--danger); }
+        
+        /* Pulse Animations */
+        @keyframes pulse-danger {
+            0%, 100% { 
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 20px 5px rgba(239, 68, 68, 0.2);
+                transform: scale(1.02);
+            }
+        }
+        
+        @keyframes pulse-warning {
+            0%, 100% { 
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.3);
+            }
+            50% { 
+                box-shadow: 0 0 15px 3px rgba(245, 158, 11, 0.15);
+            }
+        }
+        
+        /* Enhanced danger card effect */
+        .member-card.danger .card-badge {
+            animation: badge-pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes badge-pulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            }
+            50% { 
+                transform: scale(1.05);
+                box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+            }
+        }
+        
+        /* Warning card subtle pulse */
+        .member-card.warning {
+            animation: warning-glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes warning-glow {
+            0%, 100% { 
+                border-color: var(--warning);
+            }
+            50% { 
+                border-color: rgba(245, 158, 11, 0.6);
+            }
+        }
+        
+        /* Alert box pulse animation */
+        @keyframes alert-pulse {
+            0%, 100% { 
+                background: rgba(239, 68, 68, 0.15);
+                border-color: var(--danger);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+            }
+            50% { 
+                background: rgba(239, 68, 68, 0.25);
+                border-color: #dc2626;
+                box-shadow: 0 0 15px 2px rgba(239, 68, 68, 0.3);
+            }
+        }
 
         .btn { padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-main); transition: 0.2s; }
         .btn:hover { transform: translateY(-1px); }
@@ -667,7 +1416,9 @@
 
     <nav>
         <div class="logo">
-            <i class="fa-solid fa-layer-group"></i>
+            <div class="logo-icon">
+                <i class="fa-solid fa-layer-group"></i>
+            </div>
             <div class="logo-text">
                 <span class="main">GWJ2</span>
                 <span class="sub">OB Workday</span>
@@ -684,10 +1435,21 @@
         <header>
             <h1 id="pageTitle">대시보드</h1>
             <div style="display:flex; gap:15px; align-items:center;">
-                <button class="theme-btn" onclick="toggleTheme()">
-                    <i class="fa-solid fa-circle-half-stroke"></i>
-                    <span>테마</span>
-                </button>
+                <div class="theme-toggle-container">
+                    <div class="theme-toggle" onclick="toggleTheme()">
+                        <div class="theme-toggle-slider"></div>
+                        <div class="theme-options">
+                            <div class="theme-option dark">
+                                <i class="fa-solid fa-moon"></i>
+                                <span>Dark</span>
+                            </div>
+                            <div class="theme-option light">
+                                <i class="fa-solid fa-sun"></i>
+                                <span>Light</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div style="font-size:0.9rem; color:var(--text-sub);">V 2.0</div>
             </div>
         </header>
@@ -786,25 +1548,170 @@
             <div class="split-layout">
                 <div>
                     <div class="form-container">
-                        <h3 style="margin-top:0; margin-bottom:20px;">📝 연장 근무 정보 입력</h3>
-                        <div class="input-grid">
-                            <div class="input-group">
-                                <label>관리자</label>
-                                <div class="custom-select">
-                                    <select id="otSelect" onchange="updateAnalysis('ot')"></select>
+                        <h3 style="margin-top:0; margin-bottom:24px; display:flex; align-items:center; gap:10px;">
+                            <i class="fa-solid fa-clock" style="color:var(--primary)"></i>
+                            연장 근무 신청
+                        </h3>
+                        
+                        <div class="modern-form">
+                            <!-- Manager Selection -->
+                            <div class="modern-input-group">
+                                <label><i class="fa-solid fa-user"></i> 관리자 선택</label>
+                                <div class="modern-input-wrapper input-with-icon">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                    <select id="otSelect" onchange="updateAnalysis('ot')">
+                                        <option value="">선택하세요</option>
+                                    </select>
                                 </div>
                             </div>
-                            <div class="input-group"><label>날짜</label><input type="date" id="otDate" onchange="updateAnalysis('ot')"></div>
-                            <div class="input-group"><label>시작 (18:00)</label><input type="time" id="otStart" value="18:00" oninput="calcDiff('ot')"></div>
-                            <div class="input-group"><label>종료</label><input type="time" id="otEnd" oninput="calcDiff('ot')">
-                                <div class="quick-btn-group">
-                                    <div class="quick-btn" onclick="setQuickTime('ot',0.5)">+0.5</div><div class="quick-btn" onclick="setQuickTime('ot',1.0)">+1.0</div>
-                                    <div class="quick-btn" onclick="setQuickTime('ot',1.5)">+1.5</div><div class="quick-btn" onclick="setQuickTime('ot',2.0)">+2.0</div>
+                            
+                            <!-- Shift Selection -->
+                            <div class="modern-input-group">
+                                <label><i class="fa-solid fa-business-time"></i> 근무 조</label>
+                                <div class="modern-input-wrapper input-with-icon">
+                                    <i class="fa-solid fa-users"></i>
+                                    <select id="otShift" onchange="setShiftTime('ot')">
+                                        <option value="">선택하세요</option>
+                                        <option value="day">DAY조 (09:00 ~ 18:00)</option>
+                                        <option value="swing">SWING조 (19:00 ~ 04:00)</option>
+                                    </select>
                                 </div>
                             </div>
-                            <div class="input-group" style="grid-column:span 2"><label>필요 시간</label><input type="text" id="otDiff" readonly></div>
-                            <div class="input-group" style="grid-column:span 2"><label>사유</label><input type="text" id="otReason" placeholder="예: 마감 지연"></div>
-                            <div style="grid-column:span 2"><button class="btn btn-primary" onclick="addRequest('overtime')">추가</button></div>
+                            
+                            <!-- Date Selection -->
+                            <div class="modern-input-group">
+                                <label><i class="fa-solid fa-calendar"></i> 근무 날짜</label>
+                                <div class="custom-date-picker">
+                                    <div class="modern-input-wrapper input-with-icon">
+                                        <i class="fa-solid fa-calendar-day"></i>
+                                        <div class="custom-date-input" onclick="toggleCalendar('ot')">
+                                            <span class="date-display placeholder" id="otDateDisplay">날짜 선택</span>
+                                            <i class="fa-solid fa-chevron-down" style="color:var(--text-sub); font-size:0.8rem;"></i>
+                                        </div>
+                                        <input type="hidden" id="otDate">
+                                    </div>
+                                    <div class="calendar-dropdown" id="otCalendar">
+                                        <div class="calendar-header">
+                                            <button class="calendar-nav-btn" onclick="changeMonth('ot', -1)">
+                                                <i class="fa-solid fa-chevron-left"></i>
+                                            </button>
+                                            <div class="calendar-month-year" id="otMonthYear"></div>
+                                            <button class="calendar-nav-btn" onclick="changeMonth('ot', 1)">
+                                                <i class="fa-solid fa-chevron-right"></i>
+                                            </button>
+                                        </div>
+                                        <div class="calendar-weekdays">
+                                            <div class="calendar-weekday">일</div>
+                                            <div class="calendar-weekday">월</div>
+                                            <div class="calendar-weekday">화</div>
+                                            <div class="calendar-weekday">수</div>
+                                            <div class="calendar-weekday">목</div>
+                                            <div class="calendar-weekday">금</div>
+                                            <div class="calendar-weekday">토</div>
+                                        </div>
+                                        <div class="calendar-days" id="otCalendarDays"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Time Range -->
+                            <div class="form-row">
+                                <div class="modern-input-group">
+                                    <label><i class="fa-solid fa-clock"></i> 시작 시간</label>
+                                    <div class="custom-time-picker">
+                                        <div class="modern-input-wrapper input-with-icon">
+                                            <i class="fa-solid fa-play"></i>
+                                            <div class="custom-time-input" onclick="toggleTimePicker('otStart')">
+                                                <span class="time-display" id="otStartDisplay">18:00</span>
+                                                <i class="fa-solid fa-chevron-down" style="color:var(--text-sub); font-size:0.8rem;"></i>
+                                            </div>
+                                            <input type="hidden" id="otStart" value="18:00">
+                                        </div>
+                                        <div class="time-dropdown" id="otStartPicker">
+                                            <div class="time-selector">
+                                                <div class="time-column">
+                                                    <div class="time-label">시</div>
+                                                    <div class="time-scroll" id="otStartHour"></div>
+                                                </div>
+                                                <div class="time-separator">:</div>
+                                                <div class="time-column">
+                                                    <div class="time-label">분</div>
+                                                    <div class="time-scroll" id="otStartMinute"></div>
+                                                </div>
+                                            </div>
+                                            <button class="time-confirm-btn" onclick="confirmTime('otStart')">확인</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="modern-input-group">
+                                    <label><i class="fa-solid fa-clock"></i> 종료 시간</label>
+                                    <div class="custom-time-picker">
+                                        <div class="modern-input-wrapper input-with-icon">
+                                            <i class="fa-solid fa-stop"></i>
+                                            <div class="custom-time-input" onclick="toggleTimePicker('otEnd')">
+                                                <span class="time-display placeholder" id="otEndDisplay">시간 선택</span>
+                                                <i class="fa-solid fa-chevron-down" style="color:var(--text-sub); font-size:0.8rem;"></i>
+                                            </div>
+                                            <input type="hidden" id="otEnd">
+                                        </div>
+                                        <div class="time-dropdown" id="otEndPicker">
+                                            <div class="time-selector">
+                                                <div class="time-column">
+                                                    <div class="time-label">시</div>
+                                                    <div class="time-scroll" id="otEndHour"></div>
+                                                </div>
+                                                <div class="time-separator">:</div>
+                                                <div class="time-column">
+                                                    <div class="time-label">분</div>
+                                                    <div class="time-scroll" id="otEndMinute"></div>
+                                                </div>
+                                            </div>
+                                            <button class="time-confirm-btn" onclick="confirmTime('otEnd')">확인</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Quick Time Presets -->
+                            <div style="margin-top:-8px;">
+                                <div style="font-size:0.8rem; color:var(--text-sub); margin-bottom:8px; font-weight:600;">⚡ 빠른 시간 설정</div>
+                                <div class="time-presets">
+                                    <button class="time-preset-btn" onclick="setQuickTime('ot',0.5)">
+                                        <i class="fa-solid fa-plus"></i> 30분
+                                    </button>
+                                    <button class="time-preset-btn" onclick="setQuickTime('ot',1.0)">
+                                        <i class="fa-solid fa-plus"></i> 1시간
+                                    </button>
+                                    <button class="time-preset-btn" onclick="setQuickTime('ot',1.5)">
+                                        <i class="fa-solid fa-plus"></i> 1.5시간
+                                    </button>
+                                    <button class="time-preset-btn" onclick="setQuickTime('ot',2.0)">
+                                        <i class="fa-solid fa-plus"></i> 2시간
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Calculated Time Display -->
+                            <div class="calculated-result">
+                                <div class="label">필요 시간</div>
+                                <div class="value">
+                                    <i class="fa-solid fa-hourglass-half"></i>
+                                    <span id="otDiff">0.0h</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Reason Input -->
+                            <div class="modern-input-group reason-input">
+                                <label><i class="fa-solid fa-comment"></i> 신청 사유</label>
+                                <textarea id="otReason" placeholder="예: 마감 지연으로 인한 추가 근무 필요"></textarea>
+                            </div>
+                            
+                            <!-- Submit Button -->
+                            <button class="submit-btn" onclick="addRequest('overtime')">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                신청하기
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -824,7 +1731,9 @@
                         <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:var(--primary);"><span>+ 현재</span><span style="font-weight:600;" id="otCurrent">0.0 h</span></div>
                         <div style="border-top:1px solid var(--border); padding-top:10px; margin-top:15px; display:flex; justify-content:space-between; align-items:center;"><span style="font-size:1.1rem; font-weight:700;">이번 주 예상</span><span style="font-size:1.8rem; font-weight:800; color:var(--primary);" id="otTotal">40.0 h</span></div>
                         <div class="progress-container"><div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:5px;"><span>Limit: 52h</span><span id="otAnaRemain">12h</span></div><div class="progress-track"><div class="progress-fill" id="otAnaFill" style="width:76%; background:var(--success)"></div></div></div>
-                        <div id="otAlertDanger" style="margin-top:15px; padding:10px; border-radius:8px; font-size:0.9rem; font-weight:600; text-align:center; display:none; background:rgba(239,68,68,0.1); color:var(--danger); border:1px solid var(--danger);">위험: 52시간 초과!</div>
+                        <div id="otAlertDanger" style="margin-top:15px; padding:12px; border-radius:10px; font-size:0.95rem; font-weight:700; text-align:center; display:none; background:rgba(239,68,68,0.15); color:var(--danger); border:2px solid var(--danger); animation: alert-pulse 1.5s ease-in-out infinite;">
+                            <i class="fa-solid fa-triangle-exclamation"></i> 위험: 52시간 초과!
+                        </div>
                     </div>
                     <div id="otPlaceholder" style="text-align:center; padding:40px; color:var(--text-sub); border:2px dashed var(--border); border-radius:16px;">관리자를 선택하세요.</div>
                 </div>
@@ -845,24 +1754,170 @@
             <div class="split-layout">
                 <div>
                     <div class="form-container">
-                        <h3 style="margin-top:0; margin-bottom:20px;">📝 조출 근무 정보 입력</h3>
-                        <div class="input-grid">
-                            <div class="input-group">
-                                <label>관리자</label>
-                                <div class="custom-select">
-                                    <select id="earlySelect" onchange="updateAnalysis('early')"></select>
+                        <h3 style="margin-top:0; margin-bottom:24px; display:flex; align-items:center; gap:10px;">
+                            <i class="fa-solid fa-sun" style="color:#f59e0b"></i>
+                            조출 근무 신청
+                        </h3>
+                        
+                        <div class="modern-form">
+                            <!-- Manager Selection -->
+                            <div class="modern-input-group">
+                                <label><i class="fa-solid fa-user"></i> 관리자 선택</label>
+                                <div class="modern-input-wrapper input-with-icon">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                    <select id="earlySelect" onchange="updateAnalysis('early')">
+                                        <option value="">선택하세요</option>
+                                    </select>
                                 </div>
                             </div>
-                            <div class="input-group"><label>날짜</label><input type="date" id="earlyDate" onchange="updateAnalysis('early')"></div>
-                            <div class="input-group"><label>시작 (08:00)</label><input type="time" id="earlyStart" value="08:00" oninput="calcDiff('early')"></div>
-                            <div class="input-group"><label>종료 (09:00)</label><input type="time" id="earlyEnd" value="09:00" oninput="calcDiff('early')">
-                                <div class="quick-btn-group">
-                                    <div class="quick-btn" onclick="setQuickTimeEarly(0.5)">0.5h전</div><div class="quick-btn" onclick="setQuickTimeEarly(1.0)">1.0h전</div>
+                            
+                            <!-- Shift Selection -->
+                            <div class="modern-input-group">
+                                <label><i class="fa-solid fa-business-time"></i> 근무 조</label>
+                                <div class="modern-input-wrapper input-with-icon">
+                                    <i class="fa-solid fa-users"></i>
+                                    <select id="earlyShift" onchange="setShiftTime('early')">
+                                        <option value="">선택하세요</option>
+                                        <option value="day">DAY조 (09:00 ~ 18:00)</option>
+                                        <option value="swing">SWING조 (19:00 ~ 04:00)</option>
+                                    </select>
                                 </div>
                             </div>
-                            <div class="input-group" style="grid-column:span 2"><label>필요 시간</label><input type="text" id="earlyDiff" readonly></div>
-                            <div class="input-group" style="grid-column:span 2"><label>사유</label><input type="text" id="earlyReason" placeholder="예: 인원 대응"></div>
-                            <div style="grid-column:span 2"><button class="btn btn-primary" onclick="addRequest('early')">추가</button></div>
+                            
+                            <!-- Date Selection -->
+                            <div class="modern-input-group">
+                                <label><i class="fa-solid fa-calendar"></i> 근무 날짜</label>
+                                <div class="custom-date-picker">
+                                    <div class="modern-input-wrapper input-with-icon">
+                                        <i class="fa-solid fa-calendar-day"></i>
+                                        <div class="custom-date-input" onclick="toggleCalendar('early')">
+                                            <span class="date-display placeholder" id="earlyDateDisplay">날짜 선택</span>
+                                            <i class="fa-solid fa-chevron-down" style="color:var(--text-sub); font-size:0.8rem;"></i>
+                                        </div>
+                                        <input type="hidden" id="earlyDate">
+                                    </div>
+                                    <div class="calendar-dropdown" id="earlyCalendar">
+                                        <div class="calendar-header">
+                                            <button class="calendar-nav-btn" onclick="changeMonth('early', -1)">
+                                                <i class="fa-solid fa-chevron-left"></i>
+                                            </button>
+                                            <div class="calendar-month-year" id="earlyMonthYear"></div>
+                                            <button class="calendar-nav-btn" onclick="changeMonth('early', 1)">
+                                                <i class="fa-solid fa-chevron-right"></i>
+                                            </button>
+                                        </div>
+                                        <div class="calendar-weekdays">
+                                            <div class="calendar-weekday">일</div>
+                                            <div class="calendar-weekday">월</div>
+                                            <div class="calendar-weekday">화</div>
+                                            <div class="calendar-weekday">수</div>
+                                            <div class="calendar-weekday">목</div>
+                                            <div class="calendar-weekday">금</div>
+                                            <div class="calendar-weekday">토</div>
+                                        </div>
+                                        <div class="calendar-days" id="earlyCalendarDays"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Time Range -->
+                            <div class="form-row">
+                                <div class="modern-input-group">
+                                    <label><i class="fa-solid fa-clock"></i> 시작 시간</label>
+                                    <div class="custom-time-picker">
+                                        <div class="modern-input-wrapper input-with-icon">
+                                            <i class="fa-solid fa-play"></i>
+                                            <div class="custom-time-input" onclick="toggleTimePicker('earlyStart')">
+                                                <span class="time-display" id="earlyStartDisplay">08:00</span>
+                                                <i class="fa-solid fa-chevron-down" style="color:var(--text-sub); font-size:0.8rem;"></i>
+                                            </div>
+                                            <input type="hidden" id="earlyStart" value="08:00">
+                                        </div>
+                                        <div class="time-dropdown" id="earlyStartPicker">
+                                            <div class="time-selector">
+                                                <div class="time-column">
+                                                    <div class="time-label">시</div>
+                                                    <div class="time-scroll" id="earlyStartHour"></div>
+                                                </div>
+                                                <div class="time-separator">:</div>
+                                                <div class="time-column">
+                                                    <div class="time-label">분</div>
+                                                    <div class="time-scroll" id="earlyStartMinute"></div>
+                                                </div>
+                                            </div>
+                                            <button class="time-confirm-btn" onclick="confirmTime('earlyStart')">확인</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="modern-input-group">
+                                    <label><i class="fa-solid fa-clock"></i> 종료 시간</label>
+                                    <div class="custom-time-picker">
+                                        <div class="modern-input-wrapper input-with-icon">
+                                            <i class="fa-solid fa-stop"></i>
+                                            <div class="custom-time-input" onclick="toggleTimePicker('earlyEnd')">
+                                                <span class="time-display" id="earlyEndDisplay">09:00</span>
+                                                <i class="fa-solid fa-chevron-down" style="color:var(--text-sub); font-size:0.8rem;"></i>
+                                            </div>
+                                            <input type="hidden" id="earlyEnd" value="09:00">
+                                        </div>
+                                        <div class="time-dropdown" id="earlyEndPicker">
+                                            <div class="time-selector">
+                                                <div class="time-column">
+                                                    <div class="time-label">시</div>
+                                                    <div class="time-scroll" id="earlyEndHour"></div>
+                                                </div>
+                                                <div class="time-separator">:</div>
+                                                <div class="time-column">
+                                                    <div class="time-label">분</div>
+                                                    <div class="time-scroll" id="earlyEndMinute"></div>
+                                                </div>
+                                            </div>
+                                            <button class="time-confirm-btn" onclick="confirmTime('earlyEnd')">확인</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Quick Time Presets -->
+                            <div style="margin-top:-8px;">
+                                <div style="font-size:0.8rem; color:var(--text-sub); margin-bottom:8px; font-weight:600;">⚡ 빠른 시간 설정</div>
+                                <div class="time-presets">
+                                    <button class="time-preset-btn" onclick="setQuickTimeEarly(0.5)">
+                                        <i class="fa-solid fa-minus"></i> 30분 전
+                                    </button>
+                                    <button class="time-preset-btn" onclick="setQuickTimeEarly(1.0)">
+                                        <i class="fa-solid fa-minus"></i> 1시간 전
+                                    </button>
+                                    <button class="time-preset-btn" onclick="setQuickTimeEarly(1.5)">
+                                        <i class="fa-solid fa-minus"></i> 1.5시간 전
+                                    </button>
+                                    <button class="time-preset-btn" onclick="setQuickTimeEarly(2.0)">
+                                        <i class="fa-solid fa-minus"></i> 2시간 전
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Calculated Time Display -->
+                            <div class="calculated-result">
+                                <div class="label">필요 시간</div>
+                                <div class="value">
+                                    <i class="fa-solid fa-hourglass-half"></i>
+                                    <span id="earlyDiff">0.0h</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Reason Input -->
+                            <div class="modern-input-group reason-input">
+                                <label><i class="fa-solid fa-comment"></i> 신청 사유</label>
+                                <textarea id="earlyReason" placeholder="예: 인원 대응을 위한 조기 출근"></textarea>
+                            </div>
+                            
+                            <!-- Submit Button -->
+                            <button class="submit-btn" onclick="addRequest('early')">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                신청하기
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -882,7 +1937,9 @@
                         <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:var(--primary);"><span>+ 현재</span><span style="font-weight:600;" id="earlyCurrent">0.0 h</span></div>
                         <div style="border-top:1px solid var(--border); padding-top:10px; margin-top:15px; display:flex; justify-content:space-between; align-items:center;"><span style="font-size:1.1rem; font-weight:700;">이번 주 예상</span><span style="font-size:1.8rem; font-weight:800; color:var(--primary);" id="earlyTotal">40.0 h</span></div>
                         <div class="progress-container"><div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:5px;"><span>Limit: 52h</span><span id="earlyAnaRemain">12h</span></div><div class="progress-track"><div class="progress-fill" id="earlyAnaFill" style="width:76%; background:var(--success)"></div></div></div>
-                        <div id="earlyAlertDanger" style="margin-top:15px; padding:10px; border-radius:8px; font-size:0.9rem; font-weight:600; text-align:center; display:none; background:rgba(239,68,68,0.1); color:var(--danger); border:1px solid var(--danger);">위험: 52시간 초과!</div>
+                        <div id="earlyAlertDanger" style="margin-top:15px; padding:12px; border-radius:10px; font-size:0.95rem; font-weight:700; text-align:center; display:none; background:rgba(239,68,68,0.15); color:var(--danger); border:2px solid var(--danger); animation: alert-pulse 1.5s ease-in-out infinite;">
+                            <i class="fa-solid fa-triangle-exclamation"></i> 위험: 52시간 초과!
+                        </div>
                     </div>
                     <div id="earlyPlaceholder" style="text-align:center; padding:40px; color:var(--text-sub); border:2px dashed var(--border); border-radius:16px;">관리자를 선택하세요.</div>
                 </div>
@@ -950,9 +2007,240 @@
         window.onload = function() {
             renderDashboard(); initSelects(); renderRequestTable('overtime'); renderRequestTable('early'); renderTeamTable(); renderWeeklyTable();
             const today = new Date().toISOString().split('T')[0];
-            document.getElementById('otDate').value = today; document.getElementById('earlyDate').value = today;
+            
+            // Initialize calendars
+            initCalendar('ot', new Date());
+            initCalendar('early', new Date());
+            
+            // Initialize time pickers
+            initTimePicker('otStart', '18:00');
+            initTimePicker('otEnd', '');
+            initTimePicker('earlyStart', '08:00');
+            initTimePicker('earlyEnd', '09:00');
+            
+            // Set today as default
+            selectDate('ot', today);
+            selectDate('early', today);
+            
             const savedTheme = localStorage.getItem('gwj2_theme') || 'dark'; document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            // Close dropdowns on outside click
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.custom-date-picker') && !e.target.closest('.custom-time-picker')) {
+                    document.querySelectorAll('.calendar-dropdown, .time-dropdown').forEach(d => d.classList.remove('show'));
+                    document.querySelectorAll('.custom-date-input, .custom-time-input').forEach(i => i.classList.remove('active'));
+                }
+            });
         };
+        
+        // Calendar Functions
+        let calendarStates = {
+            ot: { year: new Date().getFullYear(), month: new Date().getMonth() },
+            early: { year: new Date().getFullYear(), month: new Date().getMonth() }
+        };
+        
+        function initCalendar(type, date) {
+            calendarStates[type] = { year: date.getFullYear(), month: date.getMonth() };
+            renderCalendar(type);
+        }
+        
+        function toggleCalendar(type) {
+            event.stopPropagation();
+            const calendar = document.getElementById(`${type}Calendar`);
+            const input = document.querySelector(`#${type}Calendar`).previousElementSibling.querySelector('.custom-date-input');
+            
+            // Close all other dropdowns
+            document.querySelectorAll('.calendar-dropdown, .time-dropdown').forEach(d => {
+                if (d.id !== `${type}Calendar`) d.classList.remove('show');
+            });
+            document.querySelectorAll('.custom-date-input, .custom-time-input').forEach(i => {
+                if (i !== input) i.classList.remove('active');
+            });
+            
+            calendar.classList.toggle('show');
+            input.classList.toggle('active');
+        }
+        
+        function renderCalendar(type) {
+            const { year, month } = calendarStates[type];
+            const monthYear = document.getElementById(`${type}MonthYear`);
+            const daysContainer = document.getElementById(`${type}CalendarDays`);
+            
+            const monthNames = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+            monthYear.textContent = `${year}년 ${monthNames[month]}`;
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+            
+            daysContainer.innerHTML = '';
+            
+            // Previous month days
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const btn = document.createElement('button');
+                btn.className = 'calendar-day other-month';
+                btn.textContent = daysInPrevMonth - i;
+                btn.onclick = () => {
+                    changeMonth(type, -1);
+                    setTimeout(() => selectDate(type, `${year}-${String(month).padStart(2, '0')}-${String(daysInPrevMonth - i).padStart(2, '0')}`), 100);
+                };
+                daysContainer.appendChild(btn);
+            }
+            
+            // Current month days
+            const today = new Date();
+            const selectedDate = document.getElementById(`${type}Date`).value;
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const btn = document.createElement('button');
+                btn.className = 'calendar-day';
+                btn.textContent = day;
+                
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                
+                if (today.getFullYear() === year && today.getMonth() === month && today.getDate() === day) {
+                    btn.classList.add('today');
+                }
+                
+                if (selectedDate === dateStr) {
+                    btn.classList.add('selected');
+                }
+                
+                btn.onclick = () => selectDate(type, dateStr);
+                daysContainer.appendChild(btn);
+            }
+            
+            // Next month days
+            const remainingDays = 42 - daysContainer.children.length;
+            for (let i = 1; i <= remainingDays; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'calendar-day other-month';
+                btn.textContent = i;
+                btn.onclick = () => {
+                    changeMonth(type, 1);
+                    setTimeout(() => selectDate(type, `${year}-${String(month + 2).padStart(2, '0')}-${String(i).padStart(2, '0')}`), 100);
+                };
+                daysContainer.appendChild(btn);
+            }
+        }
+        
+        function changeMonth(type, delta) {
+            calendarStates[type].month += delta;
+            if (calendarStates[type].month > 11) {
+                calendarStates[type].month = 0;
+                calendarStates[type].year++;
+            } else if (calendarStates[type].month < 0) {
+                calendarStates[type].month = 11;
+                calendarStates[type].year--;
+            }
+            renderCalendar(type);
+        }
+        
+        function selectDate(type, dateStr) {
+            document.getElementById(`${type}Date`).value = dateStr;
+            const display = document.getElementById(`${type}DateDisplay`);
+            const date = new Date(dateStr + 'T00:00:00');
+            const formatted = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+            display.textContent = formatted;
+            display.classList.remove('placeholder');
+            
+            document.getElementById(`${type}Calendar`).classList.remove('show');
+            document.querySelector(`#${type}Calendar`).previousElementSibling.querySelector('.custom-date-input').classList.remove('active');
+            
+            updateAnalysis(type === 'ot' ? 'ot' : 'early');
+        }
+        
+        // Time Picker Functions
+        let timePickerStates = {};
+        
+        function initTimePicker(id, defaultValue) {
+            const hourScroll = document.getElementById(`${id}Hour`);
+            const minuteScroll = document.getElementById(`${id}Minute`);
+            
+            // Populate hours (0-23)
+            for (let i = 0; i <= 23; i++) {
+                const option = document.createElement('div');
+                option.className = 'time-option';
+                option.textContent = String(i).padStart(2, '0');
+                option.onclick = function() {
+                    hourScroll.querySelectorAll('.time-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    timePickerStates[id] = { ...timePickerStates[id], hour: i };
+                };
+                hourScroll.appendChild(option);
+            }
+            
+            // Populate minutes (0, 15, 30, 45)
+            [0, 15, 30, 45].forEach(m => {
+                const option = document.createElement('div');
+                option.className = 'time-option';
+                option.textContent = String(m).padStart(2, '0');
+                option.onclick = function() {
+                    minuteScroll.querySelectorAll('.time-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    timePickerStates[id] = { ...timePickerStates[id], minute: m };
+                };
+                minuteScroll.appendChild(option);
+            });
+            
+            // Set default value
+            if (defaultValue) {
+                const [hour, minute] = defaultValue.split(':').map(Number);
+                timePickerStates[id] = { hour, minute };
+                
+                setTimeout(() => {
+                    const hourOption = Array.from(hourScroll.children).find(o => o.textContent === String(hour).padStart(2, '0'));
+                    const minuteOption = Array.from(minuteScroll.children).find(o => o.textContent === String(minute).padStart(2, '0'));
+                    if (hourOption) {
+                        hourOption.classList.add('selected');
+                        hourOption.scrollIntoView({ block: 'center' });
+                    }
+                    if (minuteOption) {
+                        minuteOption.classList.add('selected');
+                        minuteOption.scrollIntoView({ block: 'center' });
+                    }
+                }, 100);
+            }
+        }
+        
+        function toggleTimePicker(id) {
+            event.stopPropagation();
+            const picker = document.getElementById(`${id}Picker`);
+            const input = document.querySelector(`#${id}Picker`).previousElementSibling.querySelector('.custom-time-input');
+            
+            // Close all other dropdowns
+            document.querySelectorAll('.calendar-dropdown, .time-dropdown').forEach(d => {
+                if (d.id !== `${id}Picker`) d.classList.remove('show');
+            });
+            document.querySelectorAll('.custom-date-input, .custom-time-input').forEach(i => {
+                if (i !== input) i.classList.remove('active');
+            });
+            
+            picker.classList.toggle('show');
+            input.classList.toggle('active');
+        }
+        
+        function confirmTime(id) {
+            const state = timePickerStates[id];
+            if (!state || state.hour === undefined || state.minute === undefined) {
+                alert('시간을 선택하세요!');
+                return;
+            }
+            
+            const timeStr = `${String(state.hour).padStart(2, '0')}:${String(state.minute).padStart(2, '0')}`;
+            document.getElementById(id).value = timeStr;
+            
+            const display = document.getElementById(`${id}Display`);
+            display.textContent = timeStr;
+            display.classList.remove('placeholder');
+            
+            document.getElementById(`${id}Picker`).classList.remove('show');
+            document.querySelector(`#${id}Picker`).previousElementSibling.querySelector('.custom-time-input').classList.remove('active');
+            
+            // Trigger calculation
+            if (id.includes('ot')) calcDiff('ot');
+            else calcDiff('early');
+        }
 
         function toggleTheme() { const n = document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'; document.documentElement.setAttribute('data-theme',n); localStorage.setItem('gwj2_theme',n); }
         function switchTab(t) { 
@@ -1126,7 +2414,8 @@
             const m = members[idx];
             document.getElementById(`${type}AnaName`).innerText = m.name; document.getElementById(`${type}AnaRole`).innerText = m.role;
             const base = parseFloat(document.getElementById(`${type}Base`).value)||0;
-            const curr = parseFloat(document.getElementById(`${type}Diff`).value.replace('h',''))||0;
+            const currText = document.getElementById(`${type}Diff`).innerText || '0.0h';
+            const curr = parseFloat(currText.replace('h',''))||0;
             
             let approved = 0;
             const inputDate = document.getElementById(`${type}Date`).value;
@@ -1240,24 +2529,149 @@
             document.getElementById('earlySelect').innerHTML=o; 
         }
         
-        function setQuickTime(t,h) { 
-            const s=document.getElementById(`${t}Start`), e=document.getElementById(`${t}End`); 
-            if(!s.value)s.value="18:00"; 
-            const [H,M]=s.value.split(':').map(Number), d=new Date(); 
-            d.setHours(H,M,0,0); 
-            d.setMinutes(d.getMinutes()+(h*60)); 
-            e.value=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; 
-            calcDiff(t); 
+        function setShiftTime(type) {
+            const shift = document.getElementById(`${type}Shift`).value;
+            if (!shift) return;
+            
+            if (type === 'ot') {
+                // 연장 근무: 업무 종료 시간이 시작 시간
+                if (shift === 'day') {
+                    // DAY조: 18:00에 업무 종료 → 18:00부터 연장 시작
+                    setTimeValue('otStart', '18:00');
+                    setTimeValue('otEnd', ''); // 종료 시간은 비워둠
+                } else if (shift === 'swing') {
+                    // SWING조: 04:00에 업무 종료 → 04:00부터 연장 시작
+                    setTimeValue('otStart', '04:00');
+                    setTimeValue('otEnd', ''); // 종료 시간은 비워둠
+                }
+            } else {
+                // 조출 근무: 업무 시작 시간이 종료 시간
+                if (shift === 'day') {
+                    // DAY조: 09:00 업무 시작 → 09:00 전에 조출
+                    setTimeValue('earlyEnd', '09:00');
+                    setTimeValue('earlyStart', ''); // 시작 시간은 비워둠
+                } else if (shift === 'swing') {
+                    // SWING조: 19:00 업무 시작 → 19:00 전에 조출
+                    setTimeValue('earlyEnd', '19:00');
+                    setTimeValue('earlyStart', ''); // 시작 시간은 비워둠
+                }
+            }
+            
+            calcDiff(type === 'ot' ? 'ot' : 'early');
         }
         
-        function setQuickTimeEarly(h) { 
-            const e=document.getElementById('earlyEnd'), s=document.getElementById('earlyStart'); 
-            if(!e.value)e.value="09:00"; 
-            const [H,M]=e.value.split(':').map(Number), d=new Date(); 
-            d.setHours(H,M,0,0); 
-            d.setMinutes(d.getMinutes()-(h*60)); 
-            s.value=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; 
-            calcDiff('early'); 
+        function setTimeValue(id, timeStr) {
+            const display = document.getElementById(`${id}Display`);
+            
+            if (!timeStr) {
+                // 비우기
+                document.getElementById(id).value = '';
+                display.textContent = '시간 선택';
+                display.classList.add('placeholder');
+                return;
+            }
+            
+            const [hour, minute] = timeStr.split(':').map(Number);
+            
+            // Update hidden input
+            document.getElementById(id).value = timeStr;
+            
+            // Update display
+            display.textContent = timeStr;
+            display.classList.remove('placeholder');
+            
+            // Update time picker state
+            timePickerStates[id] = { hour, minute };
+            
+            // Update selected options in scroll
+            const hourScroll = document.getElementById(`${id}Hour`);
+            const minuteScroll = document.getElementById(`${id}Minute`);
+            
+            if (hourScroll) {
+                hourScroll.querySelectorAll('.time-option').forEach(o => o.classList.remove('selected'));
+                const hourOption = Array.from(hourScroll.children).find(o => o.textContent === String(hour).padStart(2, '0'));
+                if (hourOption) {
+                    hourOption.classList.add('selected');
+                    hourOption.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                }
+            }
+            
+            if (minuteScroll) {
+                minuteScroll.querySelectorAll('.time-option').forEach(o => o.classList.remove('selected'));
+                const minuteOption = Array.from(minuteScroll.children).find(o => o.textContent === String(minute).padStart(2, '0'));
+                if (minuteOption) {
+                    minuteOption.classList.add('selected');
+                    minuteOption.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                }
+            }
+        }
+        
+        function setQuickTime(t, h) {
+            // 연장 근무: 시작 시간 기준으로 종료 시간 계산
+            const startId = `${t}Start`;
+            const endId = `${t}End`;
+            
+            const startValue = document.getElementById(startId).value;
+            if (!startValue) {
+                alert('먼저 근무 조를 선택하거나 시작 시간을 설정하세요!');
+                return;
+            }
+            
+            const [startHour, startMinute] = startValue.split(':').map(Number);
+            
+            // Calculate end time (add h hours)
+            const totalMinutes = (startHour * 60 + startMinute) + (h * 60);
+            let endHour = Math.floor(totalMinutes / 60) % 24;
+            let endMinute = totalMinutes % 60;
+            
+            // Round to nearest 15 minutes
+            endMinute = Math.round(endMinute / 15) * 15;
+            if (endMinute === 60) {
+                endMinute = 0;
+                endHour = (endHour + 1) % 24;
+            }
+            
+            const endTime = `${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}`;
+            setTimeValue(endId, endTime);
+            
+            calcDiff(t);
+        }
+        
+        function setQuickTimeEarly(h) {
+            const startId = 'earlyStart';
+            const endId = 'earlyEnd';
+            
+            const endValue = document.getElementById(endId).value;
+            if (!endValue) {
+                setTimeValue(endId, '09:00');
+            }
+            
+            const currentEnd = document.getElementById(endId).value;
+            const [endHour, endMinute] = currentEnd.split(':').map(Number);
+            
+            // Calculate start time (go back h hours)
+            const totalMinutes = (endHour * 60 + endMinute) - (h * 60);
+            let startHour = Math.floor(totalMinutes / 60);
+            let startMinute = totalMinutes % 60;
+            
+            if (startHour < 0) startHour += 24;
+            if (startMinute < 0) {
+                startMinute += 60;
+                startHour -= 1;
+                if (startHour < 0) startHour += 24;
+            }
+            
+            // Round to nearest 15 minutes
+            startMinute = Math.round(startMinute / 15) * 15;
+            if (startMinute === 60) {
+                startMinute = 0;
+                startHour = (startHour + 1) % 24;
+            }
+            
+            const startTime = `${String(startHour).padStart(2, '0')}:${String(startMinute).padStart(2, '0')}`;
+            setTimeValue(startId, startTime);
+            
+            calcDiff('early');
         }
         
         function calcDiff(t) { 
@@ -1265,8 +2679,11 @@
             if(s&&e){ 
                 const S=new Date(`2000-01-01 ${s}`), E=new Date(`2000-01-01 ${e}`); 
                 if(E<S) E.setDate(E.getDate()+1); 
-                document.getElementById(`${t}Diff`).value=((E-S)/36e5).toFixed(1)+'h'; 
-            } else document.getElementById(`${t}Diff`).value=''; 
+                const hours = ((E-S)/36e5).toFixed(1);
+                document.getElementById(`${t}Diff`).innerText = hours + 'h'; 
+            } else {
+                document.getElementById(`${t}Diff`).innerText = '0.0h'; 
+            }
             updateAnalysis(t); 
         }
         
@@ -1274,6 +2691,13 @@
             const idx=document.getElementById(`${t==='overtime'?'ot':'early'}Select`).value; 
             if(idx==="")return alert("관리자를 선택하세요!"); 
             const m=members[idx], p=t==='overtime'?'ot':'early', date=document.getElementById(`${p}Date`).value;
+            const timeText = document.getElementById(`${p}Diff`).innerText || '0.0h';
+            const reason = document.getElementById(`${p}Reason`).value;
+            
+            if(!date) return alert("날짜를 선택하세요!");
+            if(parseFloat(timeText.replace('h','')) <= 0) return alert("시간을 입력하세요!");
+            if(!reason.trim()) return alert("사유를 입력하세요!");
+            
             const nick = m.role.split(' ')[0];
             const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
             
@@ -1286,15 +2710,19 @@
                 date:date, 
                 start:document.getElementById(`${p}Start`).value, 
                 end:document.getElementById(`${p}End`).value, 
-                time:document.getElementById(`${p}Diff`).value, 
-                reason:document.getElementById(`${p}Reason`).value
+                time:timeText, 
+                reason:reason
             });
             
             localStorage.setItem('gwj2_v15_requests', JSON.stringify(requests)); 
             renderRequestTable(t); 
             updateAnalysis(p); 
             renderWeeklyTable(); 
-            alert("추가되었습니다!");
+            
+            // Reset form
+            document.getElementById(`${p}Reason`).value = '';
+            
+            alert("✅ 신청이 완료되었습니다!");
         }
         
         function renderRequestTable(t) { 
