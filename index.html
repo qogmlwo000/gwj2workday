@@ -452,7 +452,8 @@
         <div class="nav-item" onclick="switchTab('weekly')"><i class="fa-solid fa-chart-simple"></i> 주간 현황 (전체)</div>
         <div class="nav-item" onclick="switchTab('overtime')"><i class="fa-solid fa-clock"></i> 연장 신청</div>
         <div class="nav-item" onclick="switchTab('early')"><i class="fa-solid fa-sun"></i> 조출 신청</div>
-        <div class="nav-item" onclick="switchTab('team')"><i class="fa-solid fa-users-gear"></i> 팀 설정</div>
+        <div class="nav-item" onclick="switchTab('special')"><i class="fa-solid fa-calendar-plus"></i> 특근 신청</div>
+		<div class="nav-item" onclick="switchTab('team')"><i class="fa-solid fa-users-gear"></i> 팀 설정</div>
     </nav>
 
     <main id="mainArea">
@@ -677,23 +678,91 @@
             <div class="table-card" id="otTableArea" style="margin-top:24px;">
                 <div class="table-header">
                     <div style="flex:1;">
-                        <h3 style="margin:0 0 8px 0;">📋 연장 신청 내역</h3>
-                        <div style="display:flex; gap:12px; align-items:center;">
-                            <label style="font-size:0.85rem; color:var(--text-sub); font-weight:600;"><i class="fa-solid fa-calendar"></i> 신청일 필터:</label>
-                            <div style="display:flex; gap:8px;">
-                                <button class="filter-btn" id="otFilterToday" onclick="setRequestDateFilter('overtime', 'today')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;"><i class="fa-solid fa-calendar-day"></i> 오늘</button>
-                                <button class="filter-btn" onclick="setRequestDateFilter('overtime', 'week')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;"><i class="fa-solid fa-calendar-week"></i> 이번 주</button>
-                                <button class="filter-btn" onclick="setRequestDateFilter('overtime', 'all')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;"><i class="fa-solid fa-calendar-days"></i> 전체</button>
-                            </div>
-                            <div style="margin-left:8px; font-size:0.75rem; color:var(--text-sub);"><span id="otFilterCount">0</span>건 표시중</div>
+                    <h3 style="margin:0 0 8px 0;">📋 연장 신청 내역</h3>
+                    
+                    <!-- 날짜 필터 -->
+                    <div style="display:flex; gap:12px; align-items:center; margin-bottom:8px;">
+                        <label style="font-size:0.85rem; color:var(--text-sub); font-weight:600;">
+                            <i class="fa-solid fa-calendar"></i> 신청일:
+                        </label>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <button class="filter-btn" onclick="setRequestDateFilter('overtime', 'yesterday')" 
+                                    style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                <i class="fa-solid fa-backward"></i> 어제
+                            </button>
+                            <button class="filter-btn" id="otFilterToday" onclick="setRequestDateFilter('overtime', 'today')" 
+                                    style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                <i class="fa-solid fa-calendar-day"></i> 오늘
+                            </button>
+                            <button class="filter-btn" onclick="setRequestDateFilter('overtime', 'tomorrow')" 
+                                    style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                <i class="fa-solid fa-forward"></i> 내일
+                            </button>
+                            <button class="filter-btn" onclick="setRequestDateFilter('overtime', 'week')" 
+                                    style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                <i class="fa-solid fa-calendar-week"></i> 이번 주
+                            </button>
+                            <button class="filter-btn" onclick="setRequestDateFilter('overtime', 'all')" 
+                                    style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                <i class="fa-solid fa-calendar-days"></i> 전체
+                            </button>
+                            <button class="filter-btn" onclick="openCustomDateFilter('overtime')" 
+                                    style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                <i class="fa-solid fa-calendar-alt"></i> 날짜 선택
+                            </button>
                         </div>
+                    </div>
+                    
+                    <!-- SHIFT 필터 -->
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <label style="font-size:0.85rem; color:var(--text-sub); font-weight:600;">
+                            <i class="fa-solid fa-users"></i> 근무 조:
+                        </label>
+                        <div style="display:flex; gap:8px;">
+                            <button class="filter-btn" id="otShiftAll" onclick="setShiftFilter('overtime', 'all')" 
+                                    style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                <i class="fa-solid fa-list"></i> 전체
+                            </button>
+                            <button class="filter-btn" onclick="setShiftFilter('overtime', 'day')" 
+                                    style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                <i class="fa-solid fa-sun"></i> Day조
+                            </button>
+                            <button class="filter-btn" onclick="setShiftFilter('overtime', 'swing')" 
+                                    style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                <i class="fa-solid fa-moon"></i> Swing조
+                            </button>
+                        </div>
+                        <div style="margin-left:8px; font-size:0.75rem; color:var(--text-sub);">
+                            <span id="otFilterCount">0</span>건 표시중
+                        </div>
+                    </div>
+                </div>
                     </div>
                     <div class="action-buttons">
                         <button class="btn btn-excel" onclick="exportToExcel('overtime')"><i class="fa-solid fa-file-excel"></i> 엑셀</button>
                         <button class="btn btn-capture" onclick="captureSection('otTableArea','Overtime_List')"><i class="fa-solid fa-camera"></i> 캡처</button>
                     </div>
                 </div>
-                <div style="overflow-x:auto;"><table class="weekly-table" id="otTable"><thead><tr><th>이름</th><th>직급</th><th>직책</th><th>쿠코드</th><th>일자</th><th>시간</th><th>필요시간</th><th width="150">주간 근무시간</th><th>사유</th><th>삭제</th></tr></thead><tbody id="otTbody"></tbody></table></div>
+                <div style="overflow-x:auto;">
+                    <table class="weekly-table" id="otTable">
+                        <thead>
+                            <tr>
+                                <th>이름</th>
+                                <th>직급</th>
+                                <th>직책</th>
+                                <th>쿠코드</th>
+                                <th>SHIFT</th>  <!-- 🆕 이 줄 추가 -->
+                                <th>일자</th>
+                                <th>시간</th>
+                                <th>필요시간</th>
+                                <th width="150">주간 근무시간</th>
+                                <th>사유</th>
+                                <th>삭제</th>
+                            </tr>
+                        </thead>
+                        <tbody id="otTbody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -793,23 +862,361 @@
             <div class="table-card" id="earlyTableArea" style="margin-top:24px;">
                 <div class="table-header">
                     <div style="flex:1;">
-                        <h3 style="margin:0 0 8px 0;">📋 조출 신청 내역</h3>
-                        <div style="display:flex; gap:12px; align-items:center;">
-                            <label style="font-size:0.85rem; color:var(--text-sub); font-weight:600;"><i class="fa-solid fa-calendar"></i> 신청일 필터:</label>
-                            <div style="display:flex; gap:8px;">
-                                <button class="filter-btn" id="earlyFilterToday" onclick="setRequestDateFilter('early', 'today')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;"><i class="fa-solid fa-calendar-day"></i> 오늘</button>
-                                <button class="filter-btn" onclick="setRequestDateFilter('early', 'week')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;"><i class="fa-solid fa-calendar-week"></i> 이번 주</button>
-                                <button class="filter-btn" onclick="setRequestDateFilter('early', 'all')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;"><i class="fa-solid fa-calendar-days"></i> 전체</button>
-                            </div>
-                            <div style="margin-left:8px; font-size:0.75rem; color:var(--text-sub);"><span id="earlyFilterCount">0</span>건 표시중</div>
+                    <h3 style="margin:0 0 8px 0;">📋 조출 신청 내역</h3>
+                    
+                    <!-- 날짜 필터 -->
+                    <div style="display:flex; gap:12px; align-items:center; margin-bottom:8px;">
+                        <label style="font-size:0.85rem; color:var(--text-sub); font-weight:600;">
+                            <i class="fa-solid fa-calendar"></i> 신청일:
+                        </label>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <button class="filter-btn" onclick="setRequestDateFilter('early', 'yesterday')" 
+                                    style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                <i class="fa-solid fa-backward"></i> 어제
+                            </button>
+                            <button class="filter-btn" id="earlyFilterToday" onclick="setRequestDateFilter('early', 'today')" 
+                                    style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                <i class="fa-solid fa-calendar-day"></i> 오늘
+                            </button>
+                            <button class="filter-btn" onclick="setRequestDateFilter('early', 'tomorrow')" 
+                                    style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                <i class="fa-solid fa-forward"></i> 내일
+                            </button>
+                            <button class="filter-btn" onclick="setRequestDateFilter('early', 'week')" 
+                                    style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                <i class="fa-solid fa-calendar-week"></i> 이번 주
+                            </button>
+                            <button class="filter-btn" onclick="setRequestDateFilter('early', 'all')" 
+                                    style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                <i class="fa-solid fa-calendar-days"></i> 전체
+                            </button>
+                            <button class="filter-btn" onclick="openCustomDateFilter('early')" 
+                                    style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                <i class="fa-solid fa-calendar-alt"></i> 날짜 선택
+                            </button>
                         </div>
                     </div>
+                    
+                    <!-- SHIFT 필터 -->
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <label style="font-size:0.85rem; color:var(--text-sub); font-weight:600;">
+                            <i class="fa-solid fa-users"></i> 근무 조:
+                        </label>
+                        <div style="display:flex; gap:8px;">
+                            <button class="filter-btn" id="earlyShiftAll" onclick="setShiftFilter('early', 'all')" 
+                                    style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                <i class="fa-solid fa-list"></i> 전체
+                            </button>
+                            <button class="filter-btn" onclick="setShiftFilter('early', 'day')" 
+                                    style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                <i class="fa-solid fa-sun"></i> Day조
+                            </button>
+                            <button class="filter-btn" onclick="setShiftFilter('early', 'swing')" 
+                                    style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                <i class="fa-solid fa-moon"></i> Swing조
+                            </button>
+                        </div>
+                        <div style="margin-left:8px; font-size:0.75rem; color:var(--text-sub);">
+                            <span id="earlyFilterCount">0</span>건 표시중
+                        </div>
+                    </div>
+                </div>
                     <div class="action-buttons">
                         <button class="btn btn-excel" onclick="exportToExcel('early')"><i class="fa-solid fa-file-excel"></i> 엑셀</button>
                         <button class="btn btn-capture" onclick="captureSection('earlyTableArea','Early_List')"><i class="fa-solid fa-camera"></i> 캡처</button>
                     </div>
                 </div>
-                <div style="overflow-x:auto;"><table class="weekly-table" id="earlyTable"><thead><tr><th>이름</th><th>직급</th><th>직책</th><th>쿠코드</th><th>일자</th><th>시간</th><th>필요시간</th><th width="150">주간 근무시간</th><th>사유</th><th>삭제</th></tr></thead><tbody id="earlyTbody"></tbody></table></div>
+                <div style="overflow-x:auto;">
+                    <table class="weekly-table" id="earlyTable">
+                        <thead>
+                            <tr>
+                                <th>이름</th>
+                                <th>직급</th>
+                                <th>직책</th>
+                                <th>쿠코드</th>
+                                <th>SHIFT</th>  <!-- 🆕 이 줄 추가 -->
+                                <th>일자</th>
+                                <th>시간</th>
+                                <th>필요시간</th>
+                                <th width="150">주간 근무시간</th>
+                                <th>사유</th>
+                                <th>삭제</th>
+                            </tr>
+                        </thead>
+                        <tbody id="earlyTbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+		
+		<div id="tab-special" class="tab-content">
+            <div class="split-layout">
+                <div>
+                    <div class="form-container">
+                        <h3 style="margin-top:0; margin-bottom:24px; display:flex; align-items:center; gap:10px;">
+                            <i class="fa-solid fa-calendar-plus" style="color:#8b5cf6"></i> 특근 근무 신청
+                        </h3>
+                        <div class="modern-form">
+                            <div class="modern-input-group">
+                                <label><i class="fa-solid fa-user"></i> 관리자 선택</label>
+                                <div class="modern-input-wrapper input-with-icon">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                    <select id="specialSelect" onchange="updateAnalysis('special')">
+                                        <option value="">선택하세요</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="modern-input-group">
+                                <label><i class="fa-solid fa-business-time"></i> 근무 조</label>
+                                <div class="modern-input-wrapper input-with-icon">
+                                    <i class="fa-solid fa-users"></i>
+                                    <select id="specialShift" onchange="setShiftTime('special')">
+                                        <option value="">선택하세요</option>
+                                        <option value="day">DAY조 (09:00 ~ 18:00)</option>
+                                        <option value="swing">SWING조 (19:00 ~ 04:00)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="modern-input-group">
+                                <label><i class="fa-solid fa-calendar"></i> 근무 날짜</label>
+                                <div class="custom-date-picker">
+                                    <div class="modern-input-wrapper input-with-icon">
+                                        <i class="fa-solid fa-calendar-day"></i>
+                                        <div class="custom-date-input" onclick="toggleCalendar('special')">
+                                            <span class="date-display placeholder" id="specialDateDisplay">날짜 선택</span>
+                                            <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
+                                        </div>
+                                        <input type="hidden" id="specialDate">
+                                    </div>
+                                    <div class="calendar-dropdown" id="specialCalendar">
+                                        <div class="calendar-header">
+                                            <button class="calendar-nav-btn" onclick="changeMonth('special', -1)">
+                                                <i class="fa-solid fa-chevron-left"></i>
+                                            </button>
+                                            <div class="calendar-month-year" id="specialMonthYear"></div>
+                                            <button class="calendar-nav-btn" onclick="changeMonth('special', 1)">
+                                                <i class="fa-solid fa-chevron-right"></i>
+                                            </button>
+                                        </div>
+                                        <div class="calendar-days" id="specialCalendarDays"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="modern-input-group">
+                                    <label><i class="fa-solid fa-clock"></i> 시작 시간</label>
+                                    <div class="custom-time-picker">
+                                        <div class="modern-input-wrapper input-with-icon">
+                                            <i class="fa-solid fa-play"></i>
+                                            <div class="custom-time-input" onclick="toggleTimePicker('specialStart')">
+                                                <span class="time-display" id="specialStartDisplay">09:00</span>
+                                                <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
+                                            </div>
+                                            <input type="hidden" id="specialStart" value="09:00">
+                                        </div>
+                                        <div class="time-dropdown" id="specialStartPicker">
+                                            <div class="time-selector">
+                                                <div class="time-column"><div class="time-scroll" id="specialStartHour"></div></div>
+                                                <div class="time-separator">:</div>
+                                                <div class="time-column"><div class="time-scroll" id="specialStartMinute"></div></div>
+                                            </div>
+                                            <button class="time-confirm-btn" onclick="confirmTime('specialStart')">확인</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modern-input-group">
+                                    <label><i class="fa-solid fa-clock"></i> 종료 시간</label>
+                                    <div class="custom-time-picker">
+                                        <div class="modern-input-wrapper input-with-icon">
+                                            <i class="fa-solid fa-stop"></i>
+                                            <div class="custom-time-input" onclick="toggleTimePicker('specialEnd')">
+                                                <span class="time-display" id="specialEndDisplay">18:00</span>
+                                                <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
+                                            </div>
+                                            <input type="hidden" id="specialEnd" value="18:00">
+                                        </div>
+                                        <div class="time-dropdown" id="specialEndPicker">
+                                            <div class="time-selector">
+                                                <div class="time-column"><div class="time-scroll" id="specialEndHour"></div></div>
+                                                <div class="time-separator">:</div>
+                                                <div class="time-column"><div class="time-scroll" id="specialEndMinute"></div></div>
+                                            </div>
+                                            <button class="time-confirm-btn" onclick="confirmTime('specialEnd')">확인</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top:-8px;">
+                                <div style="font-size:0.8rem; color:var(--text-sub); margin-bottom:8px; font-weight:600;">
+                                    ⚡ 빠른 시간 설정
+                                </div>
+                                <div class="time-presets">
+                                    <button class="time-preset-btn" onclick="setQuickTime('special',9)">9시간</button>
+                                    <button class="time-preset-btn" onclick="setQuickTime('special',10)">10시간</button>
+                                </div>
+                            </div>
+                            
+                            <div class="calculated-result">
+                                <div class="label">필요 시간</div>
+                                <div class="value">
+                                    <i class="fa-solid fa-hourglass-half"></i>
+                                    <span id="specialDiff">0.0h</span>
+                                </div>
+                            </div>
+                            
+                            <div class="modern-input-group reason-input">
+                                <label><i class="fa-solid fa-comment"></i> 신청 사유</label>
+                                <textarea id="specialReason" placeholder="예: 특별 근무 필요"></textarea>
+                            </div>
+                            
+                            <button class="submit-btn" onclick="addRequest('special')">
+                                <i class="fa-solid fa-paper-plane"></i> 신청하기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="analysis-panel" id="specialAnalysis" style="display:none;">
+                        <div style="border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:15px;">
+                            <div style="font-size:1.3rem; font-weight:800;" id="specialAnaName">-</div>
+                            <div style="font-size:0.85rem;" id="specialAnaRole">-</div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <span>기본</span>
+                            <div style="display:flex; align-items:center; gap:5px;">
+                                <input type="number" id="specialBase" value="40" 
+                                       style="width:50px; background:transparent; border:none; border-bottom:1px solid #999; color:inherit; text-align:right;" 
+                                       oninput="updateAnalysis('special')">
+                                <span style="color:var(--text-sub);">h</span>
+                            </div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                            <span>기승인</span>
+                            <span style="font-weight:600;" id="specialApproved">0.0 h</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:var(--primary);">
+                            <span>+ 현재</span>
+                            <span style="font-weight:600;" id="specialCurrent">0.0 h</span>
+                        </div>
+                        <div style="border-top:1px solid var(--border); padding-top:10px; margin-top:15px; display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:1.1rem; font-weight:700;">이번 주 예상</span>
+                            <span style="font-size:1.8rem; font-weight:800; color:var(--primary);" id="specialTotal">40.0 h</span>
+                        </div>
+                        <div class="progress-container">
+                            <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:5px;">
+                                <span>Limit: 52h</span>
+                                <span id="specialAnaRemain">12h</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-fill" id="specialAnaFill" style="width:76%; background:var(--success)"></div>
+                            </div>
+                        </div>
+                        <div id="specialAlertDanger" style="margin-top:15px; padding:12px; border-radius:10px; font-size:0.95rem; font-weight:700; text-align:center; display:none; background:rgba(239,68,68,0.15); color:var(--danger); border:2px solid var(--danger); animation: alert-pulse 1.5s ease-in-out infinite;">
+                            <i class="fa-solid fa-triangle-exclamation"></i> 위험: 52시간 초과!
+                        </div>
+                    </div>
+                    <div id="specialPlaceholder" style="text-align:center; padding:40px; color:var(--text-sub); border:2px dashed var(--border); border-radius:16px;">
+                        관리자를 선택하세요.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-card" id="specialTableArea" style="margin-top:24px;">
+                <div class="table-header">
+                    <div style="flex:1;">
+                        <h3 style="margin:0 0 8px 0;">📋 특근 신청 내역</h3>
+                        
+                        <!-- 날짜 필터 -->
+                        <div style="display:flex; gap:12px; align-items:center; margin-bottom:8px;">
+                            <label style="font-size:0.85rem; color:var(--text-sub); font-weight:600;">
+                                <i class="fa-solid fa-calendar"></i> 신청일:
+                            </label>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <button class="filter-btn" onclick="setRequestDateFilter('special', 'yesterday')" 
+                                        style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-backward"></i> 어제
+                                </button>
+                                <button class="filter-btn" id="specialFilterToday" onclick="setRequestDateFilter('special', 'today')" 
+                                        style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-calendar-day"></i> 오늘
+                                </button>
+                                <button class="filter-btn" onclick="setRequestDateFilter('special', 'tomorrow')" 
+                                        style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-forward"></i> 내일
+                                </button>
+                                <button class="filter-btn" onclick="setRequestDateFilter('special', 'week')" 
+                                        style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-calendar-week"></i> 이번 주
+                                </button>
+                                <button class="filter-btn" onclick="setRequestDateFilter('special', 'all')" 
+                                        style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-calendar-days"></i> 전체
+                                </button>
+                                <button class="filter-btn" onclick="openCustomDateFilter('special')" 
+                                        style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-calendar-alt"></i> 날짜 선택
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- SHIFT 필터 -->
+                        <div style="display:flex; gap:12px; align-items:center;">
+                            <label style="font-size:0.85rem; color:var(--text-sub); font-weight:600;">
+                                <i class="fa-solid fa-users"></i> 근무 조:
+                            </label>
+                            <div style="display:flex; gap:8px;">
+                                <button class="filter-btn" id="specialShiftAll" onclick="setShiftFilter('special', 'all')" 
+                                        style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-list"></i> 전체
+                                </button>
+                                <button class="filter-btn" onclick="setShiftFilter('special', 'day')" 
+                                        style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-sun"></i> Day조
+                                </button>
+                                <button class="filter-btn" onclick="setShiftFilter('special', 'swing')" 
+                                        style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-moon"></i> Swing조
+                                </button>
+                            </div>
+                            <div style="margin-left:8px; font-size:0.75rem; color:var(--text-sub);">
+                                <span id="specialFilterCount">0</span>건 표시중
+                            </div>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-excel" onclick="exportToExcel('special')">
+                            <i class="fa-solid fa-file-excel"></i> 엑셀
+                        </button>
+                        <button class="btn btn-capture" onclick="captureSection('specialTableArea','Special_List')">
+                            <i class="fa-solid fa-camera"></i> 캡처
+                        </button>
+                    </div>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="weekly-table" id="specialTable">
+                        <thead>
+                            <tr>
+                                <th>이름</th>
+                                <th>직급</th>
+                                <th>직책</th>
+                                <th>쿠코드</th>
+                                <th>SHIFT</th>
+                                <th>일자</th>
+                                <th>시간</th>
+                                <th>필요시간</th>
+                                <th width="150">주간 근무시간</th>
+                                <th>사유</th>
+                                <th>삭제</th>
+                            </tr>
+                        </thead>
+                        <tbody id="specialTbody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -875,15 +1282,34 @@
 
         // Attach global variables to window so they are accessible by HTML onclick
         window.members = defaultMembers;
-        window.requests = { overtime: [], early: [] };
+        window.requests = { overtime: [], early: [], special: [] };
         window.activeFilters = { danger: false, warning: false, safe: false };
         window.dashActiveFilters = { danger: false, warning: false, safe: false };
         window.allWeeklyData = [];
         window.allDashData = [];
-        window.requestDateFilters = { overtime: 'today', early: 'today' };
+        window.requestDateFilters = { 
+            overtime: 'today', 
+            early: 'today',
+            special: 'today'  // 🆕 추가
+        };
+        
+        // 🆕 SHIFT 필터 상태 추가
+        window.shiftFilters = {
+            overtime: 'all',
+            early: 'all',
+            special: 'all'  // 🆕 추가
+        };
+        
+        // 🆕 커스텀 날짜 필터 상태
+        window.customDateFilters = {
+            overtime: null,
+            early: null,
+            special: null  // 🆕 추가
+        };
         window.calendarStates = {
             ot: { year: new Date().getFullYear(), month: new Date().getMonth() },
-            early: { year: new Date().getFullYear(), month: new Date().getMonth() }
+            early: { year: new Date().getFullYear(), month: new Date().getMonth() },
+            special: { year: new Date().getFullYear(), month: new Date().getMonth() }
         };
         window.timePickerStates = {};
         window.calendarViewState = { year: new Date().getFullYear(), month: new Date().getMonth() };
@@ -958,12 +1384,12 @@
             
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                window.requests = data.requests || { overtime: [], early: [] };
+                window.requests = data.requests || { overtime: [], early: [], special: [] };
                 if (data.members) window.members = data.members;
                 refreshUI();
             } else {
                 // Initialize if empty
-                setDoc(docRef, { requests: { overtime: [], early: [] }, members: defaultMembers });
+                setDoc(docRef, { requests: { overtime: [], early: [], special: [] }, members: defaultMembers });
             }
         }, (error) => {
             // Error -> Disconnected
@@ -975,18 +1401,20 @@
             renderDashboard();
             renderRequestTable('overtime');
             renderRequestTable('early');
+            renderRequestTable('special');  // 🆕 추가
             renderTeamTable();
             renderWeeklyTable();
             renderCalendarView();
             // Update open analysis panels
             if(document.getElementById('otAnalysis').style.display !== 'none') updateAnalysis('ot');
             if(document.getElementById('earlyAnalysis').style.display !== 'none') updateAnalysis('early');
+            if(document.getElementById('specialAnalysis').style.display !== 'none') updateAnalysis('special');  // 🆕 추가
         }
 
         // --- Helper Functions attached to window ---
         
         window.addRequest = async function(t) {
-            const p = t === 'overtime' ? 'ot' : 'early';
+            const p = t === 'overtime' ? 'ot' : t === 'early' ? 'early' : 'special';
             const idx = document.getElementById(`${p}Select`).value;
             if(idx === "") return alert("관리자를 선택하세요!");
             
@@ -1002,10 +1430,23 @@
             const nick = m.role.split(' ')[0];
             const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
             
+            // 🆕 SHIFT 정보 가져오기
+            const shiftValue = document.getElementById(`${p}Shift`).value;
+            const shiftLabel = shiftValue === 'day' ? 'Day조' : shiftValue === 'swing' ? 'Swing조' : '';
+            
             const req = {
-                id: Date.now(), name: m.name, nick: nick, rank: rank, code: m.code,
-                date: date, start: document.getElementById(`${p}Start`).value,
-                end: document.getElementById(`${p}End`).value, time: timeText, reason: reason
+                id: Date.now(), 
+                name: m.name, 
+                nick: nick, 
+                rank: rank, 
+                code: m.code,
+                shift: shiftLabel,          // 🆕 추가
+                shiftType: shiftValue,      // 🆕 추가 (필터용)
+                date: date, 
+                start: document.getElementById(`${p}Start`).value,
+                end: document.getElementById(`${p}End`).value, 
+                time: timeText, 
+                reason: reason
             };
             
             const updatedRequests = { ...window.requests };
@@ -1049,13 +1490,22 @@
             const o='<option value="">선택하세요</option>'+window.members.map((m,i)=>`<option value="${i}">${m.name} (${m.role})</option>`).join('');
             document.getElementById('otSelect').innerHTML=o;
             document.getElementById('earlySelect').innerHTML=o;
+            document.getElementById('specialSelect').innerHTML=o;  // 🆕 추가
         };
 
         window.switchTab = function(t) {
             document.querySelectorAll('.nav-item,.tab-content').forEach(e=>e.classList.remove('active'));
             event.currentTarget.classList.add('active');
             document.getElementById(`tab-${t}`).classList.add('active');
-            const titles = {dashboard:'대시보드', calendar:'캘린더 뷰', weekly:'주간 현황 (전체)', overtime:'연장 신청', early:'조출 신청', team:'팀 설정'};
+            const titles = {
+                dashboard:'대시보드', 
+                calendar:'캘린더 뷰', 
+                weekly:'주간 현황 (전체)', 
+                overtime:'연장 신청', 
+                early:'조출 신청', 
+                special:'특근 신청',
+                team:'팀 설정'
+            };
             document.getElementById('pageTitle').innerText = titles[t];
             if(t==='dashboard') renderDashboard();
             if(t==='calendar') renderCalendarView();
@@ -1365,7 +1815,7 @@
             const sun=new Date(d.setDate(diff)); sun.setHours(0,0,0,0);
             const sat=new Date(sun); sat.setDate(sun.getDate()+6); sat.setHours(23,59,59,999);
             let t=0;
-            [...window.requests.overtime, ...window.requests.early].forEach(r => { if(r.name===name) { const rd=new Date(r.date); if(rd>=sun && rd<=sat) t+=parseFloat(r.time.replace('h',''))||0; } });
+            [...window.requests.overtime, ...window.requests.early, ...(window.requests.special || [])].forEach(r => { if(r.name===name) { const rd=new Date(r.date); if(rd>=sun && rd<=sat) t+=parseFloat(r.time.replace('h',''))||0; } });
             return t;
         };
 
@@ -1404,86 +1854,409 @@
 
         window.exportToExcel = function(type) {
             let wb = XLSX.utils.book_new();
-            let ws_data = [];
+            
             if(type === 'weekly') {
+                let ws_data = [];
                 ws_data.push(['GWJ2 OB 주간 예상 근무시간 현황']);
-                ws_data.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); ws_data.push([]);
+                ws_data.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); 
+                ws_data.push([]);
                 ws_data.push(['순위', '이름', '직급', '총 예상 시간', '상태', '잔여 시간']);
-                let data = window.members.map(m => { const base=40; const approved=window.calcTotalApprovedTime(m.name); return { name:m.name, role:m.role, total:base+approved }; });
+                
+                let data = window.members.map(m => { 
+                    const base=40; 
+                    const approved=window.calcTotalApprovedTime(m.name); 
+                    return { name:m.name, role:m.role, total:base+approved }; 
+                });
                 data.sort((a,b)=>b.total-a.total);
+                
                 data.forEach((d, idx) => {
-                    let status = '안전'; if(d.total >= 52) status = '초과'; else if(d.total >= 45) status = '주의';
-                    ws_data.push([ idx + 1, d.name, d.role, d.total.toFixed(1) + 'h', status, (52 - d.total).toFixed(1) + 'h' ]);
+                    let status = '안전'; 
+                    if(d.total >= 52) status = '초과'; 
+                    else if(d.total >= 45) status = '주의';
+                    ws_data.push([ 
+                        idx + 1, 
+                        d.name, 
+                        d.role, 
+                        d.total.toFixed(1) + 'h', 
+                        status, 
+                        (52 - d.total).toFixed(1) + 'h' 
+                    ]);
                 });
-            } else if(type === 'overtime' || type === 'early') {
-                ws_data.push([type === 'overtime' ? '연장 근무 신청 내역' : '조출 근무 신청 내역']);
-                ws_data.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); ws_data.push([]);
-                ws_data.push(['이름', '직급', '직책', '쿠코드', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
-                window.requests[type].forEach(r => {
-                    const total = 40 + window.calcTotalApprovedTime(r.name);
-                    let status = '안전'; if(total >= 52) status = '초과'; else if(total >= 45) status = '주의';
-                    ws_data.push([r.name, r.nick, r.rank, r.code, r.date, r.start, r.end, r.time, total.toFixed(1) + 'h', status, r.reason]);
-                });
+                
+                let ws = XLSX.utils.aoa_to_sheet(ws_data);
+                XLSX.utils.book_append_sheet(wb, ws, 'Weekly');
+                
+            } else if(type === 'overtime' || type === 'early' || type === 'special') {
+                // 🆕 Day조 / Swing조 분리
+                const allRequests = window.requests[type] || [];
+                const dayRequests = allRequests.filter(r => r.shiftType === 'day');
+                const swingRequests = allRequests.filter(r => r.shiftType === 'swing');
+                
+                const title = type === 'overtime' ? '연장' : type === 'early' ? '조출' : '특근';
+                
+                // Day조 시트
+                if (dayRequests.length > 0) {
+                    let ws_data_day = [];
+                    ws_data_day.push([`${title} 근무 신청 내역 - Day조`]);
+                    ws_data_day.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); 
+                    ws_data_day.push([]);
+                    ws_data_day.push(['이름', '직급', '직책', '쿠코드', 'SHIFT', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
+                    
+                    dayRequests.forEach(r => {
+                        const total = 40 + window.calcTotalApprovedTime(r.name);
+                        let status = '안전'; 
+                        if(total >= 52) status = '초과'; 
+                        else if(total >= 45) status = '주의';
+                        
+                        ws_data_day.push([
+                            r.name, 
+                            r.nick, 
+                            r.rank, 
+                            r.code, 
+                            r.shift || 'Day조',
+                            r.date, 
+                            r.start, 
+                            r.end, 
+                            r.time, 
+                            total.toFixed(1) + 'h', 
+                            status, 
+                            r.reason
+                        ]);
+                    });
+                    
+                    let ws_day = XLSX.utils.aoa_to_sheet(ws_data_day);
+                    applyExcelStyles(ws_day, dayRequests.length + 4);
+                    XLSX.utils.book_append_sheet(wb, ws_day, 'Day조');
+                }
+                
+                // Swing조 시트
+                if (swingRequests.length > 0) {
+                    let ws_data_swing = [];
+                    ws_data_swing.push([`${title} 근무 신청 내역 - Swing조`]);
+                    ws_data_swing.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); 
+                    ws_data_swing.push([]);
+                    ws_data_swing.push(['이름', '직급', '직책', '쿠코드', 'SHIFT', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
+                    
+                    swingRequests.forEach(r => {
+                        const total = 40 + window.calcTotalApprovedTime(r.name);
+                        let status = '안전'; 
+                        if(total >= 52) status = '초과'; 
+                        else if(total >= 45) status = '주의';
+                        
+                        ws_data_swing.push([
+                            r.name, 
+                            r.nick, 
+                            r.rank, 
+                            r.code, 
+                            r.shift || 'Swing조',
+                            r.date, 
+                            r.start, 
+                            r.end, 
+                            r.time, 
+                            total.toFixed(1) + 'h', 
+                            status, 
+                            r.reason
+                        ]);
+                    });
+                    
+                    let ws_swing = XLSX.utils.aoa_to_sheet(ws_data_swing);
+                    applyExcelStyles(ws_swing, swingRequests.length + 4);
+                    XLSX.utils.book_append_sheet(wb, ws_swing, 'Swing조');
+                }
+                
             } else if(type === 'team') {
+                let ws_data = [];
                 ws_data.push(['팀 멤버 데이터']);
-                ws_data.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); ws_data.push([]);
+                ws_data.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); 
+                ws_data.push([]);
                 ws_data.push(['이름', '직급', '직책', '쿠코드']);
+                
                 window.members.forEach(m => {
                     const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
                     const nick = m.role.split(' ')[0];
                     ws_data.push([m.name, nick, rank, m.code]);
                 });
+                
+                let ws = XLSX.utils.aoa_to_sheet(ws_data);
+                XLSX.utils.book_append_sheet(wb, ws, 'Team');
             }
-            let ws = XLSX.utils.aoa_to_sheet(ws_data);
-            XLSX.utils.book_append_sheet(wb, ws, type);
+            
             XLSX.writeFile(wb, `GWJ2_${type}_${new Date().toISOString().split('T')[0]}.xlsx`);
         };
+        
+        // 🆕 엑셀 스타일 적용 함수
+        function applyExcelStyles(ws, dataRowCount) {
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            
+            // 열 너비 설정
+            ws['!cols'] = [
+                { wch: 10 },  // 이름
+                { wch: 12 },  // 직급
+                { wch: 10 },  // 직책
+                { wch: 12 },  // 쿠코드
+                { wch: 10 },  // SHIFT
+                { wch: 12 },  // 일자
+                { wch: 8 },   // 시작
+                { wch: 8 },   // 종료
+                { wch: 10 },  // 필요시간
+                { wch: 12 },  // 주간시간
+                { wch: 8 },   // 상태
+                { wch: 30 }   // 사유
+            ];
+            
+            // 모든 셀에 스타일 적용
+            for (let R = range.s.r; R <= range.e.r; ++R) {
+                for (let C = range.s.c; C <= range.e.c; ++C) {
+                    const cell_address = XLSX.utils.encode_cell({ r: R, c: C });
+                    if (!ws[cell_address]) continue;
+                    
+                    if (!ws[cell_address].s) ws[cell_address].s = {};
+                    
+                    // 테두리
+                    ws[cell_address].s.border = {
+                        top: { style: 'thin', color: { rgb: 'D0D0D0' } },
+                        bottom: { style: 'thin', color: { rgb: 'D0D0D0' } },
+                        left: { style: 'thin', color: { rgb: 'D0D0D0' } },
+                        right: { style: 'thin', color: { rgb: 'D0D0D0' } }
+                    };
+                    
+                    // 헤더 행 (4번째 줄)
+                    if (R === 3) {
+                        ws[cell_address].s.fill = {
+                            fgColor: { rgb: '4472C4' }
+                        };
+                        ws[cell_address].s.font = {
+                            bold: true,
+                            color: { rgb: 'FFFFFF' }
+                        };
+                        ws[cell_address].s.alignment = {
+                            horizontal: 'center',
+                            vertical: 'center'
+                        };
+                    }
+                    
+                    // 데이터 행
+                    if (R > 3) {
+                        ws[cell_address].s.alignment = {
+                            horizontal: 'center',
+                            vertical: 'center'
+                        };
+                        
+                        // 상태 열 색상
+                        if (C === 10) {
+                            const cellValue = ws[cell_address].v;
+                            if (cellValue === '초과') {
+                                ws[cell_address].s.fill = { fgColor: { rgb: 'FFC7CE' } };
+                                ws[cell_address].s.font = { color: { rgb: '9C0006' }, bold: true };
+                            } else if (cellValue === '주의') {
+                                ws[cell_address].s.fill = { fgColor: { rgb: 'FFEB9C' } };
+                                ws[cell_address].s.font = { color: { rgb: '9C5700' }, bold: true };
+                            } else {
+                                ws[cell_address].s.fill = { fgColor: { rgb: 'C6EFCE' } };
+                                ws[cell_address].s.font = { color: { rgb: '006100' }, bold: true };
+                            }
+                        }
+                        
+                        // SHIFT 열 색상
+                        if (C === 4) {
+                            const cellValue = ws[cell_address].v;
+                            if (cellValue && cellValue.includes('Day')) {
+                                ws[cell_address].s.fill = { fgColor: { rgb: 'FFE699' } };
+                                ws[cell_address].s.font = { bold: true };
+                            } else if (cellValue && cellValue.includes('Swing')) {
+                                ws[cell_address].s.fill = { fgColor: { rgb: 'B4C7E7' } };
+                                ws[cell_address].s.font = { bold: true };
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         window.renderRequestTable = function(type) {
-            const tbodyId = type === 'overtime' ? 'ot' : 'early';
+            const tbodyId = type === 'overtime' ? 'ot' : type === 'early' ? 'early' : 'special';
             const requestKey = type;
             const b = document.getElementById(`${tbodyId}Tbody`);
             b.innerHTML='';
+            
             if (!window.requests[requestKey]) window.requests[requestKey] = [];
             
+            // 🆕 날짜 필터 로직 확장
             const filter = window.requestDateFilters[requestKey] || 'today';
-            const today = getLocalTodayDate(); // 🆕 Use Local Date (KST)
+            const shiftFilter = window.shiftFilters[requestKey] || 'all';
+            const customDate = window.customDateFilters[requestKey];
+            
+            const today = getLocalTodayDate();
             let filteredRequests = window.requests[requestKey];
             
-            if (filter === 'today') {
+            // 날짜 필터링
+            if (customDate) {
+                filteredRequests = filteredRequests.filter(r => r.date === customDate);
+            } else if (filter === 'yesterday') {
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayStr = yesterday.toISOString().split('T')[0];
+                filteredRequests = filteredRequests.filter(r => r.date === yesterdayStr);
+            } else if (filter === 'today') {
                 filteredRequests = filteredRequests.filter(r => r.date === today);
+            } else if (filter === 'tomorrow') {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const tomorrowStr = tomorrow.toISOString().split('T')[0];
+                filteredRequests = filteredRequests.filter(r => r.date === tomorrowStr);
             } else if (filter === 'week') {
                 const d = new Date(), day = d.getDay(), diff = d.getDate() - day;
-                const sun = new Date(d.setDate(diff)); sun.setHours(0, 0, 0, 0);
-                const sat = new Date(sun); sat.setDate(sun.getDate() + 6); sat.setHours(23, 59, 59, 999);
-                filteredRequests = filteredRequests.filter(r => { const rd = new Date(r.date + 'T00:00:00'); return rd >= sun && rd <= sat; });
+                const sun = new Date(d.setDate(diff)); 
+                sun.setHours(0, 0, 0, 0);
+                const sat = new Date(sun); 
+                sat.setDate(sun.getDate() + 6); 
+                sat.setHours(23, 59, 59, 999);
+                filteredRequests = filteredRequests.filter(r => { 
+                    const rd = new Date(r.date + 'T00:00:00'); 
+                    return rd >= sun && rd <= sat; 
+                });
             }
+            
+            // 🆕 SHIFT 필터링
+            if (shiftFilter !== 'all') {
+                filteredRequests = filteredRequests.filter(r => r.shiftType === shiftFilter);
+            }
+            
             document.getElementById(`${tbodyId}FilterCount`).textContent = filteredRequests.length;
             
             filteredRequests.forEach((r,i)=>{
                 const total = 40 + window.calcTotalApprovedTime(r.name);
                 const percent = Math.min((total/52)*100, 100);
-                let statusColor = 'var(--success)'; if(total >= 52) statusColor = 'var(--danger)'; else if(total >= 45) statusColor = 'var(--warning)';
-                // Find original index
+                let statusColor = 'var(--success)'; 
+                if(total >= 52) statusColor = 'var(--danger)'; 
+                else if(total >= 45) statusColor = 'var(--warning)';
+                
                 const originalIndex = window.requests[requestKey].findIndex(req => req.id === r.id);
-                b.innerHTML+=`<tr>
-                    <td>${r.name}</td><td>${r.nick}</td><td>${r.rank}</td><td>${r.code}</td><td>${r.date.substring(5)}</td>
-                    <td style="font-size:0.85rem;color:var(--text-sub)">${r.start}~${r.end}</td><td style="font-weight:bold;color:var(--primary)">${r.time}</td>
-                    <td><div style="font-size:0.75rem;color:var(--text-sub);margin-bottom:4px;">${total.toFixed(1)}h / 52h</div><div style="width:100%;height:6px;background:var(--border);border-radius:4px;overflow:hidden;"><div style="width:${percent}%;height:100%;background:${statusColor};border-radius:4px;"></div></div></td>
-                    <td>${r.reason}</td><td><button class="btn btn-del" onclick="deleteRequest('${requestKey}',${originalIndex})"><i class="fa-solid fa-trash"></i></button></td>
-                </tr>`; 
+                
+                // 🆕 SHIFT 배지 스타일
+                const shiftBadge = r.shift ? `
+                    <span style="
+                        display:inline-block; 
+                        padding:4px 8px; 
+                        border-radius:6px; 
+                        font-size:0.7rem; 
+                        font-weight:700;
+                        background:${r.shiftType === 'day' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(99, 102, 241, 0.15)'};
+                        color:${r.shiftType === 'day' ? 'var(--warning)' : 'var(--primary)'};
+                        border: 1px solid ${r.shiftType === 'day' ? 'var(--warning)' : 'var(--primary)'};
+                    ">${r.shift}</span>
+                ` : '-';
+                
+                b.innerHTML+=`
+                    <tr>
+                        <td>${r.name}</td>
+                        <td>${r.nick}</td>
+                        <td>${r.rank}</td>
+                        <td>${r.code}</td>
+                        <td>${shiftBadge}</td>
+                        <td>${r.date.substring(5)}</td>
+                        <td style="font-size:0.85rem;color:var(--text-sub)">${r.start}~${r.end}</td>
+                        <td style="font-weight:bold;color:var(--primary)">${r.time}</td>
+                        <td>
+                            <div style="font-size:0.75rem;color:var(--text-sub);margin-bottom:4px;">
+                                ${total.toFixed(1)}h / 52h
+                            </div>
+                            <div style="width:100%;height:6px;background:var(--border);border-radius:4px;overflow:hidden;">
+                                <div style="width:${percent}%;height:100%;background:${statusColor};border-radius:4px;"></div>
+                            </div>
+                        </td>
+                        <td>${r.reason}</td>
+                        <td>
+                            <button class="btn btn-del" onclick="deleteRequest('${requestKey}',${originalIndex})">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `; 
             });
         };
-
+		
+		// 🆕 날짜 필터 함수
         window.setRequestDateFilter = function(type, filter) {
             window.requestDateFilters[type] = filter;
+            
+            // 커스텀 날짜 초기화
+            if (filter !== 'custom') {
+                window.customDateFilters[type] = null;
+            }
+            
             const tbodyId = type === 'overtime' ? 'ot' : 'early';
             const container = document.getElementById(`${tbodyId}FilterToday`).parentElement;
+            
+            // 모든 날짜 필터 버튼 비활성화
             container.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            if (filter === 'today') document.getElementById(`${tbodyId}FilterToday`).classList.add('active');
-            else if (filter === 'week') container.querySelectorAll('.filter-btn')[1].classList.add('active');
-            else if (filter === 'all') container.querySelectorAll('.filter-btn')[2].classList.add('active');
+            
+            // 선택된 버튼 활성화
+            if (filter === 'yesterday') {
+                container.querySelectorAll('.filter-btn')[0].classList.add('active');
+            } else if (filter === 'today') {
+                document.getElementById(`${tbodyId}FilterToday`).classList.add('active');
+            } else if (filter === 'tomorrow') {
+                container.querySelectorAll('.filter-btn')[2].classList.add('active');
+            } else if (filter === 'week') {
+                container.querySelectorAll('.filter-btn')[3].classList.add('active');
+            } else if (filter === 'all') {
+                container.querySelectorAll('.filter-btn')[4].classList.add('active');
+            }
+            
             window.renderRequestTable(type);
+        };
+
+        // 🆕 SHIFT 필터 함수
+        window.setShiftFilter = function(type, shift) {
+            window.shiftFilters[type] = shift;
+            
+            const tbodyId = type === 'overtime' ? 'ot' : type === 'early' ? 'early' : 'special';
+            const container = document.getElementById(`${tbodyId}ShiftAll`).parentElement;
+            
+            // 모든 버튼 비활성화
+            container.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // 선택된 버튼 활성화
+            if (shift === 'all') {
+                document.getElementById(`${tbodyId}ShiftAll`).classList.add('active');
+            } else {
+                const buttons = container.querySelectorAll('.filter-btn');
+                buttons.forEach(btn => {
+                    if (btn.textContent.includes(shift === 'day' ? 'Day조' : 'Swing조')) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+            
+            window.renderRequestTable(type);
+        };
+        
+        // 🆕 커스텀 날짜 선택 함수
+        window.openCustomDateFilter = function(type) {
+            const dateStr = prompt('날짜를 입력하세요 (예: 2026-01-15):', getLocalTodayDate());
+            
+            if (dateStr && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                window.customDateFilters[type] = dateStr;
+                window.requestDateFilters[type] = 'custom';
+                
+                const tbodyId = type === 'overtime' ? 'ot' : type === 'early' ? 'early' : 'special';
+                const container = document.getElementById(`${tbodyId}FilterToday`).parentElement.parentElement;
+                const dateFilterButtons = container.querySelector('div[style*="flex-wrap"]');
+                
+                // 모든 날짜 필터 버튼 비활성화
+                dateFilterButtons.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                
+                // 날짜 선택 버튼만 활성화하고 선택된 날짜 표시
+                dateFilterButtons.querySelectorAll('.filter-btn').forEach(btn => {
+                    if (btn.textContent.includes('날짜 선택')) {
+                        btn.classList.add('active');
+                        btn.innerHTML = `<i class="fa-solid fa-calendar-check"></i> ${dateStr}`;
+                    }
+                });
+                
+                window.renderRequestTable(type);
+            }
         };
 
         window.renderTeamTable = function() {
@@ -1539,10 +2312,27 @@
             window.initCalendar('ot', opDate); 
             window.initCalendar('early', opDate);
 
-            window.initTimePicker('otStart', '18:00'); window.initTimePicker('otEnd', '');
-            window.initTimePicker('earlyStart', '08:00'); window.initTimePicker('earlyEnd', '09:00');
-            window.selectDate('ot', today); window.selectDate('early', today);
-            document.getElementById('otFilterToday').classList.add('active'); document.getElementById('earlyFilterToday').classList.add('active');
+            window.initCalendar('special', opDate);  // 🆕 추가
+            
+            window.initTimePicker('otStart', '18:00'); 
+            window.initTimePicker('otEnd', '');
+            window.initTimePicker('earlyStart', '08:00'); 
+            window.initTimePicker('earlyEnd', '09:00');
+            window.initTimePicker('specialStart', '09:00');  // 🆕 추가
+            window.initTimePicker('specialEnd', '18:00');    // 🆕 추가
+            
+            window.selectDate('ot', today); 
+            window.selectDate('early', today);
+            window.selectDate('special', today);  // 🆕 추가
+            
+            document.getElementById('otFilterToday').classList.add('active'); 
+            document.getElementById('earlyFilterToday').classList.add('active');
+            document.getElementById('specialFilterToday').classList.add('active');  // 🆕 추가
+            
+            // 🆕 SHIFT 필터 초기화
+            document.getElementById('otShiftAll').classList.add('active');
+            document.getElementById('earlyShiftAll').classList.add('active');
+            document.getElementById('specialShiftAll').classList.add('active');  // 🆕 추가
             const savedTheme = localStorage.getItem('gwj2_theme') || 'dark'; document.documentElement.setAttribute('data-theme', savedTheme);
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('.custom-date-picker') && !e.target.closest('.custom-time-picker')) {
