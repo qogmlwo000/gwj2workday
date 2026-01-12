@@ -737,12 +737,11 @@
                         </div>
                     </div>
                 </div>
-                    </div>
                     <div class="action-buttons">
                         <button class="btn btn-excel" onclick="exportToExcel('overtime')"><i class="fa-solid fa-file-excel"></i> 엑셀</button>
                         <button class="btn btn-capture" onclick="captureSection('otTableArea','Overtime_List')"><i class="fa-solid fa-camera"></i> 캡처</button>
                     </div>
-                </div>
+				</div>
                 <div style="overflow-x:auto;">
                     <table class="weekly-table" id="otTable">
                         <thead>
@@ -1055,8 +1054,8 @@
                                     ⚡ 빠른 시간 설정
                                 </div>
                                 <div class="time-presets">
-                                    <button class="time-preset-btn" onclick="setQuickTime('special',9)">9시간</button>
-                                    <button class="time-preset-btn" onclick="setQuickTime('special',10)">10시간</button>
+                                    <button class="time-preset-btn" onclick="setQuickTime('special',8)">8시간</button>
+                                    <button class="time-preset-btn" onclick="setQuickTime('special',4)">4시간</button>
                                 </div>
                             </div>
                             
@@ -1497,6 +1496,7 @@
             document.querySelectorAll('.nav-item,.tab-content').forEach(e=>e.classList.remove('active'));
             event.currentTarget.classList.add('active');
             document.getElementById(`tab-${t}`).classList.add('active');
+            
             const titles = {
                 dashboard:'대시보드', 
                 calendar:'캘린더 뷰', 
@@ -1507,9 +1507,15 @@
                 team:'팀 설정'
             };
             document.getElementById('pageTitle').innerText = titles[t];
+
             if(t==='dashboard') renderDashboard();
             if(t==='calendar') renderCalendarView();
             if(t==='weekly') renderWeeklyTable();
+            
+            // 👇 [여기부터 추가됨] 이 부분이 있어야 목록이 나옵니다!
+            if(t==='overtime') renderRequestTable('overtime');
+            if(t==='early') renderRequestTable('early');
+            if(t==='special') renderRequestTable('special');
         };
 
         window.initCalendar = function(type, date) {
@@ -1815,39 +1821,64 @@
             const sun=new Date(d.setDate(diff)); sun.setHours(0,0,0,0);
             const sat=new Date(sun); sat.setDate(sun.getDate()+6); sat.setHours(23,59,59,999);
             let t=0;
-            [...window.requests.overtime, ...window.requests.early, ...(window.requests.special || [])].forEach(r => { if(r.name===name) { const rd=new Date(r.date); if(rd>=sun && rd<=sat) t+=parseFloat(r.time.replace('h',''))||0; } });
-            return t;
+            // 👇 [수정] 아래 부분을 복사해서 붙여넣으세요. (special 배열이 없을 경우를 대비해 || [] 추가)
+    [...window.requests.overtime, ...window.requests.early, ...(window.requests.special || [])].forEach(r => { 
+        if(r.name===name) { 
+            const rd=new Date(r.date); 
+            if(rd>=sun && rd<=sat) t+=parseFloat(r.time.replace('h',''))||0; 
+        } 
+    });
+    return t;
         };
 
         window.updateAnalysis = function(type) {
             const idx = document.getElementById(`${type}Select`).value;
             const panel = document.getElementById(`${type}Analysis`), ph = document.getElementById(`${type}Placeholder`);
+            
             if(idx==="") { panel.style.display='none'; ph.style.display='block'; return; }
+            
             panel.style.display='block'; ph.style.display='none';
+            
             const m = window.members[idx];
-            document.getElementById(`${type}AnaName`).innerText = m.name; document.getElementById(`${type}AnaRole`).innerText = m.role;
+            document.getElementById(`${type}AnaName`).innerText = m.name; 
+            document.getElementById(`${type}AnaRole`).innerText = m.role;
+            
             const base = parseFloat(document.getElementById(`${type}Base`).value)||0;
             const currText = document.getElementById(`${type}Diff`).innerText || '0.0h';
             const curr = parseFloat(currText.replace('h',''))||0;
+            
             let approved = 0;
             const inputDate = document.getElementById(`${type}Date`).value;
+            
             if(inputDate) {
                 const target = new Date(inputDate), day=target.getDay(), diff=target.getDate()-day;
                 const sun=new Date(target.setDate(diff)); sun.setHours(0,0,0,0);
                 const sat=new Date(sun); sat.setDate(sun.getDate()+6); sat.setHours(23,59,59,999);
-                [...window.requests.overtime, ...window.requests.early].forEach(r => { if(r.name===m.name) { const rd=new Date(r.date); if(rd>=sun && rd<=sat) approved+=parseFloat(r.time.replace('h',''))||0; } });
+                
+                // 👇 [수정됨] 특근(special) 데이터도 포함하도록 수정했습니다.
+                [...window.requests.overtime, ...window.requests.early, ...(window.requests.special || [])].forEach(r => { 
+                    if(r.name===m.name) { 
+                        const rd=new Date(r.date); 
+                        if(rd>=sun && rd<=sat) approved+=parseFloat(r.time.replace('h',''))||0; 
+                    } 
+                });
             }
+            
             const total = base + approved + curr;
             const remain = 52 - total;
             const percent = Math.min((total/52)*100, 100);
+            
             document.getElementById(`${type}Approved`).innerText = approved.toFixed(1)+' h';
             document.getElementById(`${type}Current`).innerText = curr.toFixed(1)+' h';
             document.getElementById(`${type}Total`).innerText = total.toFixed(1)+' h';
             document.getElementById(`${type}AnaRemain`).innerText = remain.toFixed(1)+'h';
+            
             const fill = document.getElementById(`${type}AnaFill`);
             fill.style.width = percent + '%';
+            
             const dang=document.getElementById(`${type}AlertDanger`);
             dang.style.display='none'; fill.style.background='var(--success)';
+            
             if(total>=52) { dang.style.display='block'; fill.style.background='var(--danger)'; }
             else if(total>=45) { fill.style.background='var(--warning)'; }
         };
