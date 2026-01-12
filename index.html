@@ -790,7 +790,7 @@
                         <thead>
                             <tr>
                                 <th>이름</th>
-                                <th>직급</th>
+                                <th>닉네임</th>
                                 <th>직책</th>
                                 <th>쿠코드</th>
                                 <th>SHIFT</th>  <!-- 🆕 이 줄 추가 -->
@@ -973,7 +973,7 @@
                         <thead>
                             <tr>
                                 <th>이름</th>
-                                <th>직급</th>
+                                <th>닉네임</th>
                                 <th>직책</th>
                                 <th>쿠코드</th>
                                 <th>SHIFT</th>  <!-- 🆕 이 줄 추가 -->
@@ -1244,7 +1244,7 @@
                         <thead>
                             <tr>
                                 <th>이름</th>
-                                <th>직급</th>
+                                <th>닉네임</th>
                                 <th>직책</th>
                                 <th>쿠코드</th>
                                 <th>SHIFT</th>
@@ -1271,7 +1271,7 @@
                         <button class="btn btn-del" onclick="resetData()"><i class="fa-solid fa-rotate-right"></i> 초기화</button>
                     </div>
                 </div>
-                <div style="margin-top:20px; overflow-y:auto; max-height:600px;"><table class="weekly-table" id="teamTable"><thead><tr><th>이름</th><th>직급</th><th>직책</th><th>쿠코드</th></tr></thead><tbody></tbody></table></div>
+                <div style="margin-top:20px; overflow-y:auto; max-height:600px;"><table class="weekly-table" id="teamTable"><thead><tr><th>이름</th><th>닉네임</th><th>직책</th><th>쿠코드</th></tr></thead><tbody></tbody></table></div>
             </div>
         </div>
     </main>
@@ -2011,7 +2011,7 @@
             ws_data.push(['GWJ2 OB 주간 예상 근무시간 현황']);
             ws_data.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); 
             ws_data.push([]);
-            ws_data.push(['순위', '이름', '직급', '총 예상 시간', '상태', '잔여 시간']);
+            ws_data.push(['순위', '이름', '닉네임/직책', '총 예상 시간', '상태', '잔여 시간']);
             
             // (주간 현황은 전체 인원 기준이므로 기존 로직 유지)
             let data = window.members.map(m => { 
@@ -2041,7 +2041,7 @@
             ws_data.push(['팀 멤버 데이터']);
             ws_data.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); 
             ws_data.push([]);
-            ws_data.push(['이름', '직급', '직책', '쿠코드']);
+            ws_data.push(['이름', '닉네임', '직책', '쿠코드']);
             
             window.members.forEach(m => {
                 const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
@@ -2103,7 +2103,7 @@
                 ws_data.push([`${title} 근무 신청 내역 - Day조`]);
                 ws_data.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); 
                 ws_data.push([]);
-                ws_data.push(['이름', '직급', '직책', '쿠코드', 'SHIFT', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
+                ws_data.push(['이름', '닉네임', '직책', '쿠코드', 'SHIFT', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
                 
                 dayRequests.forEach(r => {
                     const total = 40 + window.calcTotalApprovedTime(r.name);
@@ -2121,7 +2121,7 @@
                 ws_data.push([`${title} 근무 신청 내역 - Swing조`]);
                 ws_data.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); 
                 ws_data.push([]);
-                ws_data.push(['이름', '직급', '직책', '쿠코드', 'SHIFT', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
+                ws_data.push(['이름', '닉네임', '직책', '쿠코드', 'SHIFT', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
                 
                 swingRequests.forEach(r => {
                     const total = 40 + window.calcTotalApprovedTime(r.name);
