@@ -380,6 +380,15 @@
         .calendar-event:hover { transform: scale(1.02); }
         .calendar-event.overtime { background: rgba(99, 102, 241, 0.15); color: var(--primary); border-left: 3px solid var(--primary); }
         .calendar-event.early { background: rgba(245, 158, 11, 0.15); color: var(--warning); border-left: 3px solid var(--warning); }
+		/* 👇 [추가] 특근(Special) 캘린더 스타일 */
+.calendar-event.special { 
+    background: rgba(139, 92, 246, 0.15); 
+    color: #8b5cf6; 
+    border-left: 3px solid #8b5cf6; 
+}
+.calendar-legend-icon.special { 
+    background: #8b5cf6; 
+}
         .calendar-event i { font-size: 0.65rem; }
         .calendar-event-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
         .calendar-event-time { font-size: 0.65rem; opacity: 0.8; }
@@ -534,9 +543,10 @@
                 </div>
                 <div class="calendar-view-days" id="calendarViewDays"></div>
                 <div class="calendar-legend">
-                    <div class="calendar-legend-item"><div class="calendar-legend-icon overtime"></div><span>연장 근무</span></div>
-                    <div class="calendar-legend-item"><div class="calendar-legend-icon early"></div><span>조출 근무</span></div>
-                </div>
+    <div class="calendar-legend-item"><div class="calendar-legend-icon overtime"></div><span>연장 근무</span></div>
+    <div class="calendar-legend-item"><div class="calendar-legend-icon early"></div><span>조출 근무</span></div>
+    <div class="calendar-legend-item"><div class="calendar-legend-icon special"></div><span>특근 근무</span></div>
+</div>
             </div>
         </div>
 
@@ -1253,6 +1263,16 @@
         const db = getFirestore(app);
         const DOC_ID = "gwj2_ob_workday_v1";
         const docRef = doc(db, "gwj2_data", DOC_ID);
+		
+		// 📅 [추가] 로컬 시간 기준 날짜 계산 함수 (새벽 시간 오류 해결용)
+    function getShiftedDate(offset) {
+        const d = new Date();
+        d.setDate(d.getDate() + offset);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
 
         // --- Global State ---
         const defaultMembers = [
@@ -2104,108 +2124,115 @@
             }
         }
 
-        window.renderRequestTable = function(type) {
-            const tbodyId = type === 'overtime' ? 'ot' : type === 'early' ? 'early' : 'special';
-            const requestKey = type;
-            const b = document.getElementById(`${tbodyId}Tbody`);
-            b.innerHTML='';
-            
-            if (!window.requests[requestKey]) window.requests[requestKey] = [];
-            
-            // 🆕 날짜 필터 로직 확장
-            const filter = window.requestDateFilters[requestKey] || 'today';
-            const shiftFilter = window.shiftFilters[requestKey] || 'all';
-            const customDate = window.customDateFilters[requestKey];
-            
-            const today = getLocalTodayDate();
-            let filteredRequests = window.requests[requestKey];
-            
-            // 날짜 필터링
-            if (customDate) {
-                filteredRequests = filteredRequests.filter(r => r.date === customDate);
-            } else if (filter === 'yesterday') {
-                const yesterday = new Date();
-                yesterday.setDate(yesterday.getDate() - 1);
-                const yesterdayStr = yesterday.toISOString().split('T')[0];
-                filteredRequests = filteredRequests.filter(r => r.date === yesterdayStr);
-            } else if (filter === 'today') {
-                filteredRequests = filteredRequests.filter(r => r.date === today);
-            } else if (filter === 'tomorrow') {
-                const tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                const tomorrowStr = tomorrow.toISOString().split('T')[0];
-                filteredRequests = filteredRequests.filter(r => r.date === tomorrowStr);
-            } else if (filter === 'week') {
-                const d = new Date(), day = d.getDay(), diff = d.getDate() - day;
-                const sun = new Date(d.setDate(diff)); 
-                sun.setHours(0, 0, 0, 0);
-                const sat = new Date(sun); 
-                sat.setDate(sun.getDate() + 6); 
-                sat.setHours(23, 59, 59, 999);
-                filteredRequests = filteredRequests.filter(r => { 
-                    const rd = new Date(r.date + 'T00:00:00'); 
-                    return rd >= sun && rd <= sat; 
-                });
-            }
-            
-            // 🆕 SHIFT 필터링
-            if (shiftFilter !== 'all') {
-                filteredRequests = filteredRequests.filter(r => r.shiftType === shiftFilter);
-            }
-            
-            document.getElementById(`${tbodyId}FilterCount`).textContent = filteredRequests.length;
-            
-            filteredRequests.forEach((r,i)=>{
-                const total = 40 + window.calcTotalApprovedTime(r.name);
-                const percent = Math.min((total/52)*100, 100);
-                let statusColor = 'var(--success)'; 
-                if(total >= 52) statusColor = 'var(--danger)'; 
-                else if(total >= 45) statusColor = 'var(--warning)';
-                
-                const originalIndex = window.requests[requestKey].findIndex(req => req.id === r.id);
-                
-                // 🆕 SHIFT 배지 스타일
-                const shiftBadge = r.shift ? `
-                    <span style="
-                        display:inline-block; 
-                        padding:4px 8px; 
-                        border-radius:6px; 
-                        font-size:0.7rem; 
-                        font-weight:700;
-                        background:${r.shiftType === 'day' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(99, 102, 241, 0.15)'};
-                        color:${r.shiftType === 'day' ? 'var(--warning)' : 'var(--primary)'};
-                        border: 1px solid ${r.shiftType === 'day' ? 'var(--warning)' : 'var(--primary)'};
-                    ">${r.shift}</span>
-                ` : '-';
-                
-                b.innerHTML+=`
-                    <tr>
-                        <td>${r.name}</td>
-                        <td>${r.nick}</td>
-                        <td>${r.rank}</td>
-                        <td>${r.code}</td>
-                        <td>${shiftBadge}</td>
-                        <td>${r.date.substring(5)}</td>
-                        <td style="font-size:0.85rem;color:var(--text-sub)">${r.start}~${r.end}</td>
-                        <td style="font-weight:bold;color:var(--primary)">${r.time}</td>
-                        <td>
-                            <div style="font-size:0.75rem;color:var(--text-sub);margin-bottom:4px;">
-                                ${total.toFixed(1)}h / 52h
-                            </div>
-                            <div style="width:100%;height:6px;background:var(--border);border-radius:4px;overflow:hidden;">
-                                <div style="width:${percent}%;height:100%;background:${statusColor};border-radius:4px;"></div>
-                            </div>
-                        </td>
-                        <td>${r.reason}</td>
-                        <td>
-                            <button class="btn btn-del" onclick="deleteRequest('${requestKey}',${originalIndex})">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `; 
+        // 📋 [수정] 테이블 렌더링 함수 (날짜 필터링, SHIFT 표시, 들여쓰기 정리 완료)
+    window.renderRequestTable = function(type) {
+        const tbodyId = type === 'overtime' ? 'ot' : type === 'early' ? 'early' : 'special';
+        const requestKey = type;
+        const b = document.getElementById(`${tbodyId}Tbody`);
+        b.innerHTML = '';
+
+        if (!window.requests[requestKey]) window.requests[requestKey] = [];
+
+        // 1. 현재 선택된 필터 상태 가져오기
+        const filter = window.requestDateFilters[requestKey] || 'today';
+        const shiftFilter = window.shiftFilters[requestKey] || 'all';
+        const customDate = window.customDateFilters[requestKey];
+
+        let filteredRequests = window.requests[requestKey];
+
+        // 2. 날짜 필터링 로직 (위에서 만든 getShiftedDate 함수 사용)
+        if (customDate) {
+            // 날짜 직접 선택
+            filteredRequests = filteredRequests.filter(r => r.date === customDate);
+        } else if (filter === 'yesterday') {
+            // 어제
+            const target = getShiftedDate(-1);
+            filteredRequests = filteredRequests.filter(r => r.date === target);
+        } else if (filter === 'today') {
+            // 오늘
+            const target = getShiftedDate(0);
+            filteredRequests = filteredRequests.filter(r => r.date === target);
+        } else if (filter === 'tomorrow') {
+            // 내일
+            const target = getShiftedDate(1);
+            filteredRequests = filteredRequests.filter(r => r.date === target);
+        } else if (filter === 'week') {
+            // 이번 주 (일~토)
+            const d = new Date();
+            const day = d.getDay(); // 0:일, 1:월...
+            const diff = d.getDate() - day;
+            const sun = new Date(d.setDate(diff));
+            sun.setHours(0, 0, 0, 0);
+
+            const sat = new Date(sun);
+            sat.setDate(sun.getDate() + 6);
+            sat.setHours(23, 59, 59, 999);
+
+            filteredRequests = filteredRequests.filter(r => {
+                const rd = new Date(r.date + 'T00:00:00');
+                return rd >= sun && rd <= sat;
             });
-        };
+        }
+        // 'all'인 경우는 필터링 없이 통과
+
+        // 3. SHIFT(근무조) 필터링
+        if (shiftFilter !== 'all') {
+            filteredRequests = filteredRequests.filter(r => r.shiftType === shiftFilter);
+        }
+
+        // 4. 건수 업데이트
+        document.getElementById(`${tbodyId}FilterCount`).textContent = filteredRequests.length;
+
+        // 5. 테이블 HTML 그리기
+        filteredRequests.forEach((r, i) => {
+            const total = 40 + window.calcTotalApprovedTime(r.name);
+            const percent = Math.min((total / 52) * 100, 100);
+            
+            let statusColor = 'var(--success)';
+            if (total >= 52) statusColor = 'var(--danger)';
+            else if (total >= 45) statusColor = 'var(--warning)';
+
+            const originalIndex = window.requests[requestKey].findIndex(req => req.id === r.id);
+
+            // SHIFT 배지 디자인
+            const shiftBadge = r.shift ? `
+                <span style="
+                    display:inline-block; 
+                    padding:4px 8px; 
+                    border-radius:6px; 
+                    font-size:0.7rem; 
+                    font-weight:700;
+                    background:${r.shiftType === 'day' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(99, 102, 241, 0.15)'};
+                    color:${r.shiftType === 'day' ? 'var(--warning)' : 'var(--primary)'};
+                    border: 1px solid ${r.shiftType === 'day' ? 'var(--warning)' : 'var(--primary)'};
+                ">${r.shift}</span>` : '-';
+
+            b.innerHTML += `
+                <tr>
+                    <td>${r.name}</td>
+                    <td>${r.nick}</td>
+                    <td>${r.rank}</td>
+                    <td>${r.code}</td>
+                    <td>${shiftBadge}</td>
+                    <td>${r.date.substring(5)}</td>
+                    <td style="font-size:0.85rem;color:var(--text-sub)">${r.start}~${r.end}</td>
+                    <td style="font-weight:bold;color:var(--primary)">${r.time}</td>
+                    <td>
+                        <div style="font-size:0.75rem;color:var(--text-sub);margin-bottom:4px;">${total.toFixed(1)}h / 52h</div>
+                        <div style="width:100%;height:6px;background:var(--border);border-radius:4px;overflow:hidden;">
+                            <div style="width:${percent}%;height:100%;background:${statusColor};border-radius:4px;"></div>
+                        </div>
+                    </td>
+                    <td>${r.reason}</td>
+                    <td>
+                        <button class="btn btn-del" onclick="deleteRequest('${requestKey}',${originalIndex})">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    };
 		
 		// 🆕 날짜 필터 함수
         window.setRequestDateFilter = function(type, filter) {
@@ -2312,22 +2339,56 @@
         window.renderCalendarView = function() {
             const { year, month } = window.calendarViewState;
             document.getElementById('calendarMonthYear').textContent = `${year}년 ${['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'][month]}`;
-            const container = document.getElementById('calendarViewDays'); container.innerHTML = '';
-            const firstDay = new Date(year, month, 1).getDay(), daysInMonth = new Date(year, month+1, 0).getDate(), daysInPrev = new Date(year, month, 0).getDate();
-            const today = getLocalTodayDate(); // 🆕 Use Local Date (KST)
             
-            for(let i=firstDay-1; i>=0; i--) container.appendChild(createDay(daysInPrev-i, `${year}-${String(month).padStart(2,'0')}-${String(daysInPrev-i).padStart(2,'0')}`, true));
-            for(let d=1; d<=daysInMonth; d++) container.appendChild(createDay(d, `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, false));
-            for(let i=1; i<=42-container.children.length; i++) container.appendChild(createDay(i, `${year}-${String(month+2).padStart(2,'0')}-${String(i).padStart(2,'0')}`, true));
+            const container = document.getElementById('calendarViewDays'); 
+            container.innerHTML = '';
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month+1, 0).getDate();
+            const daysInPrev = new Date(year, month, 0).getDate();
+            const today = getLocalTodayDate();
+
+            // 이전 달 날짜 채우기
+            for(let i=firstDay-1; i>=0; i--) {
+                container.appendChild(createDay(daysInPrev-i, `${year}-${String(month).padStart(2,'0')}-${String(daysInPrev-i).padStart(2,'0')}`, true));
+            }
+            // 이번 달 날짜 채우기
+            for(let d=1; d<=daysInMonth; d++) {
+                container.appendChild(createDay(d, `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, false));
+            }
+            // 다음 달 날짜 채우기 (42칸 맞춤)
+            for(let i=1; i<=42-container.children.length; i++) {
+                container.appendChild(createDay(i, `${year}-${String(month+2).padStart(2,'0')}-${String(i).padStart(2,'0')}`, true));
+            }
 
             function createDay(n, date, other) {
-                const d=document.createElement('div'); d.className=`calendar-view-day ${other?'other-month':''} ${date===today?'today':''}`;
-                d.innerHTML=`<div class="calendar-view-day-number">${n}</div><div class="calendar-view-events"></div>`;
+                const d = document.createElement('div'); 
+                d.className = `calendar-view-day ${other?'other-month':''} ${date===today?'today':''}`;
+                d.innerHTML = `<div class="calendar-view-day-number">${n}</div><div class="calendar-view-events"></div>`;
+                
                 const evDiv = d.querySelector('.calendar-view-events');
-                [...window.requests.overtime, ...window.requests.early].forEach(r=>{
-                    if(r.date===date) {
-                        const type=window.requests.overtime.includes(r)?'overtime':'early';
-                        evDiv.innerHTML+=`<div class="calendar-event ${type}"><i class="fa-solid fa-${type==='overtime'?'clock':'sun'}"></i><span class="calendar-event-name">${r.name}</span><span class="calendar-event-time">${r.time}</span></div>`;
+                
+                // 👇 [핵심 수정] 연장, 조출, 특근 데이터를 모두 합치고 타입을 명시함
+                const allEvents = [
+                    ...window.requests.overtime.map(r => ({...r, type: 'overtime'})),
+                    ...window.requests.early.map(r => ({...r, type: 'early'})),
+                    ...(window.requests.special || []).map(r => ({...r, type: 'special'}))
+                ];
+
+                allEvents.forEach(r => {
+                    if(r.date === date) {
+                        // 아이콘 설정 (특근은 calendar-plus 아이콘)
+                        let icon = 'clock';
+                        if(r.type === 'early') icon = 'sun';
+                        if(r.type === 'special') icon = 'calendar-plus';
+
+                        evDiv.innerHTML += `
+                            <div class="calendar-event ${r.type}">
+                                <i class="fa-solid fa-${icon}"></i>
+                                <span class="calendar-event-name">${r.name}</span>
+                                <span class="calendar-event-time">${r.time}</span>
+                            </div>
+                        `;
                     }
                 });
                 return d;
