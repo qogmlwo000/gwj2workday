@@ -1512,21 +1512,58 @@
             } catch(e) { alert("Error: " + e.message); }
         };
 
+        // 🔒 [수정] 삭제 시 비밀번호 확인 기능 추가
         window.deleteRequest = async function(t, i) {
-            if(confirm('삭제하시겠습니까? (공유 데이터)')){
-                const updatedRequests = { ...window.requests };
-                updatedRequests[t].splice(i, 1);
-                try { await updateDoc(docRef, { requests: updatedRequests }); }
-                catch(e) { alert("Error: " + e.message); }
+            // 1. 관리자 비밀번호 설정 (원하는 비밀번호로 변경하세요)
+            const ADMIN_PW = "1234";
+
+            // 2. 비밀번호 입력 받기
+            const inputPw = prompt("🗑️ 삭제 권한 확인\n\n관리자 비밀번호를 입력하세요:", "");
+
+            // 3. 취소 버튼을 눌렀거나 입력이 없는 경우 중단
+            if (inputPw === null) return;
+
+            // 4. 비밀번호 검증
+            if (inputPw === ADMIN_PW) {
+                // 비밀번호 일치 시 삭제 진행
+                if(confirm('정말 삭제하시겠습니까? (복구 불가)')){
+                    const updatedRequests = { ...window.requests };
+                    
+                    // 해당 인덱스 데이터 삭제
+                    updatedRequests[t].splice(i, 1);
+                    
+                    try { 
+                        // Firebase 업데이트
+                        await updateDoc(docRef, { requests: updatedRequests }); 
+                        showToast("성공적으로 삭제되었습니다."); // 기존 showToast 함수 활용
+                    }
+                    catch(e) { 
+                        alert("Error: " + e.message); 
+                    }
+                }
+            } else {
+                // 비밀번호 불일치 시 경고
+                alert("⛔ 비밀번호가 올바르지 않습니다.");
             }
         };
 
+        // 🔒 [수정] 초기화 시 비밀번호 확인 기능 추가
         window.resetData = async function() {
-            if(confirm('⚠️ 모든 데이터를 초기화하시겠습니까? (복구 불가)')){
-                try {
-                    await setDoc(docRef, { requests: { overtime: [], early: [] }, members: defaultMembers });
-                    alert("초기화 완료");
-                } catch(e) { alert("Error: " + e.message); }
+            const ADMIN_PW = "1234"; // 비밀번호 설정
+            const inputPw = prompt("⚠️ 데이터 초기화 확인\n\n모든 데이터를 삭제하려면 비밀번호를 입력하세요:", "");
+
+            if (inputPw === null) return;
+
+            if (inputPw === ADMIN_PW) {
+                if(confirm('⚠️ 정말로 모든 데이터를 초기화하시겠습니까? (복구 불가)')){
+                    try {
+                        await setDoc(docRef, { requests: { overtime: [], early: [], special: [] }, members: defaultMembers });
+                        alert("초기화 완료");
+                        location.reload(); // 페이지 새로고침
+                    } catch(e) { alert("Error: " + e.message); }
+                }
+            } else {
+                alert("⛔ 비밀번호가 올바르지 않습니다.");
             }
         };
 
