@@ -166,6 +166,41 @@
         @keyframes pulse-green { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         @keyframes pulse-yellow { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
 
+        /* 🆕 Weekly Reset Timer Style */
+        .reset-timer-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.05));
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+        }
+        .reset-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .timer-digits {
+            font-family: var(--font-main);
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--primary);
+            font-variant-numeric: tabular-nums; /* Prevents jitter */
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+        }
+        .timer-icon {
+            color: var(--primary);
+            font-size: 0.9rem;
+            animation: spin-slow 10s linear infinite;
+        }
+        @keyframes spin-slow { 100% { transform: rotate(-360deg); } }
+
+
         /* Theme Toggle */
         .theme-toggle-container { display: flex; align-items: center; gap: 12px; }
         .theme-toggle {
@@ -429,6 +464,19 @@
                     <span id="conn-text">연결 중...</span>
                 </div>
 
+                <div id="reset-countdown" class="reset-timer-container">
+                    <i class="fa-solid fa-rotate-right timer-icon"></i>
+                    <div style="display:flex; flex-direction:column; align-items:flex-start;">
+                        <span class="reset-label">주간 근무 초기화까지</span>
+                        <div class="timer-digits">
+                            <span id="cd-days">0</span>일
+                            <span id="cd-hours">00</span>:
+                            <span id="cd-min">00</span>:
+                            <span id="cd-sec">00</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="theme-toggle-container">
                     <div class="theme-toggle" onclick="toggleTheme()">
                         <div class="theme-toggle-slider"></div>
@@ -438,7 +486,7 @@
                         </div>
                     </div>
                 </div>
-                <div style="font-size:0.9rem; color:var(--text-sub);">V 1.0 - Bennett</div>
+                <div style="font-size:0.9rem; color:var(--text-sub);">V 1.1 - Bennett</div>
             </div>
         </header>
 
@@ -768,7 +816,7 @@
         <div id="tab-team" class="tab-content">
             <div class="form-container">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h3>팀 멤버 데이터 (Firebase Sync)</h3>
+                    <h3>팀 멤버 데이터</h3>
                     <div class="action-buttons">
                         <button class="btn btn-excel" onclick="exportToExcel('team')"><i class="fa-solid fa-file-excel"></i> 엑셀 다운로드</button>
                         <button class="btn btn-del" onclick="resetData()"><i class="fa-solid fa-rotate-right"></i> 초기화</button>
@@ -859,6 +907,43 @@
                 container.classList.add('status-loading');
                 text.textContent = '연결 중...';
             }
+        }
+        
+        // 🆕 Weekly Reset Timer Function
+        function updateResetTimer() {
+            const now = new Date();
+            const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+            
+            // Calculate next Sunday at 00:00:00
+            const daysUntilSunday = currentDay === 0 ? 7 : (7 - currentDay);
+            // 만약 오늘이 일요일이고, 현재 시간이 00:00:00이 지났다면, 다음주 일요일을 가리킴.
+            // 하지만 정확히 일요일 00:00:00이라면 0이 되어야 하지만, setInterval로 1초마다 돌면 거의 항상 다음주 일요일을 가리키게 됨.
+            // 로직 단순화: 오늘이 일요일이면 다음주 일요일(7일 뒤)을 타겟으로 함.
+            
+            const nextSunday = new Date(now);
+            nextSunday.setDate(now.getDate() + daysUntilSunday);
+            nextSunday.setHours(0, 0, 0, 0);
+            
+            const diff = nextSunday - now; // Milliseconds
+            
+            if (diff <= 0) {
+                // Timer expired (Sunday 00:00:00) -> Wait for next cycle
+                 document.getElementById('cd-days').textContent = "0";
+                 document.getElementById('cd-hours').textContent = "00";
+                 document.getElementById('cd-min').textContent = "00";
+                 document.getElementById('cd-sec').textContent = "00";
+                 return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            document.getElementById('cd-days').textContent = days;
+            document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('cd-min').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('cd-sec').textContent = String(seconds).padStart(2, '0');
         }
 
         // --- Firebase Listener ---
@@ -1452,6 +1537,9 @@
                     document.querySelectorAll('.custom-date-input, .custom-time-input').forEach(i => i.classList.remove('active'));
                 }
             });
+            // 🆕 Start Reset Countdown
+            setInterval(updateResetTimer, 1000);
+            updateResetTimer(); // Initial call
         };
     </script>
 </body>
