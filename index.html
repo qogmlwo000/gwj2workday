@@ -1697,18 +1697,45 @@
             calcDiff(id.includes('ot') ? 'ot' : 'early');
         };
 
-        window.setShiftTime = function(type) {
-            const shift = document.getElementById(`${type}Shift`).value;
-            if (!shift) return;
-            if (type === 'ot') {
-                if (shift === 'day') { setTimeValue('otStart', '18:00'); setTimeValue('otEnd', ''); }
-                else if (shift === 'swing') { setTimeValue('otStart', '04:00'); setTimeValue('otEnd', ''); }
-            } else {
-                if (shift === 'day') { setTimeValue('earlyEnd', '09:00'); setTimeValue('earlyStart', ''); }
-                else if (shift === 'swing') { setTimeValue('earlyEnd', '19:00'); setTimeValue('earlyStart', ''); }
+        // ⏰ [수정] 근무조 선택 시 시간 자동 설정 함수 (특근 로직 추가됨)
+    window.setShiftTime = function(type) {
+        const shift = document.getElementById(`${type}Shift`).value;
+        if (!shift) return; // 선택 안 함
+
+        // 1. 연장 (Overtime) 로직
+        if (type === 'ot') {
+            if (shift === 'day') { 
+                setTimeValue('otStart', '18:00'); 
+                setTimeValue('otEnd', ''); // 종료 시간은 수동 입력
+            } else if (shift === 'swing') { 
+                setTimeValue('otStart', '04:00'); 
+                setTimeValue('otEnd', ''); 
             }
-            calcDiff(type === 'ot' ? 'ot' : 'early');
-        };
+        } 
+        // 2. 조출 (Early) 로직
+        else if (type === 'early') {
+            if (shift === 'day') { 
+                setTimeValue('earlyStart', ''); // 시작 시간은 수동 입력
+                setTimeValue('earlyEnd', '09:00'); 
+            } else if (shift === 'swing') { 
+                setTimeValue('earlyStart', ''); 
+                setTimeValue('earlyEnd', '19:00'); 
+            }
+        }
+        // 👇 3. [추가됨] 특근 (Special) 로직
+        else if (type === 'special') {
+            if (shift === 'day') {
+                setTimeValue('specialStart', '09:00');
+                setTimeValue('specialEnd', '18:00');
+            } else if (shift === 'swing') {
+                setTimeValue('specialStart', '19:00');
+                setTimeValue('specialEnd', '04:00');
+            }
+        }
+
+        // 시간 변경 후 근무 시간(Diff) 재계산
+        calcDiff(type);
+    };
 
         function setTimeValue(id, timeStr) {
             const display = document.getElementById(`${id}Display`);
@@ -1718,18 +1745,37 @@
             window.timePickerStates[id] = { hour, minute };
         }
 
-        window.setQuickTime = function(t, h) {
-            const startValue = document.getElementById(`${t}Start`).value;
-            if (!startValue) return alert('시작 시간을 설정하세요!');
-            const [startHour, startMinute] = startValue.split(':').map(Number);
-            const totalMinutes = (startHour * 60 + startMinute) + (h * 60);
-            let endHour = Math.floor(totalMinutes / 60) % 24;
-            let endMinute = totalMinutes % 60;
-            endMinute = Math.round(endMinute / 15) * 15;
-            if (endMinute === 60) { endMinute = 0; endHour = (endHour + 1) % 24; }
-            setTimeValue(`${t}End`, `${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}`);
-            calcDiff(t);
-        };
+        // ⚡ [수정] 빠른 시간 설정 함수 (8시간 근무 선택 시 -> 9시간 뒤로 설정)
+    window.setQuickTime = function(t, h) {
+        // h는 사용자가 선택한 '근무 시간' (숫자)
+        h = parseFloat(h); 
+        
+        const startValue = document.getElementById(`${t}Start`).value;
+        if (!startValue) return alert('시작 시간을 먼저 설정하세요!');
+        
+        const [startHour, startMinute] = startValue.split(':').map(Number);
+        
+        // 🍱 [핵심] 근무 시간이 8시간 이상이면, 점심시간 1시간을 포함해 '체류 시간'을 늘림
+        // 예: 8시간 근무 선택 -> 실제로는 9시간 뒤에 퇴근 (09:00 -> 18:00)
+        let spanHours = h;
+        if (t === 'special' && h >= 8) {
+            spanHours = h + 1; 
+        }
+
+        const totalMinutes = (startHour * 60 + startMinute) + (spanHours * 60);
+        
+        let endHour = Math.floor(totalMinutes / 60) % 24;
+        let endMinute = totalMinutes % 60;
+        
+        // 15분 단위 반올림 (선택 사항)
+        endMinute = Math.round(endMinute / 15) * 15;
+        if (endMinute === 60) { endMinute = 0; endHour = (endHour + 1) % 24; }
+        
+        setTimeValue(`${t}End`, `${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}`);
+        
+        // 계산 함수 호출 (여기서 다시 -1시간이 되어 8.0h로 표시됨)
+        calcDiff(t);
+    };
 
         window.setQuickTimeEarly = function(h) {
             const endValue = document.getElementById('earlyEnd').value;
@@ -1746,16 +1792,35 @@
             calcDiff('early');
         };
 
-        window.calcDiff = function(t) {
-            const s=document.getElementById(`${t}Start`).value, e=document.getElementById(`${t}End`).value;
-            if(s&&e){
-                const S=new Date(`2000-01-01 ${s}`), E=new Date(`2000-01-01 ${e}`);
-                if(E<S) E.setDate(E.getDate()+1);
-                const hours = ((E-S)/36e5).toFixed(1);
-                document.getElementById(`${t}Diff`).innerText = hours + 'h';
-            } else document.getElementById(`${t}Diff`).innerText = '0.0h';
-            updateAnalysis(t);
-        };
+        // ⏱️ [수정] 시간 차이 계산 함수 (점심시간 1시간 자동 차감 로직 추가)
+    window.calcDiff = function(t) {
+        const s = document.getElementById(`${t}Start`).value;
+        const e = document.getElementById(`${t}End`).value;
+
+        if (s && e) {
+            const S = new Date(`2000-01-01 ${s}`);
+            const E = new Date(`2000-01-01 ${e}`);
+            
+            // 종료 시간이 시작 시간보다 빠르면(예: 19:00 ~ 04:00) 다음날로 계산
+            if (E < S) E.setDate(E.getDate() + 1);
+
+            let diffMs = E - S;
+            let hours = diffMs / (1000 * 60 * 60);
+
+            // 🍱 [핵심] 점심시간 제외 로직
+            // 근무 체류 시간이 9시간 이상(예: 09~18, 19~04)인 경우
+            // 점심시간 1시간을 자동으로 뺍니다.
+            if (hours >= 9) {
+                hours -= 1;
+            }
+
+            document.getElementById(`${t}Diff`).innerText = hours.toFixed(1) + 'h';
+        } else {
+            document.getElementById(`${t}Diff`).innerText = '0.0h';
+        }
+        
+        updateAnalysis(t);
+    };
 
         window.renderWeeklyTable = function() {
             const tbody = document.getElementById('weeklyTbody');
@@ -1936,137 +2001,147 @@
             else if(total>=45) { fill.style.background='var(--warning)'; }
         };
 
-        window.exportToExcel = function(type) {
-            let wb = XLSX.utils.book_new();
+        // 📥 [수정] 엑셀 다운로드 함수 (현재 화면의 필터가 적용된 데이터만 저장)
+    window.exportToExcel = function(type) {
+        let wb = XLSX.utils.book_new();
+
+        // 1. 주간 현황 (Weekly)
+        if(type === 'weekly') {
+            let ws_data = [];
+            ws_data.push(['GWJ2 OB 주간 예상 근무시간 현황']);
+            ws_data.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); 
+            ws_data.push([]);
+            ws_data.push(['순위', '이름', '직급', '총 예상 시간', '상태', '잔여 시간']);
             
-            if(type === 'weekly') {
-                let ws_data = [];
-                ws_data.push(['GWJ2 OB 주간 예상 근무시간 현황']);
-                ws_data.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); 
-                ws_data.push([]);
-                ws_data.push(['순위', '이름', '직급', '총 예상 시간', '상태', '잔여 시간']);
-                
-                let data = window.members.map(m => { 
-                    const base=40; 
-                    const approved=window.calcTotalApprovedTime(m.name); 
-                    return { name:m.name, role:m.role, total:base+approved }; 
+            // (주간 현황은 전체 인원 기준이므로 기존 로직 유지)
+            let data = window.members.map(m => { 
+                const base=40; 
+                const approved=window.calcTotalApprovedTime(m.name); 
+                return { name:m.name, role:m.role, total:base+approved }; 
+            });
+            data.sort((a,b)=>b.total-a.total);
+            
+            data.forEach((d, idx) => {
+                let status = '안전'; 
+                if(d.total >= 52) status = '초과'; 
+                else if(d.total >= 45) status = '주의';
+                ws_data.push([ 
+                    idx + 1, d.name, d.role, d.total.toFixed(1) + 'h', status, (52 - d.total).toFixed(1) + 'h' 
+                ]);
+            });
+            
+            let ws = XLSX.utils.aoa_to_sheet(ws_data);
+            applyExcelStyles(ws);
+            XLSX.utils.book_append_sheet(wb, ws, 'Weekly');
+
+        } 
+        // 2. 팀 설정 (Team)
+        else if(type === 'team') {
+            let ws_data = [];
+            ws_data.push(['팀 멤버 데이터']);
+            ws_data.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); 
+            ws_data.push([]);
+            ws_data.push(['이름', '직급', '직책', '쿠코드']);
+            
+            window.members.forEach(m => {
+                const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
+                const nick = m.role.split(' ')[0];
+                ws_data.push([m.name, nick, rank, m.code]);
+            });
+            
+            let ws = XLSX.utils.aoa_to_sheet(ws_data);
+            applyExcelStyles(ws);
+            XLSX.utils.book_append_sheet(wb, ws, 'Team');
+        }
+        // 3. 신청 내역 (Overtime, Early, Special) - 여기가 핵심 수정!
+        else {
+            // 원본 데이터 가져오기
+            let filteredRequests = window.requests[type] || [];
+
+            // 🟢 [필터 적용 1] 날짜 필터 (화면과 동일한 로직 적용)
+            const filter = window.requestDateFilters[type] || 'today';
+            const customDate = window.customDateFilters[type];
+
+            if (customDate) {
+                filteredRequests = filteredRequests.filter(r => r.date === customDate);
+            } else if (filter === 'yesterday') {
+                const target = getShiftedDate(-1);
+                filteredRequests = filteredRequests.filter(r => r.date === target);
+            } else if (filter === 'today') {
+                const target = getShiftedDate(0);
+                filteredRequests = filteredRequests.filter(r => r.date === target);
+            } else if (filter === 'tomorrow') {
+                const target = getShiftedDate(1);
+                filteredRequests = filteredRequests.filter(r => r.date === target);
+            } else if (filter === 'week') {
+                const d = new Date();
+                const day = d.getDay(); 
+                const diff = d.getDate() - day;
+                const sun = new Date(d.setDate(diff)); sun.setHours(0, 0, 0, 0);
+                const sat = new Date(sun); sat.setDate(sun.getDate() + 6); sat.setHours(23, 59, 59, 999);
+                filteredRequests = filteredRequests.filter(r => {
+                    const rd = new Date(r.date + 'T00:00:00');
+                    return rd >= sun && rd <= sat;
                 });
-                data.sort((a,b)=>b.total-a.total);
-                
-                data.forEach((d, idx) => {
-                    let status = '안전'; 
-                    if(d.total >= 52) status = '초과'; 
-                    else if(d.total >= 45) status = '주의';
-                    ws_data.push([ 
-                        idx + 1, 
-                        d.name, 
-                        d.role, 
-                        d.total.toFixed(1) + 'h', 
-                        status, 
-                        (52 - d.total).toFixed(1) + 'h' 
-                    ]);
-                });
-                
-                let ws = XLSX.utils.aoa_to_sheet(ws_data);
-                XLSX.utils.book_append_sheet(wb, ws, 'Weekly');
-                
-            } else if(type === 'overtime' || type === 'early' || type === 'special') {
-                // 🆕 Day조 / Swing조 분리
-                const allRequests = window.requests[type] || [];
-                const dayRequests = allRequests.filter(r => r.shiftType === 'day');
-                const swingRequests = allRequests.filter(r => r.shiftType === 'swing');
-                
-                const title = type === 'overtime' ? '연장' : type === 'early' ? '조출' : '특근';
-                
-                // Day조 시트
-                if (dayRequests.length > 0) {
-                    let ws_data_day = [];
-                    ws_data_day.push([`${title} 근무 신청 내역`]);
-                    ws_data_day.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); 
-                    ws_data_day.push([]);
-                    ws_data_day.push(['이름', '직급', '직책', '쿠코드', 'SHIFT', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
-                    
-                    dayRequests.forEach(r => {
-                        const total = 40 + window.calcTotalApprovedTime(r.name);
-                        let status = '안전'; 
-                        if(total >= 52) status = '초과'; 
-                        else if(total >= 45) status = '주의';
-                        
-                        ws_data_day.push([
-                            r.name, 
-                            r.nick, 
-                            r.rank, 
-                            r.code, 
-                            r.shift || 'Day조',
-                            r.date, 
-                            r.start, 
-                            r.end, 
-                            r.time, 
-                            total.toFixed(1) + 'h', 
-                            status, 
-                            r.reason
-                        ]);
-                    });
-                    
-                    let ws_day = XLSX.utils.aoa_to_sheet(ws_data_day);
-                    applyExcelStyles(ws_day);
-                    XLSX.utils.book_append_sheet(wb, ws_day, 'Day조');
-                }
-                
-                // Swing조 시트
-                if (swingRequests.length > 0) {
-                    let ws_data_swing = [];
-                    ws_data_swing.push([`${title} 근무 신청 내역`]);
-                    ws_data_swing.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); 
-                    ws_data_swing.push([]);
-                    ws_data_swing.push(['이름', '직급', '직책', '쿠코드', 'SHIFT', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
-                    
-                    swingRequests.forEach(r => {
-                        const total = 40 + window.calcTotalApprovedTime(r.name);
-                        let status = '안전'; 
-                        if(total >= 52) status = '초과'; 
-                        else if(total >= 45) status = '주의';
-                        
-                        ws_data_swing.push([
-                            r.name, 
-                            r.nick, 
-                            r.rank, 
-                            r.code, 
-                            r.shift || 'Swing조',
-                            r.date, 
-                            r.start, 
-                            r.end, 
-                            r.time, 
-                            total.toFixed(1) + 'h', 
-                            status, 
-                            r.reason
-                        ]);
-                    });
-                    
-                    let ws_swing = XLSX.utils.aoa_to_sheet(ws_data_swing);
-                    applyExcelStyles(ws_swing, swingRequests.length + 4);
-                    XLSX.utils.book_append_sheet(wb, ws_swing, 'Swing조');
-                }
-                
-            } else if(type === 'team') {
-                let ws_data = [];
-                ws_data.push(['팀 멤버 데이터']);
-                ws_data.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); 
-                ws_data.push([]);
-                ws_data.push(['이름', '직급', '직책', '쿠코드']);
-                
-                window.members.forEach(m => {
-                    const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
-                    const nick = m.role.split(' ')[0];
-                    ws_data.push([m.name, nick, rank, m.code]);
-                });
-                
-                let ws = XLSX.utils.aoa_to_sheet(ws_data);
-                XLSX.utils.book_append_sheet(wb, ws, 'Team');
             }
+
+            // 🟢 [필터 적용 2] Shift 필터
+            const shiftFilter = window.shiftFilters[type] || 'all';
+            if (shiftFilter !== 'all') {
+                filteredRequests = filteredRequests.filter(r => r.shiftType === shiftFilter);
+            }
+
+            // 필터링된 데이터로 Day/Swing 나누기
+            const dayRequests = filteredRequests.filter(r => r.shiftType === 'day');
+            const swingRequests = filteredRequests.filter(r => r.shiftType === 'swing');
             
-            XLSX.writeFile(wb, `GWJ2_${type}_${new Date().toISOString().split('T')[0]}.xlsx`);
-        };
+            const title = type === 'overtime' ? '연장' : type === 'early' ? '조출' : '특근';
+
+            // Day조 시트 생성 (데이터가 있을 때만)
+            if (dayRequests.length > 0) {
+                let ws_data = [];
+                ws_data.push([`${title} 근무 신청 내역 - Day조`]);
+                ws_data.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); 
+                ws_data.push([]);
+                ws_data.push(['이름', '직급', '직책', '쿠코드', 'SHIFT', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
+                
+                dayRequests.forEach(r => {
+                    const total = 40 + window.calcTotalApprovedTime(r.name);
+                    let status = total >= 52 ? '초과' : (total >= 45 ? '주의' : '안전');
+                    ws_data.push([r.name, r.nick, r.rank, r.code, r.shift||'Day조', r.date, r.start, r.end, r.time, total.toFixed(1)+'h', status, r.reason]);
+                });
+                let ws = XLSX.utils.aoa_to_sheet(ws_data);
+                applyExcelStyles(ws);
+                XLSX.utils.book_append_sheet(wb, ws, 'Day조');
+            }
+
+            // Swing조 시트 생성 (데이터가 있을 때만)
+            if (swingRequests.length > 0) {
+                let ws_data = [];
+                ws_data.push([`${title} 근무 신청 내역 - Swing조`]);
+                ws_data.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); 
+                ws_data.push([]);
+                ws_data.push(['이름', '직급', '직책', '쿠코드', 'SHIFT', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
+                
+                swingRequests.forEach(r => {
+                    const total = 40 + window.calcTotalApprovedTime(r.name);
+                    let status = total >= 52 ? '초과' : (total >= 45 ? '주의' : '안전');
+                    ws_data.push([r.name, r.nick, r.rank, r.code, r.shift||'Swing조', r.date, r.start, r.end, r.time, total.toFixed(1)+'h', status, r.reason]);
+                });
+                let ws = XLSX.utils.aoa_to_sheet(ws_data);
+                applyExcelStyles(ws);
+                XLSX.utils.book_append_sheet(wb, ws, 'Swing조');
+            }
+
+            // 만약 필터링 결과 데이터가 아예 없다면 빈 시트라도 하나 생성 (에러 방지)
+            if (dayRequests.length === 0 && swingRequests.length === 0) {
+                 let ws = XLSX.utils.aoa_to_sheet([["선택한 필터 조건에 해당하는 데이터가 없습니다."]]);
+                 XLSX.utils.book_append_sheet(wb, ws, 'No Data');
+            }
+        }
+        
+        XLSX.writeFile(wb, `GWJ2_${type}_${new Date().toISOString().split('T')[0]}.xlsx`);
+    };
         
     // 🎨 [최종 수정] 엑셀 스타일 + 셀 병합 함수 (제목, 날짜 예쁘게)
     function applyExcelStyles(ws) {
