@@ -140,6 +140,32 @@
         main { flex: 1; padding: 40px; overflow-y: auto; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         
+        /* 🆕 Connection Status Badge Style */
+        .connection-badge {
+            display: flex; align-items: center; gap: 8px;
+            padding: 6px 12px;
+            background: var(--bg-nav);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            transition: all 0.3s;
+        }
+        .conn-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; transition: all 0.3s; }
+        
+        .status-connected .conn-dot { background: var(--success); box-shadow: 0 0 8px var(--success); animation: pulse-green 2s infinite; }
+        .status-connected { border-color: rgba(16, 185, 129, 0.3); color: var(--success); }
+        
+        .status-disconnected .conn-dot { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+        .status-disconnected { border-color: rgba(239, 68, 68, 0.3); color: var(--text-sub); }
+        
+        .status-loading .conn-dot { background: var(--warning); animation: pulse-yellow 1s infinite; }
+        .status-loading { border-color: rgba(245, 158, 11, 0.3); color: var(--warning); }
+
+        @keyframes pulse-green { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        @keyframes pulse-yellow { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
+
         /* Theme Toggle */
         .theme-toggle-container { display: flex; align-items: center; gap: 12px; }
         .theme-toggle {
@@ -398,6 +424,11 @@
         <header>
             <h1 id="pageTitle">대시보드</h1>
             <div style="display:flex; gap:15px; align-items:center;">
+                <div id="connection-status" class="connection-badge status-loading">
+                    <span class="conn-dot"></span>
+                    <span id="conn-text">연결 중...</span>
+                </div>
+
                 <div class="theme-toggle-container">
                     <div class="theme-toggle" onclick="toggleTheme()">
                         <div class="theme-toggle-slider"></div>
@@ -809,8 +840,32 @@
         window.timePickerStates = {};
         window.calendarViewState = { year: new Date().getFullYear(), month: new Date().getMonth() };
 
+        // 🆕 Status Update Function
+        function updateConnectionStatus(status) {
+            const container = document.getElementById('connection-status');
+            const dot = container.querySelector('.conn-dot');
+            const text = document.getElementById('conn-text');
+            
+            // Remove all possible status classes first
+            container.classList.remove('status-connected', 'status-disconnected', 'status-loading');
+            
+            if (status === 'connected') {
+                container.classList.add('status-connected');
+                text.textContent = '실시간 연결됨';
+            } else if (status === 'disconnected') {
+                container.classList.add('status-disconnected');
+                text.textContent = '연결 끊김';
+            } else {
+                container.classList.add('status-loading');
+                text.textContent = '연결 중...';
+            }
+        }
+
         // --- Firebase Listener ---
         onSnapshot(docRef, (docSnap) => {
+            // Data Received -> Connected
+            updateConnectionStatus('connected');
+            
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 window.requests = data.requests || { overtime: [], early: [] };
@@ -820,6 +875,10 @@
                 // Initialize if empty
                 setDoc(docRef, { requests: { overtime: [], early: [] }, members: defaultMembers });
             }
+        }, (error) => {
+            // Error -> Disconnected
+            console.error("Firebase Error:", error);
+            updateConnectionStatus('disconnected');
         });
 
         function refreshUI() {
