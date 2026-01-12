@@ -442,6 +442,18 @@
             .split-layout { grid-template-columns: 1fr; }
             .analysis-panel { position: static; }
         }
+		
+		/* 👇 [추가] 버튼 클릭 시 눌리는 효과 (필수 UX) */
+.btn:active, 
+.filter-btn:active, 
+.nav-item:active,
+.calendar-day:active,
+.submit-btn:active,
+.calendar-nav-btn:active {
+    transform: scale(0.95) translateY(2px) !important;
+    transition: 0.1s;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1) !important;
+}
     </style>
 </head>
 <body>
@@ -2234,36 +2246,41 @@
         });
     };
 		
-		// 🆕 날짜 필터 함수
-        window.setRequestDateFilter = function(type, filter) {
-            window.requestDateFilters[type] = filter;
-            
-            // 커스텀 날짜 초기화
-            if (filter !== 'custom') {
-                window.customDateFilters[type] = null;
-            }
-            
-            const tbodyId = type === 'overtime' ? 'ot' : 'early';
-            const container = document.getElementById(`${tbodyId}FilterToday`).parentElement;
-            
-            // 모든 날짜 필터 버튼 비활성화
-            container.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            
-            // 선택된 버튼 활성화
-            if (filter === 'yesterday') {
-                container.querySelectorAll('.filter-btn')[0].classList.add('active');
-            } else if (filter === 'today') {
-                document.getElementById(`${tbodyId}FilterToday`).classList.add('active');
-            } else if (filter === 'tomorrow') {
-                container.querySelectorAll('.filter-btn')[2].classList.add('active');
-            } else if (filter === 'week') {
-                container.querySelectorAll('.filter-btn')[3].classList.add('active');
-            } else if (filter === 'all') {
-                container.querySelectorAll('.filter-btn')[4].classList.add('active');
-            }
-            
-            window.renderRequestTable(type);
-        };
+		// 📅 [수정] 날짜 필터 버튼 클릭 처리 함수 (특근 탭 인식 문제 해결)
+    window.setRequestDateFilter = function(type, filter) {
+        window.requestDateFilters[type] = filter;
+        
+        // 커스텀 날짜 초기화
+        if (filter !== 'custom') {
+            window.customDateFilters[type] = null;
+        }
+        
+        // 👇 [이 부분이 문제였습니다] 'special' 케이스가 빠져 있었습니다.
+        // 기존: const tbodyId = type === 'overtime' ? 'ot' : 'early';
+        // 수정: 삼항 연산자를 중첩하여 special까지 체크하도록 변경
+        const tbodyId = type === 'overtime' ? 'ot' : (type === 'early' ? 'early' : 'special');
+        
+        const container = document.getElementById(`${tbodyId}FilterToday`).parentElement;
+        
+        // 모든 날짜 필터 버튼 비활성화 (색상 끄기)
+        container.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        
+        // 선택된 버튼 활성화 (색상 켜기)
+        if (filter === 'yesterday') {
+            container.querySelectorAll('.filter-btn')[0].classList.add('active');
+        } else if (filter === 'today') {
+            document.getElementById(`${tbodyId}FilterToday`).classList.add('active');
+        } else if (filter === 'tomorrow') {
+            container.querySelectorAll('.filter-btn')[2].classList.add('active');
+        } else if (filter === 'week') {
+            container.querySelectorAll('.filter-btn')[3].classList.add('active');
+        } else if (filter === 'all') {
+            container.querySelectorAll('.filter-btn')[4].classList.add('active');
+        }
+        
+        // 테이블 데이터 갱신
+        window.renderRequestTable(type);
+    };
 
         // 🆕 SHIFT 필터 함수
         window.setShiftFilter = function(type, shift) {
