@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GWJ2 OB Workday - Bennett</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -50,38 +51,47 @@
             --table-row-hover: #f1f5f9;
         }
 
-        * { box-sizing: border-box; outline: none; user-select: none; }
-        body { font-family: var(--font-main); background-color: var(--bg-body); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; transition: 0.3s; }
+        * { box-sizing: border-box; outline: none; }
+        body { font-family: var(--font-main); background-color: var(--bg-body); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; transition: 0.3s; user-select: none; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-body); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; transition: 0.3s; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-sub); }
 
         /* Navigation */
         nav { width: 260px; background: var(--bg-nav); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px; z-index: 100; }
-        .logo { font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
+        .logo { font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 40px; display: flex; align-items: center; gap: 10px; line-height: 1.2; }
+        .logo span { display: inline; white-space: nowrap; }
         .nav-item { padding: 14px 16px; margin-bottom: 8px; border-radius: 12px; cursor: pointer; color: var(--text-sub); font-weight: 500; transition: 0.2s; display: flex; align-items: center; gap: 12px; }
         .nav-item:hover { background: var(--border); color: var(--text-main); }
         .nav-item.active { background: linear-gradient(90deg, var(--primary) 0%, #4f46e5 100%); color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
 
         main { flex: 1; padding: 40px; overflow-y: auto; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .theme-btn { background: var(--bg-glass); border: 1px solid var(--border); color: var(--text-main); padding: 8px 16px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .theme-btn { background: var(--bg-glass); border: 1px solid var(--border); color: var(--text-main); padding: 8px 16px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .theme-btn:hover { background: var(--primary); color: white; }
 
-        /* --- V13 Widgets (Restored) --- */
+        /* Widgets */
         .summary-widgets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .widget-card { background: var(--bg-glass); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 16px; box-shadow: var(--card-shadow); }
+        .widget-card { background: var(--bg-glass); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 16px; box-shadow: var(--card-shadow); transition: 0.2s; }
+        .widget-card:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.4); }
         .widget-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; }
         .widget-text div:first-child { font-size: 0.85rem; color: var(--text-sub); font-weight: 600; text-transform: uppercase; }
         .widget-text div:last-child { font-size: 1.5rem; font-weight: 800; color: var(--text-main); }
 
-        /* --- Tables (V13 Style) --- */
-        .table-card { background: var(--bg-nav); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; padding: 0; }
+        /* Tables */
+        .table-card { background: var(--bg-nav); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; padding: 0; margin-bottom: 24px; }
         .table-header { padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; background: var(--table-head); border-bottom: 1px solid var(--border); }
         .weekly-table { width: 100%; border-collapse: separate; border-spacing: 0; }
         .weekly-table th { text-align: left; padding: 16px; background: var(--table-head); color: var(--text-sub); font-size: 0.8rem; text-transform: uppercase; border-bottom: 2px solid var(--border); }
-        .weekly-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; background: var(--bg-glass); }
+        .weekly-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; background: var(--bg-glass); transition: 0.2s; }
+        .weekly-table tbody tr:hover td { background: var(--table-row-hover); }
         
         .tbl-gauge { width: 100%; height: 6px; background: var(--border); border-radius: 4px; overflow: hidden; margin-top: 6px; }
-        .tbl-fill { height: 100%; border-radius: 4px; }
+        .tbl-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
         
-        /* Danger Pulse Effect */
         .row-danger td { background: rgba(239, 68, 68, 0.08) !important; color: var(--danger); font-weight: 700; border-top: 1px solid rgba(239,68,68,0.2); border-bottom: 1px solid rgba(239,68,68,0.2); }
         .row-danger { animation: pulse-red 2s infinite; }
         @keyframes pulse-red { 0% { box-shadow: inset 0 0 0 0 rgba(239, 68, 68, 0); } 50% { box-shadow: inset 0 0 10px 0 rgba(239, 68, 68, 0.2); } 100% { box-shadow: inset 0 0 0 0 rgba(239, 68, 68, 0); } }
@@ -92,7 +102,63 @@
         .bg-warning { background: var(--warning); color: #1e293b; }
         .bg-safe { background: var(--success); color: white; }
 
-        /* --- Analysis Panel --- */
+        /* Custom Select & Inputs */
+        .custom-select { position: relative; }
+        .custom-select select { appearance: none; width: 100%; padding: 12px 40px 12px 12px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-family: var(--font-main); cursor: pointer; transition: 0.2s; }
+        .custom-select select:hover { border-color: var(--primary); }
+        .custom-select::after { content: '\f078'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-sub); pointer-events: none; }
+
+        input[type="date"], input[type="time"] { appearance: none; width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-family: var(--font-main); cursor: pointer; transition: 0.2s; }
+        input[type="date"]:hover, input[type="time"]:hover { border-color: var(--primary); }
+        input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+        [data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator, [data-theme="light"] input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0.4); }
+
+        /* Modern Time Picker */
+        input[type="time"]::-webkit-datetime-edit { padding: 0; }
+        input[type="time"]::-webkit-datetime-edit-fields-wrapper { padding: 0; }
+        input[type="time"]::-webkit-datetime-edit-text { color: var(--text-sub); padding: 0 2px; }
+        input[type="time"]::-webkit-datetime-edit-hour-field, 
+        input[type="time"]::-webkit-datetime-edit-minute-field { 
+            background: rgba(99, 102, 241, 0.1); 
+            border-radius: 4px; 
+            padding: 4px 8px; 
+            color: var(--text-main); 
+            font-weight: 600;
+        }
+        input[type="time"]::-webkit-calendar-picker-indicator { 
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%236366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>') center/contain no-repeat;
+            width: 20px;
+            height: 20px;
+            filter: none;
+            opacity: 0.8;
+            transition: 0.2s;
+        }
+        input[type="time"]:hover::-webkit-calendar-picker-indicator { opacity: 1; transform: scale(1.1); }
+
+        /* Modern Date Picker */
+        input[type="date"]::-webkit-datetime-edit { padding: 0; }
+        input[type="date"]::-webkit-datetime-edit-fields-wrapper { padding: 0; }
+        input[type="date"]::-webkit-datetime-edit-text { color: var(--text-sub); padding: 0 2px; }
+        input[type="date"]::-webkit-datetime-edit-year-field,
+        input[type="date"]::-webkit-datetime-edit-month-field,
+        input[type="date"]::-webkit-datetime-edit-day-field { 
+            background: rgba(99, 102, 241, 0.1); 
+            border-radius: 4px; 
+            padding: 4px 6px; 
+            color: var(--text-main); 
+            font-weight: 600;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator { 
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%236366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>') center/contain no-repeat;
+            width: 20px;
+            height: 20px;
+            filter: none;
+            opacity: 0.8;
+            transition: 0.2s;
+        }
+        input[type="date"]:hover::-webkit-calendar-picker-indicator { opacity: 1; transform: scale(1.1); }
+
+        /* Analysis Panel */
         .split-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start; }
         .analysis-panel { background: var(--bg-glass); border: 2px solid var(--border); border-radius: 16px; padding: 24px; position: sticky; top: 20px; }
         .progress-container { margin-top: 15px; }
@@ -100,39 +166,116 @@
         .progress-track { width: 100%; height: 8px; background: var(--border); border-radius: 10px; overflow: hidden; }
         .progress-fill { height: 100%; border-radius: 10px; transition: width 0.5s; }
 
-        /* General UI */
+        /* Form */
         .form-container { background: var(--bg-glass); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
         .input-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
         .input-group label { display: block; font-size: 0.8rem; color: var(--text-sub); margin-bottom: 8px; font-weight: 600; }
-        .input-group input, .input-group select { width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-family: var(--font-main); }
+        .input-group input, .input-group select { width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-family: var(--font-main); transition: 0.2s; }
+        .input-group input:hover, .input-group select:hover { border-color: var(--primary); }
         .quick-btn-group { display: flex; gap: 6px; margin-top: 8px; }
         .quick-btn { background: var(--border); color: var(--text-sub); padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
         .quick-btn:hover { background: var(--primary); color: white; }
         
+        /* Dashboard Cards */
         .dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .member-card { background: var(--bg-glass); border: 1px solid var(--border); border-radius: 16px; padding: 20px; transition: transform 0.2s; box-shadow: var(--card-shadow); position: relative; overflow: hidden; }
-        .member-card:hover { transform: translateY(-3px); }
         
-        /* Dashboard Status Colors */
+        /* Manager Card - Premium Style */
+        .member-card.manager-card { 
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+            border: 2px solid rgba(99, 102, 241, 0.3);
+            border-radius: 16px; 
+            padding: 24px; 
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .member-card.manager-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), #a78bfa);
+        }
+        .member-card.manager-card:hover { 
+            transform: translateY(-4px); 
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.2);
+            border-color: var(--primary);
+        }
+        .member-card.manager-card .card-badge {
+            background: linear-gradient(135deg, var(--primary), #a78bfa);
+            color: white;
+            font-size: 1.1rem;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 800;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        /* Captain Card - Clean Style */
+        .member-card.captain-card { 
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 16px; 
+            padding: 20px; 
+            transition: all 0.3s;
+            box-shadow: var(--card-shadow);
+            position: relative;
+        }
+        .member-card.captain-card:hover { 
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        .member-card.captain-card .card-badge {
+            background: var(--bg-nav);
+            color: var(--text-main);
+            font-size: 1rem;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            border: 1px solid var(--border);
+        }
+
+        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .card-info div:first-child { font-size: 1.1rem; font-weight: 800; color: var(--text-main); }
+        .card-info div:last-child { font-size: 0.85rem; color: var(--text-sub); margin-top: 4px; }
+        
         .safe .progress-fill { background: var(--success); }
         .warning .progress-fill { background: var(--warning); }
-        .danger { border-color: var(--danger); animation: pulse-red 2s infinite; }
+        .warning { border-color: var(--warning) !important; }
+        .danger { border-color: var(--danger) !important; animation: pulse-red 2s infinite; }
         .danger .progress-fill { background: var(--danger); }
 
         .btn { padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-main); transition: 0.2s; }
+        .btn:hover { transform: translateY(-1px); }
         .btn-primary { background: var(--primary); color: white; width: 100%; justify-content: center; }
+        .btn-primary:hover { background: var(--primary-hover); }
         .btn-capture { background: #334155; color: white; font-size: 0.85rem; padding: 8px 16px; }
+        .btn-capture:hover { background: #475569; }
+        .btn-excel { background: #10b981; color: white; font-size: 0.85rem; padding: 8px 16px; }
+        .btn-excel:hover { background: #059669; }
         .btn-del { background: rgba(239,68,68,0.15); color: var(--danger); padding: 6px 10px; border-radius: 6px; }
+        .btn-del:hover { background: var(--danger); color: white; }
 
         .tab-content { display: none; animation: fadeIn 0.3s ease; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        #weeklyFullReport { background: var(--bg-glass); border-radius: 20px; padding: 20px; border: 1px solid var(--border); }
+        #weeklyFullReport .summary-widgets { margin-bottom: 20px; }
+
+        .action-buttons { display: flex; gap: 10px; }
     </style>
 </head>
 <body>
 
     <nav>
-        <div class="logo"><i class="fa-solid fa-layer-group"></i> GWJ2 <span>OB Workday</span></div>
+        <div class="logo">
+            <i class="fa-solid fa-layer-group"></i>
+            <div>GWJ2<br><span style="font-size:0.9rem;font-weight:600;">OB Workday</span></div>
+        </div>
         <div class="nav-item active" onclick="switchTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> 대시보드</div>
         <div class="nav-item" onclick="switchTab('weekly')"><i class="fa-solid fa-chart-simple"></i> 주간 현황 (전체)</div>
         <div class="nav-item" onclick="switchTab('overtime')"><i class="fa-solid fa-clock"></i> 연장 신청</div>
@@ -145,7 +288,7 @@
             <h1 id="pageTitle">대시보드</h1>
             <div style="display:flex; gap:15px; align-items:center;">
                 <button class="theme-btn" onclick="toggleTheme()"><i class="fa-solid fa-circle-half-stroke"></i> 테마</button>
-                <div style="font-size:0.9rem; color:var(--text-sub);">V 1.0</div>
+                <div style="font-size:0.9rem; color:var(--text-sub);">V 2.0</div>
             </div>
         </header>
 
@@ -165,14 +308,17 @@
 
         <div id="tab-weekly" class="tab-content">
             
-            <div class="summary-widgets" id="weeklyWidgets">
-                </div>
+            <div id="weeklyFullReport">
+                <div class="summary-widgets" id="weeklyWidgets"></div>
 
-            <div class="table-card" id="weeklyReportArea">
-                <div class="table-header">
-                    <div><h3 style="margin:0;">📊 주간 예상 근무시간 상세 현황</h3><span style="font-size:0.85rem; color:var(--text-sub);">52h 초과 시 붉은색 경고 점멸</span></div>
-                    <button class="btn btn-capture" onclick="captureSection('weeklyReportArea', 'Weekly_Report')"><i class="fa-solid fa-camera"></i> 현황판 캡처</button>
-                </div>
+                <div class="table-card" id="weeklyReportArea">
+                    <div class="table-header">
+                        <div><h3 style="margin:0;">📊 주간 예상 근무시간 상세 현황</h3><span style="font-size:0.85rem; color:var(--text-sub);">52h 초과 시 붉은색 경고 점멸</span></div>
+                        <div class="action-buttons">
+                            <button class="btn btn-excel" onclick="exportToExcel('weekly')"><i class="fa-solid fa-file-excel"></i> 엑셀 다운로드</button>
+                            <button class="btn btn-capture" onclick="captureSection('weeklyFullReport', 'Weekly_Report')"><i class="fa-solid fa-camera"></i> 캡처</button>
+                        </div>
+                    </div>
                 <div style="overflow-x:auto;">
                     <table class="weekly-table">
                         <thead>
@@ -189,6 +335,7 @@
                     </table>
                 </div>
             </div>
+            </div>
         </div>
 
         <div id="tab-overtime" class="tab-content">
@@ -197,7 +344,12 @@
                     <div class="form-container">
                         <h3 style="margin-top:0; margin-bottom:20px;">📝 연장 근무 정보 입력</h3>
                         <div class="input-grid">
-                            <div class="input-group"><label>관리자</label><select id="otSelect" onchange="updateAnalysis('ot')"></select></div>
+                            <div class="input-group">
+                                <label>관리자</label>
+                                <div class="custom-select">
+                                    <select id="otSelect" onchange="updateAnalysis('ot')"></select>
+                                </div>
+                            </div>
                             <div class="input-group"><label>날짜</label><input type="date" id="otDate" onchange="updateAnalysis('ot')"></div>
                             <div class="input-group"><label>시작 (18:00)</label><input type="time" id="otStart" value="18:00" oninput="calcDiff('ot')"></div>
                             <div class="input-group"><label>종료</label><input type="time" id="otEnd" oninput="calcDiff('ot')">
@@ -217,7 +369,13 @@
                         <div style="border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:15px;">
                             <div style="font-size:1.3rem; font-weight:800;" id="otAnaName">-</div><div style="font-size:0.85rem;" id="otAnaRole">-</div>
                         </div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>기본</span><input type="number" id="otBase" value="40" style="width:50px; background:transparent; border:none; border-bottom:1px solid #999; color:inherit; text-align:right;" oninput="updateAnalysis('ot')"> h</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <span>기본</span>
+                            <div style="display:flex; align-items:center; gap:5px;">
+                                <input type="number" id="otBase" value="40" style="width:50px; background:transparent; border:none; border-bottom:1px solid #999; color:inherit; text-align:right;" oninput="updateAnalysis('ot')">
+                                <span style="color:var(--text-sub);">h</span>
+                            </div>
+                        </div>
                         <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>기승인</span><span style="font-weight:600;" id="otApproved">0.0 h</span></div>
                         <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:var(--primary);"><span>+ 현재</span><span style="font-weight:600;" id="otCurrent">0.0 h</span></div>
                         <div style="border-top:1px solid var(--border); padding-top:10px; margin-top:15px; display:flex; justify-content:space-between; align-items:center;"><span style="font-size:1.1rem; font-weight:700;">이번 주 예상</span><span style="font-size:1.8rem; font-weight:800; color:var(--primary);" id="otTotal">40.0 h</span></div>
@@ -228,8 +386,14 @@
                 </div>
             </div>
             <div class="table-card" id="otTableArea" style="margin-top:24px;">
-                <div class="table-header"><h3>📋 연장 신청 내역</h3><button class="btn btn-capture" onclick="captureSection('otTableArea','Overtime_List')">캡처</button></div>
-                <div style="overflow-x:auto;"><table class="weekly-table" id="otTable"><thead><tr><th>이름</th><th>직급</th><th>쿠코드</th><th>일자</th><th>시간</th><th>필요시간</th><th>사유</th><th>삭제</th></tr></thead><tbody id="otTbody"></tbody></table></div>
+                <div class="table-header">
+                    <h3>📋 연장 신청 내역</h3>
+                    <div class="action-buttons">
+                        <button class="btn btn-excel" onclick="exportToExcel('overtime')"><i class="fa-solid fa-file-excel"></i> 엑셀</button>
+                        <button class="btn btn-capture" onclick="captureSection('otTableArea','Overtime_List')"><i class="fa-solid fa-camera"></i> 캡처</button>
+                    </div>
+                </div>
+                <div style="overflow-x:auto;"><table class="weekly-table" id="otTable"><thead><tr><th>이름</th><th>직급</th><th>직책</th><th>쿠코드</th><th>일자</th><th>시간</th><th>필요시간</th><th width="150">주간 근무시간</th><th>사유</th><th>삭제</th></tr></thead><tbody id="otTbody"></tbody></table></div>
             </div>
         </div>
 
@@ -239,7 +403,12 @@
                     <div class="form-container">
                         <h3 style="margin-top:0; margin-bottom:20px;">📝 조출 근무 정보 입력</h3>
                         <div class="input-grid">
-                            <div class="input-group"><label>관리자</label><select id="earlySelect" onchange="updateAnalysis('early')"></select></div>
+                            <div class="input-group">
+                                <label>관리자</label>
+                                <div class="custom-select">
+                                    <select id="earlySelect" onchange="updateAnalysis('early')"></select>
+                                </div>
+                            </div>
                             <div class="input-group"><label>날짜</label><input type="date" id="earlyDate" onchange="updateAnalysis('early')"></div>
                             <div class="input-group"><label>시작 (08:00)</label><input type="time" id="earlyStart" value="08:00" oninput="calcDiff('early')"></div>
                             <div class="input-group"><label>종료 (09:00)</label><input type="time" id="earlyEnd" value="09:00" oninput="calcDiff('early')">
@@ -258,7 +427,13 @@
                         <div style="border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:15px;">
                             <div style="font-size:1.3rem; font-weight:800;" id="earlyAnaName">-</div><div style="font-size:0.85rem;" id="earlyAnaRole">-</div>
                         </div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>기본</span><input type="number" id="earlyBase" value="40" style="width:50px; background:transparent; border:none; border-bottom:1px solid #999; color:inherit; text-align:right;" oninput="updateAnalysis('early')"> h</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <span>기본</span>
+                            <div style="display:flex; align-items:center; gap:5px;">
+                                <input type="number" id="earlyBase" value="40" style="width:50px; background:transparent; border:none; border-bottom:1px solid #999; color:inherit; text-align:right;" oninput="updateAnalysis('early')">
+                                <span style="color:var(--text-sub);">h</span>
+                            </div>
+                        </div>
                         <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>기승인</span><span style="font-weight:600;" id="earlyApproved">0.0 h</span></div>
                         <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:var(--primary);"><span>+ 현재</span><span style="font-weight:600;" id="earlyCurrent">0.0 h</span></div>
                         <div style="border-top:1px solid var(--border); padding-top:10px; margin-top:15px; display:flex; justify-content:space-between; align-items:center;"><span style="font-size:1.1rem; font-weight:700;">이번 주 예상</span><span style="font-size:1.8rem; font-weight:800; color:var(--primary);" id="earlyTotal">40.0 h</span></div>
@@ -269,15 +444,27 @@
                 </div>
             </div>
             <div class="table-card" id="earlyTableArea" style="margin-top:24px;">
-                <div class="table-header"><h3>📋 조출 신청 내역</h3><button class="btn btn-capture" onclick="captureSection('earlyTableArea','Early_List')">캡처</button></div>
-                <div style="overflow-x:auto;"><table class="weekly-table" id="earlyTable"><thead><tr><th>이름</th><th>직급</th><th>쿠코드</th><th>일자</th><th>시간</th><th>필요시간</th><th>사유</th><th>삭제</th></tr></thead><tbody id="earlyTbody"></tbody></table></div>
+                <div class="table-header">
+                    <h3>📋 조출 신청 내역</h3>
+                    <div class="action-buttons">
+                        <button class="btn btn-excel" onclick="exportToExcel('early')"><i class="fa-solid fa-file-excel"></i> 엑셀</button>
+                        <button class="btn btn-capture" onclick="captureSection('earlyTableArea','Early_List')"><i class="fa-solid fa-camera"></i> 캡처</button>
+                    </div>
+                </div>
+                <div style="overflow-x:auto;"><table class="weekly-table" id="earlyTable"><thead><tr><th>이름</th><th>직급</th><th>직책</th><th>쿠코드</th><th>일자</th><th>시간</th><th>필요시간</th><th width="150">주간 근무시간</th><th>사유</th><th>삭제</th></tr></thead><tbody id="earlyTbody"></tbody></table></div>
             </div>
         </div>
 
         <div id="tab-team" class="tab-content">
             <div class="form-container">
-                <div style="display:flex; justify-content:space-between; align-items:center;"><h3>팀 멤버 데이터</h3><button class="btn btn-del" onclick="resetData()">데이터 초기화</button></div>
-                <div style="margin-top:20px; overflow-y:auto; max-height:600px;"><table class="weekly-table" id="teamTable"><thead><tr><th>이름</th><th>직급</th><th>쿠코드</th></tr></thead><tbody></tbody></table></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3>팀 멤버 데이터</h3>
+                    <div class="action-buttons">
+                        <button class="btn btn-excel" onclick="exportToExcel('team')"><i class="fa-solid fa-file-excel"></i> 엑셀 다운로드</button>
+                        <button class="btn btn-del" onclick="resetData()"><i class="fa-solid fa-rotate-right"></i> 초기화</button>
+                    </div>
+                </div>
+                <div style="margin-top:20px; overflow-y:auto; max-height:600px;"><table class="weekly-table" id="teamTable"><thead><tr><th>이름</th><th>직급</th><th>직책</th><th>쿠코드</th></tr></thead><tbody></tbody></table></div>
             </div>
         </div>
     </main>
@@ -318,9 +505,17 @@
         };
 
         function toggleTheme() { const n = document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'; document.documentElement.setAttribute('data-theme',n); localStorage.setItem('gwj2_theme',n); }
-        function switchTab(t) { document.querySelectorAll('.nav-item,.tab-content').forEach(e=>e.classList.remove('active')); event.currentTarget.classList.add('active'); document.getElementById(`tab-${t}`).classList.add('active'); if(t==='dashboard')renderDashboard(); if(t==='weekly')renderWeeklyTable(); }
+        function switchTab(t) { 
+            document.querySelectorAll('.nav-item,.tab-content').forEach(e=>e.classList.remove('active')); 
+            event.currentTarget.classList.add('active'); 
+            document.getElementById(`tab-${t}`).classList.add('active'); 
+            const titles = {dashboard:'대시보드', weekly:'주간 현황 (전체)', overtime:'연장 신청', early:'조출 신청', team:'팀 설정'};
+            document.getElementById('pageTitle').innerText = titles[t];
+            if(t==='dashboard')renderDashboard(); 
+            if(t==='weekly')renderWeeklyTable(); 
+        }
 
-        // --- Weekly Table (Visual Restored) ---
+        // --- Weekly Table ---
         function renderWeeklyTable() {
             const tbody = document.getElementById('weeklyTbody'); tbody.innerHTML = '';
             const widgets = document.getElementById('weeklyWidgets');
@@ -350,7 +545,6 @@
                     </tr>`;
             });
 
-            // V13 Widgets
             widgets.innerHTML = `
                 <div class="widget-card"><div class="widget-icon" style="background:var(--primary)"><i class="fa-solid fa-users"></i></div><div class="widget-text"><div>전체 인원</div><div>${members.length}</div></div></div>
                 <div class="widget-card" style="border-color:var(--danger)"><div class="widget-icon" style="background:var(--danger)"><i class="fa-solid fa-ban"></i></div><div class="widget-text"><div>위험 (52h+)</div><div>${cntDanger}</div></div></div>
@@ -369,7 +563,8 @@
                 const percent = Math.min((total/52)*100, 100);
                 let statusClass='safe'; if(total>=52) statusClass='danger'; else if(total>=45) statusClass='warning';
 
-                const card = document.createElement('div'); card.className = `member-card ${statusClass}`;
+                const card = document.createElement('div'); 
+                card.className = `member-card ${statusClass} ${isMgr ? 'manager-card' : 'captain-card'}`;
                 card.innerHTML = `
                     <div class="card-top"><div class="card-info"><div>${m.name}</div><div>${m.role}</div></div><div class="card-badge">${total.toFixed(1)}h</div></div>
                     <div class="progress-container"><div class="progress-labels"><span>Limit: 52h</span><span class="progress-val">잔여: ${remain.toFixed(1)}h</span></div><div class="progress-track"><div class="progress-fill" style="width:${percent}%"></div></div></div>`;
@@ -424,25 +619,463 @@
             else if(total>=45) { fill.style.background='var(--warning)'; }
         }
 
-        // --- Utils ---
-        function initSelects() { const o='<option value="">선택하세요</option>'+members.map((m,i)=>`<option value="${i}">${m.name} (${m.role})</option>`).join(''); document.getElementById('otSelect').innerHTML=o; document.getElementById('earlySelect').innerHTML=o; }
-        function setQuickTime(t,h) { const s=document.getElementById(`${t}Start`), e=document.getElementById(`${t}End`); if(!s.value)s.value="18:00"; const [H,M]=s.value.split(':').map(Number), d=new Date(); d.setHours(H,M,0,0); d.setMinutes(d.getMinutes()+(h*60)); e.value=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; calcDiff(t); }
-        function setQuickTimeEarly(h) { const e=document.getElementById('earlyEnd'), s=document.getElementById('earlyStart'); if(!e.value)e.value="09:00"; const [H,M]=e.value.split(':').map(Number), d=new Date(); d.setHours(H,M,0,0); d.setMinutes(d.getMinutes()-(h*60)); s.value=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; calcDiff('early'); }
-        function calcDiff(t) { const s=document.getElementById(`${t}Start`).value, e=document.getElementById(`${t}End`).value; if(s&&e){ const S=new Date(`2000-01-01 ${s}`), E=new Date(`2000-01-01 ${e}`); if(E<S) E.setDate(E.getDate()+1); document.getElementById(`${t}Diff`).value=((E-S)/36e5).toFixed(1)+'h'; } else document.getElementById(`${t}Diff`).value=''; updateAnalysis(t); }
-        function addRequest(t) { 
-            const idx=document.getElementById(`${t==='overtime'?'ot':'early'}Select`).value; if(idx==="")return alert("관리자 선택!"); 
-            const m=members[idx], p=t==='overtime'?'ot':'early', date=document.getElementById(`${p}Date`).value;
-            requests[t].push({id:Date.now(), name:m.name, nick:m.role.split(' ')[0], rank:m.role.includes('Manager')?'Manager':'T/C', code:m.code, date:date, start:document.getElementById(`${p}Start`).value, end:document.getElementById(`${p}End`).value, time:document.getElementById(`${p}Diff`).value, reason:document.getElementById(`${p}Reason`).value});
-            localStorage.setItem('gwj2_v15_requests', JSON.stringify(requests)); renderRequestTable(t); updateAnalysis(p); renderWeeklyTable(); alert("추가됨");
+        // --- Excel Export with Professional Styling ---
+        function exportToExcel(type) {
+            let wb = XLSX.utils.book_new();
+            let sheetData = [];
+            
+            if(type === 'weekly') {
+                sheetData.push(['GWJ2 OB 주간 예상 근무시간 현황']);
+                sheetData.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]);
+                sheetData.push([]);
+                sheetData.push(['순위', '이름', '직급', '총 예상 시간', '상태', '잔여 시간']);
+                
+                let data = members.map(m => { 
+                    const base=40; 
+                    const approved=calcTotalApprovedTime(m.name); 
+                    return { name:m.name, role:m.role, total:base+approved }; 
+                });
+                data.sort((a,b)=>b.total-a.total);
+                
+                data.forEach((d, idx) => {
+                    const remain = 52 - d.total;
+                    let status = '안전';
+                    if(d.total >= 52) status = '초과';
+                    else if(d.total >= 45) status = '주의';
+                    
+                    sheetData.push([
+                        idx + 1,
+                        d.name,
+                        d.role,
+                        parseFloat(d.total.toFixed(1)),
+                        status,
+                        parseFloat(remain.toFixed(1))
+                    ]);
+                });
+                
+            } else if(type === 'overtime') {
+                sheetData.push(['연장 근무 신청 내역']);
+                sheetData.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]);
+                sheetData.push([]);
+                sheetData.push(['이름', '직급', '직책', '쿠코드', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
+                
+                requests.overtime.forEach(r => {
+                    const total = 40 + calcTotalApprovedTime(r.name);
+                    let status = '안전';
+                    if(total >= 52) status = '초과';
+                    else if(total >= 45) status = '주의';
+                    sheetData.push([r.name, r.nick, r.rank, r.code, r.date, r.start, r.end, r.time, total.toFixed(1) + 'h', status, r.reason]);
+                });
+                
+            } else if(type === 'early') {
+                sheetData.push(['조출 근무 신청 내역']);
+                sheetData.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]);
+                sheetData.push([]);
+                sheetData.push(['이름', '직급', '직책', '쿠코드', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
+                
+                requests.early.forEach(r => {
+                    const total = 40 + calcTotalApprovedTime(r.name);
+                    let status = '안전';
+                    if(total >= 52) status = '초과';
+                    else if(total >= 45) status = '주의';
+                    sheetData.push([r.name, r.nick, r.rank, r.code, r.date, r.start, r.end, r.time, total.toFixed(1) + 'h', status, r.reason]);
+                });
+                
+            } else if(type === 'team') {
+                sheetData.push(['팀 멤버 데이터']);
+                sheetData.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]);
+                sheetData.push([]);
+                sheetData.push(['이름', '직급', '직책', '쿠코드']);
+                
+                members.forEach(m => {
+                    const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
+                    const nick = m.role.split(' ')[0];
+                    sheetData.push([m.name, nick, rank, m.code]);
+                });
+            }
+            
+            let ws = XLSX.utils.aoa_to_sheet(sheetData);
+            
+            // Set column widths
+            if(type === 'weekly') {
+                ws['!cols'] = [
+                    {wch: 8}, {wch: 15}, {wch: 25}, {wch: 15}, {wch: 12}, {wch: 15}
+                ];
+            } else if(type === 'team') {
+                ws['!cols'] = [
+                    {wch: 12}, {wch: 20}, {wch: 12}, {wch: 15}
+                ];
+            } else {
+                ws['!cols'] = [
+                    {wch: 12}, {wch: 15}, {wch: 12}, {wch: 15}, 
+                    {wch: 12}, {wch: 10}, {wch: 10}, {wch: 12}, {wch: 12}, {wch: 10}, {wch: 35}
+                ];
+            }
+            
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            const lastCol = type === 'team' ? 3 : type === 'weekly' ? 5 : 10;
+            
+            // Title row (A1) - Premium styling
+            if(ws['A1']) {
+                ws['A1'].s = {
+                    font: { bold: true, sz: 18, color: { rgb: "FFFFFF" } },
+                    fill: { fgColor: { rgb: "4F46E5" } },
+                    alignment: { horizontal: "center", vertical: "center" },
+                    border: {
+                        top: {style: "medium", color: {rgb: "4F46E5"}},
+                        bottom: {style: "medium", color: {rgb: "4F46E5"}},
+                        left: {style: "medium", color: {rgb: "4F46E5"}},
+                        right: {style: "medium", color: {rgb: "4F46E5"}}
+                    }
+                };
+            }
+            
+            // Date row (A2) - Subtle styling
+            if(ws['A2']) {
+                ws['A2'].s = {
+                    font: { sz: 9, color: { rgb: "64748B" }, italic: true },
+                    alignment: { horizontal: "left", vertical: "center" },
+                    fill: { fgColor: { rgb: "F8FAFC" } }
+                };
+            }
+            
+            // Merge title cell
+            ws['!merges'] = [{s: {r: 0, c: 0}, e: {r: 0, c: lastCol}}];
+            
+            // Header row (row 4) - Bold styling with gradient effect
+            for(let C = range.s.c; C <= range.e.c; ++C) {
+                const address = XLSX.utils.encode_col(C) + "4";
+                if(!ws[address]) continue;
+                ws[address].s = {
+                    font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } },
+                    fill: { fgColor: { rgb: "6366F1" } },
+                    alignment: { horizontal: "center", vertical: "center" },
+                    border: {
+                        top: {style: "medium", color: {rgb: "4F46E5"}},
+                        bottom: {style: "medium", color: {rgb: "4F46E5"}},
+                        left: {style: "thin", color: {rgb: "8B5CF6"}},
+                        right: {style: "thin", color: {rgb: "8B5CF6"}}
+                    }
+                };
+            }
+            
+            // Data rows styling (from row 5 onwards)
+            for(let R = 4; R <= range.e.r; ++R) {
+                const isEven = (R - 4) % 2 === 0;
+                const rowBgColor = isEven ? "FFFFFF" : "F1F5F9";
+                
+                for(let C = range.s.c; C <= range.e.c; ++C) {
+                    const address = XLSX.utils.encode_col(C) + (R + 1);
+                    if(!ws[address]) continue;
+                    
+                    let cellStyle = {
+                        font: { sz: 10, color: { rgb: "1E293B" } },
+                        fill: { fgColor: { rgb: rowBgColor } },
+                        alignment: { 
+                            horizontal: "left", 
+                            vertical: "center",
+                            wrapText: false
+                        },
+                        border: {
+                            top: {style: "thin", color: {rgb: "CBD5E1"}},
+                            bottom: {style: "thin", color: {rgb: "CBD5E1"}},
+                            left: {style: "thin", color: {rgb: "E2E8F0"}},
+                            right: {style: "thin", color: {rgb: "E2E8F0"}}
+                        }
+                    };
+                    
+                    // Rank column - center align
+                    if(C === 0 && type === 'weekly') {
+                        cellStyle.alignment.horizontal = "center";
+                        cellStyle.font.bold = true;
+                        cellStyle.font.color = { rgb: "64748B" };
+                    }
+                    
+                    // Name column - bold
+                    if((type === 'weekly' && C === 1) || ((type === 'overtime' || type === 'early' || type === 'team') && C === 0)) {
+                        cellStyle.font.bold = true;
+                        cellStyle.font.sz = 11;
+                    }
+                    
+                    // Status column special styling
+                    if(type === 'weekly' && C === 4) {
+                        const status = ws[address].v;
+                        cellStyle.alignment.horizontal = "center";
+                        cellStyle.font.bold = true;
+                        cellStyle.font.sz = 11;
+                        
+                        if(status === '초과') {
+                            cellStyle.font.color = { rgb: "FFFFFF" };
+                            cellStyle.fill.fgColor = { rgb: "EF4444" };
+                            cellStyle.border = {
+                                top: {style: "medium", color: {rgb: "DC2626"}},
+                                bottom: {style: "medium", color: {rgb: "DC2626"}},
+                                left: {style: "medium", color: {rgb: "DC2626"}},
+                                right: {style: "medium", color: {rgb: "DC2626"}}
+                            };
+                        } else if(status === '주의') {
+                            cellStyle.font.color = { rgb: "78350F" };
+                            cellStyle.fill.fgColor = { rgb: "FCD34D" };
+                            cellStyle.border = {
+                                top: {style: "medium", color: {rgb: "F59E0B"}},
+                                bottom: {style: "medium", color: {rgb: "F59E0B"}},
+                                left: {style: "medium", color: {rgb: "F59E0B"}},
+                                right: {style: "medium", color: {rgb: "F59E0B"}}
+                            };
+                        } else if(status === '안전') {
+                            cellStyle.font.color = { rgb: "FFFFFF" };
+                            cellStyle.fill.fgColor = { rgb: "10B981" };
+                            cellStyle.border = {
+                                top: {style: "medium", color: {rgb: "059669"}},
+                                bottom: {style: "medium", color: {rgb: "059669"}},
+                                left: {style: "medium", color: {rgb: "059669"}},
+                                right: {style: "medium", color: {rgb: "059669"}}
+                            };
+                        }
+                    }
+                    
+                    // Time columns - right align with bold
+                    if(type === 'weekly' && (C === 3 || C === 5)) {
+                        cellStyle.alignment.horizontal = "right";
+                        cellStyle.font.bold = true;
+                        cellStyle.font.sz = 11;
+                        cellStyle.font.color = { rgb: "4F46E5" };
+                        cellStyle.numFmt = "0.0";
+                    }
+                    
+                    // Rank column center align
+                    if((type === 'overtime' || type === 'early' || type === 'team') && C === 2) {
+                        cellStyle.alignment.horizontal = "center";
+                        cellStyle.font.bold = true;
+                    }
+                    
+                    // Code column - monospace effect
+                    if((type === 'overtime' || type === 'early' || type === 'team') && C === 3) {
+                        cellStyle.font.color = { rgb: "6366F1" };
+                        cellStyle.font.bold = true;
+                        cellStyle.alignment.horizontal = "center";
+                    }
+                    
+                    // Date columns
+                    if((type === 'overtime' || type === 'early') && C === 4) {
+                        cellStyle.alignment.horizontal = "center";
+                    }
+                    
+                    // Time columns
+                    if((type === 'overtime' || type === 'early') && (C === 5 || C === 6)) {
+                        cellStyle.alignment.horizontal = "center";
+                        cellStyle.font.color = { rgb: "64748B" };
+                    }
+                    
+                    // Required time column
+                    if((type === 'overtime' || type === 'early') && C === 7) {
+                        cellStyle.alignment.horizontal = "center";
+                        cellStyle.font.bold = true;
+                        cellStyle.font.color = { rgb: "4F46E5" };
+                        cellStyle.font.sz = 11;
+                    }
+                    
+                    // Weekly hours column
+                    if((type === 'overtime' || type === 'early') && C === 8) {
+                        cellStyle.alignment.horizontal = "center";
+                        cellStyle.font.bold = true;
+                        cellStyle.font.color = { rgb: "4F46E5" };
+                        cellStyle.font.sz = 11;
+                    }
+                    
+                    // Status column for overtime/early
+                    if((type === 'overtime' || type === 'early') && C === 9) {
+                        const status = ws[address].v;
+                        cellStyle.alignment.horizontal = "center";
+                        cellStyle.font.bold = true;
+                        cellStyle.font.sz = 11;
+                        
+                        if(status === '초과') {
+                            cellStyle.font.color = { rgb: "FFFFFF" };
+                            cellStyle.fill.fgColor = { rgb: "EF4444" };
+                            cellStyle.border = {
+                                top: {style: "medium", color: {rgb: "DC2626"}},
+                                bottom: {style: "medium", color: {rgb: "DC2626"}},
+                                left: {style: "medium", color: {rgb: "DC2626"}},
+                                right: {style: "medium", color: {rgb: "DC2626"}}
+                            };
+                        } else if(status === '주의') {
+                            cellStyle.font.color = { rgb: "78350F" };
+                            cellStyle.fill.fgColor = { rgb: "FCD34D" };
+                            cellStyle.border = {
+                                top: {style: "medium", color: {rgb: "F59E0B"}},
+                                bottom: {style: "medium", color: {rgb: "F59E0B"}},
+                                left: {style: "medium", color: {rgb: "F59E0B"}},
+                                right: {style: "medium", color: {rgb: "F59E0B"}}
+                            };
+                        } else if(status === '안전') {
+                            cellStyle.font.color = { rgb: "FFFFFF" };
+                            cellStyle.fill.fgColor = { rgb: "10B981" };
+                            cellStyle.border = {
+                                top: {style: "medium", color: {rgb: "059669"}},
+                                bottom: {style: "medium", color: {rgb: "059669"}},
+                                left: {style: "medium", color: {rgb: "059669"}},
+                                right: {style: "medium", color: {rgb: "059669"}}
+                            };
+                        }
+                    }
+                    
+                    ws[address].s = cellStyle;
+                }
+            }
+            
+            // Set row heights
+            ws['!rows'] = [];
+            ws['!rows'][0] = { hpt: 35 }; // Title row
+            ws['!rows'][1] = { hpt: 18 }; // Date row
+            ws['!rows'][3] = { hpt: 28 }; // Header row
+            
+            // Data rows
+            for(let i = 4; i <= range.e.r; i++) {
+                ws['!rows'][i] = { hpt: 22 };
+            }
+            
+            XLSX.utils.book_append_sheet(wb, ws, type === 'weekly' ? '주간현황' : type === 'overtime' ? '연장신청' : type === 'early' ? '조출신청' : '팀멤버');
+            
+            const filename = `GWJ2_${type}_${new Date().toISOString().split('T')[0]}.xlsx`;
+            XLSX.writeFile(wb, filename, {bookType: 'xlsx', type: 'binary', cellStyles: true});
         }
-        function renderRequestTable(t) { const b=document.getElementById(`${t==='overtime'?'ot':'early'}Tbody`); b.innerHTML=''; requests[t].forEach((r,i)=>{ b.innerHTML+=`<tr><td>${r.name}</td><td>${r.nick}</td><td>${r.rank}</td><td style="font-family:monospace;color:var(--primary)">${r.code}</td><td>${r.date.substring(5)}</td><td>${r.start}~${r.end}</td><td style="font-weight:bold">${r.time}</td><td>${r.reason}</td><td><button class="btn btn-del" onclick="deleteRequest('${t}',${i})"><i class="fa-solid fa-trash"></i></button></td></tr>`; }); }
-        function deleteRequest(t,i) { if(confirm('삭제?')){ requests[t].splice(i,1); localStorage.setItem('gwj2_v15_requests', JSON.stringify(requests)); renderRequestTable(t); renderDashboard(); renderWeeklyTable(); const p=t==='overtime'?'ot':'early'; if(document.getElementById(`${p}Analysis`).style.display!=='none') updateAnalysis(p); } }
-        function renderTeamTable() { const b=document.getElementById('teamTable').querySelector('tbody'); b.innerHTML=''; members.forEach(m=>b.innerHTML+=`<tr><td>${m.name}</td><td>${m.role}</td><td style="color:var(--primary)">${m.code}</td></tr>`); }
-        function resetData() { if(confirm('초기화?')){ localStorage.removeItem('gwj2_v15_requests'); location.reload(); } }
+
+        // --- Utils ---
+        function initSelects() { 
+            const o='<option value="">선택하세요</option>'+members.map((m,i)=>`<option value="${i}">${m.name} (${m.role})</option>`).join(''); 
+            document.getElementById('otSelect').innerHTML=o; 
+            document.getElementById('earlySelect').innerHTML=o; 
+        }
+        
+        function setQuickTime(t,h) { 
+            const s=document.getElementById(`${t}Start`), e=document.getElementById(`${t}End`); 
+            if(!s.value)s.value="18:00"; 
+            const [H,M]=s.value.split(':').map(Number), d=new Date(); 
+            d.setHours(H,M,0,0); 
+            d.setMinutes(d.getMinutes()+(h*60)); 
+            e.value=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; 
+            calcDiff(t); 
+        }
+        
+        function setQuickTimeEarly(h) { 
+            const e=document.getElementById('earlyEnd'), s=document.getElementById('earlyStart'); 
+            if(!e.value)e.value="09:00"; 
+            const [H,M]=e.value.split(':').map(Number), d=new Date(); 
+            d.setHours(H,M,0,0); 
+            d.setMinutes(d.getMinutes()-(h*60)); 
+            s.value=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; 
+            calcDiff('early'); 
+        }
+        
+        function calcDiff(t) { 
+            const s=document.getElementById(`${t}Start`).value, e=document.getElementById(`${t}End`).value; 
+            if(s&&e){ 
+                const S=new Date(`2000-01-01 ${s}`), E=new Date(`2000-01-01 ${e}`); 
+                if(E<S) E.setDate(E.getDate()+1); 
+                document.getElementById(`${t}Diff`).value=((E-S)/36e5).toFixed(1)+'h'; 
+            } else document.getElementById(`${t}Diff`).value=''; 
+            updateAnalysis(t); 
+        }
+        
+        function addRequest(t) { 
+            const idx=document.getElementById(`${t==='overtime'?'ot':'early'}Select`).value; 
+            if(idx==="")return alert("관리자를 선택하세요!"); 
+            const m=members[idx], p=t==='overtime'?'ot':'early', date=document.getElementById(`${p}Date`).value;
+            const nick = m.role.split(' ')[0];
+            const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
+            
+            requests[t].push({
+                id:Date.now(), 
+                name:m.name, 
+                nick:nick, 
+                rank:rank, 
+                code:m.code, 
+                date:date, 
+                start:document.getElementById(`${p}Start`).value, 
+                end:document.getElementById(`${p}End`).value, 
+                time:document.getElementById(`${p}Diff`).value, 
+                reason:document.getElementById(`${p}Reason`).value
+            });
+            
+            localStorage.setItem('gwj2_v15_requests', JSON.stringify(requests)); 
+            renderRequestTable(t); 
+            updateAnalysis(p); 
+            renderWeeklyTable(); 
+            alert("추가되었습니다!");
+        }
+        
+        function renderRequestTable(t) { 
+            const b=document.getElementById(`${t==='overtime'?'ot':'early'}Tbody`); 
+            b.innerHTML=''; 
+            requests[t].forEach((r,i)=>{ 
+                const total = 40 + calcTotalApprovedTime(r.name);
+                const remain = 52 - total;
+                const percent = Math.min((total/52)*100, 100);
+                let statusColor = 'var(--success)';
+                if(total >= 52) statusColor = 'var(--danger)';
+                else if(total >= 45) statusColor = 'var(--warning)';
+                
+                b.innerHTML+=`<tr>
+                    <td>${r.name}</td>
+                    <td>${r.nick}</td>
+                    <td>${r.rank}</td>
+                    <td style="font-family:monospace;">${r.code}</td>
+                    <td>${r.date.substring(5)}</td>
+                    <td style="font-size:0.85rem;color:var(--text-sub)">${r.start}~${r.end}</td>
+                    <td style="font-weight:bold;color:var(--primary)">${r.time}</td>
+                    <td>
+                        <div style="font-size:0.75rem;color:var(--text-sub);margin-bottom:4px;">${total.toFixed(1)}h / 52h</div>
+                        <div style="width:100%;height:6px;background:var(--border);border-radius:4px;overflow:hidden;">
+                            <div style="width:${percent}%;height:100%;background:${statusColor};border-radius:4px;"></div>
+                        </div>
+                    </td>
+                    <td>${r.reason}</td>
+                    <td><button class="btn btn-del" onclick="deleteRequest('${t}',${i})"><i class="fa-solid fa-trash"></i></button></td>
+                </tr>`; 
+            }); 
+        }
+        
+        function deleteRequest(t,i) { 
+            if(confirm('삭제하시겠습니까?')){ 
+                requests[t].splice(i,1); 
+                localStorage.setItem('gwj2_v15_requests', JSON.stringify(requests)); 
+                renderRequestTable(t); 
+                renderDashboard(); 
+                renderWeeklyTable(); 
+                const p=t==='overtime'?'ot':'early'; 
+                if(document.getElementById(`${p}Analysis`).style.display!=='none') updateAnalysis(p); 
+            } 
+        }
+        
+        function renderTeamTable() { 
+            const b=document.getElementById('teamTable').querySelector('tbody'); 
+            b.innerHTML=''; 
+            members.forEach(m=>{
+                const nick = m.role.split(' ')[0];
+                const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
+                b.innerHTML+=`<tr><td>${m.name}</td><td>${nick}</td><td>${rank}</td><td style="color:var(--primary)">${m.code}</td></tr>`;
+            });
+        }
+        
+        function resetData() { 
+            if(confirm('모든 데이터를 초기화하시겠습니까?')){ 
+                localStorage.removeItem('gwj2_v15_requests'); 
+                location.reload(); 
+            } 
+        }
+        
         function captureSection(id, name) { 
-            const el=document.getElementById(id), btns=el.querySelectorAll('button'); btns.forEach(b=>b.style.opacity=0);
+            const el=document.getElementById(id), btns=el.querySelectorAll('button'); 
+            btns.forEach(b=>b.style.opacity=0);
             const isDark = document.documentElement.getAttribute('data-theme')==='dark';
-            html2canvas(el, {backgroundColor:isDark?'#1e293b':'#ffffff', scale:1.5}).then(c=>{ const l=document.createElement('a'); l.download=`${name}.png`; l.href=c.toDataURL(); l.click(); btns.forEach(b=>b.style.opacity=1); });
+            html2canvas(el, {backgroundColor:isDark?'#1e293b':'#ffffff', scale:1.5}).then(c=>{ 
+                const l=document.createElement('a'); 
+                l.download=`${name}.png`; 
+                l.href=c.toDataURL(); 
+                l.click(); 
+                btns.forEach(b=>b.style.opacity=1); 
+            });
         }
     </script>
 </body>
