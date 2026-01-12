@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GWJ2 OPS Management System (V15)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --font-main: 'Noto Sans KR', sans-serif;
+            
+            /* Dark Mode Defaults */
+            --bg-body: #0f172a;
+            --bg-nav: #1e293b;
+            --bg-glass: rgba(30, 41, 59, 0.85);
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            --input-bg: rgba(0,0,0,0.3);
+            --table-head: rgba(0,0,0,0.4);
+            --table-row-hover: rgba(255,255,255,0.03);
+        }
+
+        [data-theme="light"] {
+            --bg-body: #f1f5f9;
+            --bg-nav: #ffffff;
+            --bg-glass: rgba(255, 255, 255, 0.95);
+            --border: rgba(0, 0, 0, 0.1);
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            
+            --primary: #4f46e5;
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            
+            --input-bg: #ffffff;
+            --table-head: #f8fafc;
+            --table-row-hover: #f1f5f9;
+        }
+
+        * { box-sizing: border-box; outline: none; user-select: none; }
+        body { font-family: var(--font-main); background-color: var(--bg-body); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; transition: 0.3s; }
+
+        /* Navigation */
+        nav { width: 260px; background: var(--bg-nav); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px; z-index: 100; }
+        .logo { font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
+        .nav-item { padding: 14px 16px; margin-bottom: 8px; border-radius: 12px; cursor: pointer; color: var(--text-sub); font-weight: 500; transition: 0.2s; display: flex; align-items: center; gap: 12px; }
+        .nav-item:hover { background: var(--border); color: var(--text-main); }
+        .nav-item.active { background: linear-gradient(90deg, var(--primary) 0%, #4f46e5 100%); color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
+
+        main { flex: 1; padding: 40px; overflow-y: auto; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .theme-btn { background: var(--bg-glass); border: 1px solid var(--border); color: var(--text-main); padding: 8px 16px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+
+        /* --- V13 Widgets (Restored) --- */
+        .summary-widgets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .widget-card { background: var(--bg-glass); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 16px; box-shadow: var(--card-shadow); }
+        .widget-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; }
+        .widget-text div:first-child { font-size: 0.85rem; color: var(--text-sub); font-weight: 600; text-transform: uppercase; }
+        .widget-text div:last-child { font-size: 1.5rem; font-weight: 800; color: var(--text-main); }
+
+        /* --- Tables (V13 Style) --- */
+        .table-card { background: var(--bg-nav); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; padding: 0; }
+        .table-header { padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; background: var(--table-head); border-bottom: 1px solid var(--border); }
+        .weekly-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        .weekly-table th { text-align: left; padding: 16px; background: var(--table-head); color: var(--text-sub); font-size: 0.8rem; text-transform: uppercase; border-bottom: 2px solid var(--border); }
+        .weekly-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; background: var(--bg-glass); }
+        
+        .tbl-gauge { width: 100%; height: 6px; background: var(--border); border-radius: 4px; overflow: hidden; margin-top: 6px; }
+        .tbl-fill { height: 100%; border-radius: 4px; }
+        
+        /* Danger Pulse Effect */
+        .row-danger td { background: rgba(239, 68, 68, 0.08) !important; color: var(--danger); font-weight: 700; border-top: 1px solid rgba(239,68,68,0.2); border-bottom: 1px solid rgba(239,68,68,0.2); }
+        .row-danger { animation: pulse-red 2s infinite; }
+        @keyframes pulse-red { 0% { box-shadow: inset 0 0 0 0 rgba(239, 68, 68, 0); } 50% { box-shadow: inset 0 0 10px 0 rgba(239, 68, 68, 0.2); } 100% { box-shadow: inset 0 0 0 0 rgba(239, 68, 68, 0); } }
+        
+        .row-warning td { color: var(--warning); background: rgba(245, 158, 11, 0.05) !important; }
+        .status-badge { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; display: inline-block; width: 60px; text-align: center; }
+        .bg-danger { background: var(--danger); color: white; }
+        .bg-warning { background: var(--warning); color: #1e293b; }
+        .bg-safe { background: var(--success); color: white; }
+
+        /* --- Analysis Panel --- */
+        .split-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start; }
+        .analysis-panel { background: var(--bg-glass); border: 2px solid var(--border); border-radius: 16px; padding: 24px; position: sticky; top: 20px; }
+        .progress-container { margin-top: 15px; }
+        .progress-labels { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 6px; color: var(--text-sub); }
+        .progress-track { width: 100%; height: 8px; background: var(--border); border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 10px; transition: width 0.5s; }
+
+        /* General UI */
+        .form-container { background: var(--bg-glass); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+        .input-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .input-group label { display: block; font-size: 0.8rem; color: var(--text-sub); margin-bottom: 8px; font-weight: 600; }
+        .input-group input, .input-group select { width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-family: var(--font-main); }
+        .quick-btn-group { display: flex; gap: 6px; margin-top: 8px; }
+        .quick-btn { background: var(--border); color: var(--text-sub); padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
+        .quick-btn:hover { background: var(--primary); color: white; }
+        
+        .dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .member-card { background: var(--bg-glass); border: 1px solid var(--border); border-radius: 16px; padding: 20px; transition: transform 0.2s; box-shadow: var(--card-shadow); position: relative; overflow: hidden; }
+        .member-card:hover { transform: translateY(-3px); }
+        
+        /* Dashboard Status Colors */
+        .safe .progress-fill { background: var(--success); }
+        .warning .progress-fill { background: var(--warning); }
+        .danger { border-color: var(--danger); animation: pulse-red 2s infinite; }
+        .danger .progress-fill { background: var(--danger); }
+
+        .btn { padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-main); transition: 0.2s; }
+        .btn-primary { background: var(--primary); color: white; width: 100%; justify-content: center; }
+        .btn-capture { background: #334155; color: white; font-size: 0.85rem; padding: 8px 16px; }
+        .btn-del { background: rgba(239,68,68,0.15); color: var(--danger); padding: 6px 10px; border-radius: 6px; }
+
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo"><i class="fa-solid fa-layer-group"></i> GWJ2 <span>OPS</span></div>
+        <div class="nav-item active" onclick="switchTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> 대시보드</div>
+        <div class="nav-item" onclick="switchTab('weekly')"><i class="fa-solid fa-chart-simple"></i> 주간 현황 (전체)</div>
+        <div class="nav-item" onclick="switchTab('overtime')"><i class="fa-solid fa-clock"></i> 연장 신청</div>
+        <div class="nav-item" onclick="switchTab('early')"><i class="fa-solid fa-sun"></i> 조출 신청</div>
+        <div class="nav-item" onclick="switchTab('team')"><i class="fa-solid fa-users-gear"></i> 팀 설정</div>
+    </nav>
+
+    <main id="mainArea">
+        <header>
+            <h1 id="pageTitle">대시보드</h1>
+            <div style="display:flex; gap:15px; align-items:center;">
+                <button class="theme-btn" onclick="toggleTheme()"><i class="fa-solid fa-circle-half-stroke"></i> 테마</button>
+                <div style="font-size:0.9rem; color:var(--text-sub);">V15 Final</div>
+            </div>
+        </header>
+
+        <div id="tab-dashboard" class="tab-content active">
+            <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:20px;">
+                <div style="font-size:1.2rem; font-weight:700;"><i class="fa-solid fa-user-tie" style="color:#a78bfa"></i> Managers</div>
+                <button class="btn btn-capture" onclick="captureSection('managerSection', 'Managers_Status')"><i class="fa-solid fa-camera"></i> 캡처</button>
+            </div>
+            <div id="managerSection"><div class="dash-grid" id="managerGrid"></div></div>
+
+            <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:20px; margin-top:30px;">
+                <div style="font-size:1.2rem; font-weight:700;"><i class="fa-solid fa-headset" style="color:#22d3ee"></i> Team Captains</div>
+                <button class="btn btn-capture" onclick="captureSection('tcSection', 'TC_Status')"><i class="fa-solid fa-camera"></i> 캡처</button>
+            </div>
+            <div id="tcSection"><div class="dash-grid" id="tcGrid"></div></div>
+        </div>
+
+        <div id="tab-weekly" class="tab-content">
+            
+            <div class="summary-widgets" id="weeklyWidgets">
+                </div>
+
+            <div class="table-card" id="weeklyReportArea">
+                <div class="table-header">
+                    <div><h3 style="margin:0;">📊 주간 예상 근무시간 상세 현황</h3><span style="font-size:0.85rem; color:var(--text-sub);">52h 초과 시 붉은색 경고 점멸</span></div>
+                    <button class="btn btn-capture" onclick="captureSection('weeklyReportArea', 'Weekly_Report')"><i class="fa-solid fa-camera"></i> 현황판 캡처</button>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="weekly-table">
+                        <thead>
+                            <tr>
+                                <th width="5%" style="text-align:center;">순위</th>
+                                <th width="20%">이름 / 직급</th>
+                                <th width="35%">근무 진행률</th>
+                                <th width="15%" style="text-align:right">총 예상</th>
+                                <th width="10%" style="text-align:center">상태</th>
+                                <th width="15%" style="text-align:right">잔여</th>
+                            </tr>
+                        </thead>
+                        <tbody id="weeklyTbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-overtime" class="tab-content">
+            <div class="split-layout">
+                <div>
+                    <div class="form-container">
+                        <h3 style="margin-top:0; margin-bottom:20px;">📝 연장 근무 정보 입력</h3>
+                        <div class="input-grid">
+                            <div class="input-group"><label>관리자</label><select id="otSelect" onchange="updateAnalysis('ot')"></select></div>
+                            <div class="input-group"><label>날짜</label><input type="date" id="otDate" onchange="updateAnalysis('ot')"></div>
+                            <div class="input-group"><label>시작 (18:00)</label><input type="time" id="otStart" value="18:00" oninput="calcDiff('ot')"></div>
+                            <div class="input-group"><label>종료</label><input type="time" id="otEnd" oninput="calcDiff('ot')">
+                                <div class="quick-btn-group">
+                                    <div class="quick-btn" onclick="setQuickTime('ot',0.5)">+0.5</div><div class="quick-btn" onclick="setQuickTime('ot',1.0)">+1.0</div>
+                                    <div class="quick-btn" onclick="setQuickTime('ot',1.5)">+1.5</div><div class="quick-btn" onclick="setQuickTime('ot',2.0)">+2.0</div>
+                                </div>
+                            </div>
+                            <div class="input-group" style="grid-column:span 2"><label>필요 시간</label><input type="text" id="otDiff" readonly></div>
+                            <div class="input-group" style="grid-column:span 2"><label>사유</label><input type="text" id="otReason" placeholder="예: 마감 지연"></div>
+                            <div style="grid-column:span 2"><button class="btn btn-primary" onclick="addRequest('overtime')">추가</button></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="analysis-panel" id="otAnalysis" style="display:none;">
+                        <div style="border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:15px;">
+                            <div style="font-size:1.3rem; font-weight:800;" id="otAnaName">-</div><div style="font-size:0.85rem;" id="otAnaRole">-</div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>기본</span><input type="number" id="otBase" value="40" style="width:50px; background:transparent; border:none; border-bottom:1px solid #999; color:inherit; text-align:right;" oninput="updateAnalysis('ot')"> h</div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>기승인</span><span style="font-weight:600;" id="otApproved">0.0 h</span></div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:var(--primary);"><span>+ 현재</span><span style="font-weight:600;" id="otCurrent">0.0 h</span></div>
+                        <div style="border-top:1px solid var(--border); padding-top:10px; margin-top:15px; display:flex; justify-content:space-between; align-items:center;"><span style="font-size:1.1rem; font-weight:700;">이번 주 예상</span><span style="font-size:1.8rem; font-weight:800; color:var(--primary);" id="otTotal">40.0 h</span></div>
+                        <div class="progress-container"><div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:5px;"><span>Limit: 52h</span><span id="otAnaRemain">12h</span></div><div class="progress-track"><div class="progress-fill" id="otAnaFill" style="width:76%; background:var(--success)"></div></div></div>
+                        <div id="otAlertDanger" style="margin-top:15px; padding:10px; border-radius:8px; font-size:0.9rem; font-weight:600; text-align:center; display:none; background:rgba(239,68,68,0.1); color:var(--danger); border:1px solid var(--danger);">위험: 52시간 초과!</div>
+                    </div>
+                    <div id="otPlaceholder" style="text-align:center; padding:40px; color:var(--text-sub); border:2px dashed var(--border); border-radius:16px;">관리자를 선택하세요.</div>
+                </div>
+            </div>
+            <div class="table-card" id="otTableArea" style="margin-top:24px;">
+                <div class="table-header"><h3>📋 연장 신청 내역</h3><button class="btn btn-capture" onclick="captureSection('otTableArea','Overtime_List')">캡처</button></div>
+                <div style="overflow-x:auto;"><table class="weekly-table" id="otTable"><thead><tr><th>이름</th><th>직급</th><th>쿠코드</th><th>일자</th><th>시간</th><th>필요시간</th><th>사유</th><th>삭제</th></tr></thead><tbody id="otTbody"></tbody></table></div>
+            </div>
+        </div>
+
+        <div id="tab-early" class="tab-content">
+            <div class="split-layout">
+                <div>
+                    <div class="form-container">
+                        <h3 style="margin-top:0; margin-bottom:20px;">📝 조출 근무 정보 입력</h3>
+                        <div class="input-grid">
+                            <div class="input-group"><label>관리자</label><select id="earlySelect" onchange="updateAnalysis('early')"></select></div>
+                            <div class="input-group"><label>날짜</label><input type="date" id="earlyDate" onchange="updateAnalysis('early')"></div>
+                            <div class="input-group"><label>시작 (08:00)</label><input type="time" id="earlyStart" value="08:00" oninput="calcDiff('early')"></div>
+                            <div class="input-group"><label>종료 (09:00)</label><input type="time" id="earlyEnd" value="09:00" oninput="calcDiff('early')">
+                                <div class="quick-btn-group">
+                                    <div class="quick-btn" onclick="setQuickTimeEarly(0.5)">0.5h전</div><div class="quick-btn" onclick="setQuickTimeEarly(1.0)">1.0h전</div>
+                                </div>
+                            </div>
+                            <div class="input-group" style="grid-column:span 2"><label>필요 시간</label><input type="text" id="earlyDiff" readonly></div>
+                            <div class="input-group" style="grid-column:span 2"><label>사유</label><input type="text" id="earlyReason" placeholder="예: 인원 대응"></div>
+                            <div style="grid-column:span 2"><button class="btn btn-primary" onclick="addRequest('early')">추가</button></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="analysis-panel" id="earlyAnalysis" style="display:none;">
+                        <div style="border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:15px;">
+                            <div style="font-size:1.3rem; font-weight:800;" id="earlyAnaName">-</div><div style="font-size:0.85rem;" id="earlyAnaRole">-</div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>기본</span><input type="number" id="earlyBase" value="40" style="width:50px; background:transparent; border:none; border-bottom:1px solid #999; color:inherit; text-align:right;" oninput="updateAnalysis('early')"> h</div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>기승인</span><span style="font-weight:600;" id="earlyApproved">0.0 h</span></div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:var(--primary);"><span>+ 현재</span><span style="font-weight:600;" id="earlyCurrent">0.0 h</span></div>
+                        <div style="border-top:1px solid var(--border); padding-top:10px; margin-top:15px; display:flex; justify-content:space-between; align-items:center;"><span style="font-size:1.1rem; font-weight:700;">이번 주 예상</span><span style="font-size:1.8rem; font-weight:800; color:var(--primary);" id="earlyTotal">40.0 h</span></div>
+                        <div class="progress-container"><div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:5px;"><span>Limit: 52h</span><span id="earlyAnaRemain">12h</span></div><div class="progress-track"><div class="progress-fill" id="earlyAnaFill" style="width:76%; background:var(--success)"></div></div></div>
+                        <div id="earlyAlertDanger" style="margin-top:15px; padding:10px; border-radius:8px; font-size:0.9rem; font-weight:600; text-align:center; display:none; background:rgba(239,68,68,0.1); color:var(--danger); border:1px solid var(--danger);">위험: 52시간 초과!</div>
+                    </div>
+                    <div id="earlyPlaceholder" style="text-align:center; padding:40px; color:var(--text-sub); border:2px dashed var(--border); border-radius:16px;">관리자를 선택하세요.</div>
+                </div>
+            </div>
+            <div class="table-card" id="earlyTableArea" style="margin-top:24px;">
+                <div class="table-header"><h3>📋 조출 신청 내역</h3><button class="btn btn-capture" onclick="captureSection('earlyTableArea','Early_List')">캡처</button></div>
+                <div style="overflow-x:auto;"><table class="weekly-table" id="earlyTable"><thead><tr><th>이름</th><th>직급</th><th>쿠코드</th><th>일자</th><th>시간</th><th>필요시간</th><th>사유</th><th>삭제</th></tr></thead><tbody id="earlyTbody"></tbody></table></div>
+            </div>
+        </div>
+
+        <div id="tab-team" class="tab-content">
+            <div class="form-container">
+                <div style="display:flex; justify-content:space-between; align-items:center;"><h3>팀 멤버 데이터</h3><button class="btn btn-del" onclick="resetData()">데이터 초기화</button></div>
+                <div style="margin-top:20px; overflow-y:auto; max-height:600px;"><table class="weekly-table" id="teamTable"><thead><tr><th>이름</th><th>직급</th><th>쿠코드</th></tr></thead><tbody></tbody></table></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const defaultMembers = [
+            {name:'노을',role:'Pitt (Manager)',code:'R5370913'},{name:'김국천',role:'Van (Manager)',code:'E4992491'},
+            {name:'윤영민',role:'Anton (Manager)',code:'Z7386388'},{name:'정정욱',role:'Giselle (Manager)',code:'Z5406388'},
+            {name:'오치형',role:'Justin (Manager)',code:'B3706369'},{name:'서재현',role:'Aaron (T/C)',code:'S4461023'},
+            {name:'박준혁',role:'Ralph (T/C)',code:'X4033164'},{name:'손민주',role:'Sally (T/C)',code:'D5012685'},
+            {name:'문대환',role:'Hwan (T/C)',code:'N2086791'},{name:'이승연',role:'Steve (T/C)',code:'W9345496'},
+            {name:'조영호',role:'Zeta (T/C)',code:'X9075186'},{name:'배희재',role:'Bennett (T/C)',code:'H4633331'},
+            {name:'한아름',role:'Lumi (T/C)',code:'G4094768'},{name:'장시원',role:'Eric (T/C)',code:'R9635160'},
+            {name:'박찬영',role:'Bron (T/C)',code:'R2637601'},{name:'김정원',role:'Garden (T/C)',code:'T9383022'},
+            {name:'박슬기',role:'Winter (T/C)',code:'U7306474'},{name:'양동인',role:'David (T/C)',code:'P9738071'},
+            {name:'조영권',role:'Owen (T/C)',code:'T9060243'},{name:'이계환',role:'Liam (T/C)',code:'V6568216'},
+            {name:'최지호',role:'Damian (T/C)',code:'X7694762'},{name:'손기훈',role:'Leif (T/C)',code:'P1637348'},
+            {name:'진성광',role:'Jin (T/C)',code:'A1943868'},{name:'허원빈',role:'Jonny (T/C)',code:'V4296863'},
+            {name:'김용운',role:'Ford (T/C)',code:'G9236102'},{name:'박준영',role:'Xenon (T/C)',code:'L5291847'},
+            {name:'신건호',role:'Colin (T/C)',code:'D9063832'},{name:'장한별',role:'Siwoo (T/C)',code:'R8788212'},
+            {name:'박상영',role:'Sangyeong (T/C)',code:'S1827358'},{name:'백석',role:'Stone (T/C)',code:'M9279634'},
+            {name:'장전희',role:'Daniel (T/C)',code:'H3088014'},{name:'강동희',role:'Leto (T/C)',code:'J7268590'},
+            {name:'송해지',role:'Wendy (T/C)',code:'G2791563'},{name:'길다빈',role:'Benny (T/C)',code:'Y5651563'},
+            {name:'이시원',role:'Freesia (T/C)',code:'N2607464'},{name:'한혜주',role:'Lily (T/C)',code:'H3614867'},
+            {name:'이윤성',role:'Loosie (T/C)',code:'Q2813675'},{name:'오재영',role:'Healer (T/C)',code:'U2554263'},
+            {name:'박창수',role:'Tani (T/C)',code:'G2345755'},{name:'정의헌',role:'Covy (T/C)',code:'A3511520'},
+            {name:'김승범',role:'Kohav (T/C)',code:'T3138750'}
+        ];
+
+        let members = JSON.parse(localStorage.getItem('gwj2_v15_members')) || defaultMembers;
+        let requests = JSON.parse(localStorage.getItem('gwj2_v15_requests')) || { overtime: [], early: [] };
+
+        window.onload = function() {
+            renderDashboard(); initSelects(); renderRequestTable('overtime'); renderRequestTable('early'); renderTeamTable(); renderWeeklyTable();
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('otDate').value = today; document.getElementById('earlyDate').value = today;
+            const savedTheme = localStorage.getItem('gwj2_theme') || 'dark'; document.documentElement.setAttribute('data-theme', savedTheme);
+        };
+
+        function toggleTheme() { const n = document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'; document.documentElement.setAttribute('data-theme',n); localStorage.setItem('gwj2_theme',n); }
+        function switchTab(t) { document.querySelectorAll('.nav-item,.tab-content').forEach(e=>e.classList.remove('active')); event.currentTarget.classList.add('active'); document.getElementById(`tab-${t}`).classList.add('active'); if(t==='dashboard')renderDashboard(); if(t==='weekly')renderWeeklyTable(); }
+
+        // --- Weekly Table (Visual Restored) ---
+        function renderWeeklyTable() {
+            const tbody = document.getElementById('weeklyTbody'); tbody.innerHTML = '';
+            const widgets = document.getElementById('weeklyWidgets');
+            
+            let data = members.map(m => { const base=40; const approved=calcTotalApprovedTime(m.name); return { name:m.name, role:m.role, total:base+approved }; });
+            data.sort((a,b)=>b.total-a.total);
+
+            let cntDanger=0, cntWarning=0, cntSafe=0;
+
+            data.forEach((d, idx) => {
+                const remain = 52 - d.total;
+                const percent = Math.min((d.total/52)*100, 100);
+                let rowClass='', status='안전', barColor='var(--success)';
+                
+                if(d.total >= 52) { status='초과'; rowClass='row-danger'; barColor='var(--danger)'; cntDanger++; }
+                else if(d.total >= 45) { status='주의'; rowClass='row-warning'; barColor='var(--warning)'; cntWarning++; }
+                else { cntSafe++; }
+
+                tbody.innerHTML += `
+                    <tr class="${rowClass}">
+                        <td style="text-align:center; font-weight:bold; color:var(--text-sub)">${idx+1}</td>
+                        <td><div style="font-weight:700">${d.name}</div><div style="font-size:0.75rem; color:var(--text-sub)">${d.role}</div></td>
+                        <td><div style="display:flex; justify-content:space-between; font-size:0.75rem;"><span>${Math.round(percent)}%</span></div><div class="tbl-gauge"><div class="tbl-fill" style="width:${percent}%; background:${barColor}"></div></div></td>
+                        <td style="text-align:right; font-weight:800; color:${barColor}; font-size:1.1rem;">${d.total.toFixed(1)} h</td>
+                        <td style="text-align:center"><span class="status-badge" style="border:1px solid ${barColor}; color:${barColor}">${status}</span></td>
+                        <td style="text-align:right; color:var(--text-sub)">${remain.toFixed(1)} h</td>
+                    </tr>`;
+            });
+
+            // V13 Widgets
+            widgets.innerHTML = `
+                <div class="widget-card"><div class="widget-icon" style="background:var(--primary)"><i class="fa-solid fa-users"></i></div><div class="widget-text"><div>전체 인원</div><div>${members.length}</div></div></div>
+                <div class="widget-card" style="border-color:var(--danger)"><div class="widget-icon" style="background:var(--danger)"><i class="fa-solid fa-ban"></i></div><div class="widget-text"><div>위험 (52h+)</div><div>${cntDanger}</div></div></div>
+                <div class="widget-card" style="border-color:var(--warning)"><div class="widget-icon" style="background:var(--warning)"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="widget-text"><div>주의 (45h+)</div><div>${cntWarning}</div></div></div>
+                <div class="widget-card"><div class="widget-icon" style="background:var(--success)"><i class="fa-solid fa-check"></i></div><div class="widget-text"><div>안전</div><div>${cntSafe}</div></div></div>
+            `;
+        }
+
+        // --- Dashboard ---
+        function renderDashboard() {
+            const mgr=document.getElementById('managerGrid'), tc=document.getElementById('tcGrid'); mgr.innerHTML=''; tc.innerHTML='';
+            members.forEach(m => {
+                const isMgr = m.role.includes('Manager');
+                const total = 40 + calcTotalApprovedTime(m.name);
+                const remain = 52 - total;
+                const percent = Math.min((total/52)*100, 100);
+                let statusClass='safe'; if(total>=52) statusClass='danger'; else if(total>=45) statusClass='warning';
+
+                const card = document.createElement('div'); card.className = `member-card ${statusClass}`;
+                card.innerHTML = `
+                    <div class="card-top"><div class="card-info"><div>${m.name}</div><div>${m.role}</div></div><div class="card-badge">${total.toFixed(1)}h</div></div>
+                    <div class="progress-container"><div class="progress-labels"><span>Limit: 52h</span><span class="progress-val">잔여: ${remain.toFixed(1)}h</span></div><div class="progress-track"><div class="progress-fill" style="width:${percent}%"></div></div></div>`;
+                if(isMgr) mgr.appendChild(card); else tc.appendChild(card);
+            });
+        }
+
+        function calcTotalApprovedTime(name) {
+            const d=new Date(), day=d.getDay(), diff=d.getDate()-day; 
+            const sun=new Date(d.setDate(diff)); sun.setHours(0,0,0,0);
+            const sat=new Date(sun); sat.setDate(sun.getDate()+6); sat.setHours(23,59,59,999);
+            let t=0;
+            [...requests.overtime, ...requests.early].forEach(r => { if(r.name===name) { const rd=new Date(r.date); if(rd>=sun && rd<=sat) t+=parseFloat(r.time.replace('h',''))||0; } });
+            return t;
+        }
+
+        function updateAnalysis(type) {
+            const idx = document.getElementById(`${type}Select`).value;
+            const panel = document.getElementById(`${type}Analysis`), ph = document.getElementById(`${type}Placeholder`);
+            if(idx==="") { panel.style.display='none'; ph.style.display='block'; return; }
+            panel.style.display='block'; ph.style.display='none';
+
+            const m = members[idx];
+            document.getElementById(`${type}AnaName`).innerText = m.name; document.getElementById(`${type}AnaRole`).innerText = m.role;
+            const base = parseFloat(document.getElementById(`${type}Base`).value)||0;
+            const curr = parseFloat(document.getElementById(`${type}Diff`).value.replace('h',''))||0;
+            
+            let approved = 0;
+            const inputDate = document.getElementById(`${type}Date`).value;
+            if(inputDate) {
+                const target = new Date(inputDate), day=target.getDay(), diff=target.getDate()-day;
+                const sun=new Date(target.setDate(diff)); sun.setHours(0,0,0,0);
+                const sat=new Date(sun); sat.setDate(sun.getDate()+6); sat.setHours(23,59,59,999);
+                [...requests.overtime, ...requests.early].forEach(r => { if(r.name===m.name) { const rd=new Date(r.date); if(rd>=sun && rd<=sat) approved+=parseFloat(r.time.replace('h',''))||0; } });
+            }
+
+            const total = base + approved + curr;
+            const remain = 52 - total;
+            const percent = Math.min((total/52)*100, 100);
+
+            document.getElementById(`${type}Approved`).innerText = approved.toFixed(1)+' h';
+            document.getElementById(`${type}Current`).innerText = curr.toFixed(1)+' h';
+            document.getElementById(`${type}Total`).innerText = total.toFixed(1)+' h';
+            
+            document.getElementById(`${type}AnaRemain`).innerText = remain.toFixed(1)+'h';
+            const fill = document.getElementById(`${type}AnaFill`);
+            fill.style.width = percent + '%';
+
+            const dang=document.getElementById(`${type}AlertDanger`);
+            dang.style.display='none'; fill.style.background='var(--success)';
+            if(total>=52) { dang.style.display='block'; fill.style.background='var(--danger)'; }
+            else if(total>=45) { fill.style.background='var(--warning)'; }
+        }
+
+        // --- Utils ---
+        function initSelects() { const o='<option value="">선택하세요</option>'+members.map((m,i)=>`<option value="${i}">${m.name} (${m.role})</option>`).join(''); document.getElementById('otSelect').innerHTML=o; document.getElementById('earlySelect').innerHTML=o; }
+        function setQuickTime(t,h) { const s=document.getElementById(`${t}Start`), e=document.getElementById(`${t}End`); if(!s.value)s.value="18:00"; const [H,M]=s.value.split(':').map(Number), d=new Date(); d.setHours(H,M,0,0); d.setMinutes(d.getMinutes()+(h*60)); e.value=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; calcDiff(t); }
+        function setQuickTimeEarly(h) { const e=document.getElementById('earlyEnd'), s=document.getElementById('earlyStart'); if(!e.value)e.value="09:00"; const [H,M]=e.value.split(':').map(Number), d=new Date(); d.setHours(H,M,0,0); d.setMinutes(d.getMinutes()-(h*60)); s.value=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; calcDiff('early'); }
+        function calcDiff(t) { const s=document.getElementById(`${t}Start`).value, e=document.getElementById(`${t}End`).value; if(s&&e){ const S=new Date(`2000-01-01 ${s}`), E=new Date(`2000-01-01 ${e}`); if(E<S) E.setDate(E.getDate()+1); document.getElementById(`${t}Diff`).value=((E-S)/36e5).toFixed(1)+'h'; } else document.getElementById(`${t}Diff`).value=''; updateAnalysis(t); }
+        function addRequest(t) { 
+            const idx=document.getElementById(`${t==='overtime'?'ot':'early'}Select`).value; if(idx==="")return alert("관리자 선택!"); 
+            const m=members[idx], p=t==='overtime'?'ot':'early', date=document.getElementById(`${p}Date`).value;
+            requests[t].push({id:Date.now(), name:m.name, nick:m.role.split(' ')[0], rank:m.role.includes('Manager')?'Manager':'T/C', code:m.code, date:date, start:document.getElementById(`${p}Start`).value, end:document.getElementById(`${p}End`).value, time:document.getElementById(`${p}Diff`).value, reason:document.getElementById(`${p}Reason`).value});
+            localStorage.setItem('gwj2_v15_requests', JSON.stringify(requests)); renderRequestTable(t); updateAnalysis(p); renderWeeklyTable(); alert("추가됨");
+        }
+        function renderRequestTable(t) { const b=document.getElementById(`${t==='overtime'?'ot':'early'}Tbody`); b.innerHTML=''; requests[t].forEach((r,i)=>{ b.innerHTML+=`<tr><td>${r.name}</td><td>${r.nick}</td><td>${r.rank}</td><td style="font-family:monospace;color:var(--primary)">${r.code}</td><td>${r.date.substring(5)}</td><td>${r.start}~${r.end}</td><td style="font-weight:bold">${r.time}</td><td>${r.reason}</td><td><button class="btn btn-del" onclick="deleteRequest('${t}',${i})"><i class="fa-solid fa-trash"></i></button></td></tr>`; }); }
+        function deleteRequest(t,i) { if(confirm('삭제?')){ requests[t].splice(i,1); localStorage.setItem('gwj2_v15_requests', JSON.stringify(requests)); renderRequestTable(t); renderDashboard(); renderWeeklyTable(); const p=t==='overtime'?'ot':'early'; if(document.getElementById(`${p}Analysis`).style.display!=='none') updateAnalysis(p); } }
+        function renderTeamTable() { const b=document.getElementById('teamTable').querySelector('tbody'); b.innerHTML=''; members.forEach(m=>b.innerHTML+=`<tr><td>${m.name}</td><td>${m.role}</td><td style="color:var(--primary)">${m.code}</td></tr>`); }
+        function resetData() { if(confirm('초기화?')){ localStorage.removeItem('gwj2_v15_requests'); location.reload(); } }
+        function captureSection(id, name) { 
+            const el=document.getElementById(id), btns=el.querySelectorAll('button'); btns.forEach(b=>b.style.opacity=0);
+            const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+            html2canvas(el, {backgroundColor:isDark?'#1e293b':'#ffffff', scale:1.5}).then(c=>{ const l=document.createElement('a'); l.download=`${name}.png`; l.href=c.toDataURL(); l.click(); btns.forEach(b=>b.style.opacity=1); });
+        }
+    </script>
+</body>
+</html>
