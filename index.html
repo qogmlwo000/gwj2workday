@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GWJ2 OB Workday - Bennett</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="https://raw.githubusercontent.com/qogmlwo000/gwj2pickpackhtp/main/Bennett.ico" type="image/x-icon">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -61,17 +65,173 @@
         ::-webkit-scrollbar-thumb:hover { background: var(--text-sub); }
 
         /* Navigation */
-        nav { width: 260px; background: var(--bg-nav); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px; z-index: 100; }
-        .logo { font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 40px; display: flex; align-items: center; gap: 10px; line-height: 1.2; }
-        .logo span { display: inline; white-space: nowrap; }
-        .nav-item { padding: 14px 16px; margin-bottom: 8px; border-radius: 12px; cursor: pointer; color: var(--text-sub); font-weight: 500; transition: 0.2s; display: flex; align-items: center; gap: 12px; }
-        .nav-item:hover { background: var(--border); color: var(--text-main); }
-        .nav-item.active { background: linear-gradient(90deg, var(--primary) 0%, #4f46e5 100%); color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
+        nav { width: 260px; background: var(--bg-nav); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px; z-index: 100; box-shadow: 4px 0 12px rgba(0,0,0,0.1); }
+        
+        /* Premium Logo Design */
+        .logo { 
+            font-size: 1.3rem; 
+            font-weight: 800; 
+            color: var(--text-main); 
+            margin-bottom: 40px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 16px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+            border-radius: 16px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .logo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: 0.5s;
+        }
+        
+        .logo:hover::before {
+            left: 100%;
+        }
+        
+        .logo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+            border-color: var(--primary);
+        }
+        
+        .logo i {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #6366f1, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .logo-text { line-height: 1.3; }
+        .logo-text .main { font-size: 1.3rem; display: block; }
+        .logo-text .sub { font-size: 0.85rem; font-weight: 600; color: var(--text-sub); display: block; }
+        
+        /* Nav Items with Premium Hover */
+        .nav-item { 
+            padding: 14px 16px; 
+            margin-bottom: 8px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            color: var(--text-sub); 
+            font-weight: 500; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 0;
+            background: var(--primary);
+            border-radius: 0 3px 3px 0;
+            transition: height 0.3s;
+        }
+        
+        .nav-item:hover { 
+            background: var(--border); 
+            color: var(--text-main); 
+            transform: translateX(4px);
+        }
+        
+        .nav-item:hover::before {
+            height: 70%;
+        }
+        
+        .nav-item.active { 
+            background: linear-gradient(90deg, var(--primary) 0%, #4f46e5 100%); 
+            color: white; 
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            transform: translateX(4px);
+        }
+        
+        .nav-item.active::before {
+            height: 70%;
+            background: white;
+        }
+        
+        .nav-item i {
+            font-size: 1.1rem;
+            transition: transform 0.3s;
+        }
+        
+        .nav-item:hover i {
+            transform: scale(1.2);
+        }
 
         main { flex: 1; padding: 40px; overflow-y: auto; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .theme-btn { background: var(--bg-glass); border: 1px solid var(--border); color: var(--text-main); padding: 8px 16px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
-        .theme-btn:hover { background: var(--primary); color: white; }
+        
+        /* Premium Theme Button */
+        .theme-btn { 
+            background: linear-gradient(135deg, var(--primary), #8b5cf6); 
+            border: none;
+            color: white; 
+            padding: 10px 20px; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .theme-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .theme-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .theme-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+        
+        .theme-btn i, .theme-btn span {
+            position: relative;
+            z-index: 1;
+        }
 
         /* Widgets */
         .summary-widgets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
@@ -267,6 +427,240 @@
         #weeklyFullReport .summary-widgets { margin-bottom: 20px; }
 
         .action-buttons { display: flex; gap: 10px; }
+        
+        /* Search & Filter Bar */
+        .search-filter-bar {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 40px 12px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-main);
+            font-family: var(--font-main);
+            transition: 0.2s;
+        }
+        
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .search-box i {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-sub);
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--bg-nav);
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .filter-btn:hover {
+            background: var(--border);
+            color: var(--text-main);
+        }
+        
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .filter-btn.filter-danger.active {
+            background: var(--danger);
+            border-color: var(--danger);
+        }
+        
+        .filter-btn.filter-warning.active {
+            background: var(--warning);
+            border-color: var(--warning);
+            color: #1e293b;
+        }
+        
+        .filter-btn.filter-safe.active {
+            background: var(--success);
+            border-color: var(--success);
+        }
+        
+        .clear-filters {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.85rem;
+        }
+        
+        .clear-filters:hover {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .dash-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            .summary-widgets {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 968px) {
+            body {
+                flex-direction: column;
+            }
+            
+            nav {
+                width: 100%;
+                flex-direction: row;
+                padding: 16px;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                overflow-x: auto;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            }
+            
+            .logo {
+                margin-bottom: 0;
+                margin-right: 20px;
+                padding: 12px;
+                min-width: 150px;
+            }
+            
+            .logo-text .main {
+                font-size: 1.1rem;
+            }
+            
+            .logo-text .sub {
+                font-size: 0.75rem;
+            }
+            
+            .nav-item {
+                white-space: nowrap;
+                margin-bottom: 0;
+                margin-right: 8px;
+            }
+            
+            main {
+                padding: 20px;
+            }
+            
+            .split-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .analysis-panel {
+                position: static;
+            }
+            
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+            
+            .table-header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+            
+            .action-buttons {
+                width: 100%;
+                justify-content: stretch;
+            }
+            
+            .action-buttons .btn {
+                flex: 1;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .summary-widgets {
+                grid-template-columns: 1fr;
+            }
+            
+            .dash-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .widget-card {
+                padding: 16px;
+            }
+            
+            .search-filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                min-width: 100%;
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+            
+            .filter-btn {
+                flex: 1;
+                justify-content: center;
+            }
+            
+            .weekly-table {
+                font-size: 0.85rem;
+            }
+            
+            .weekly-table th,
+            .weekly-table td {
+                padding: 8px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -274,7 +668,10 @@
     <nav>
         <div class="logo">
             <i class="fa-solid fa-layer-group"></i>
-            <div>GWJ2<br><span style="font-size:0.9rem;font-weight:600;">OB Workday</span></div>
+            <div class="logo-text">
+                <span class="main">GWJ2</span>
+                <span class="sub">OB Workday</span>
+            </div>
         </div>
         <div class="nav-item active" onclick="switchTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> 대시보드</div>
         <div class="nav-item" onclick="switchTab('weekly')"><i class="fa-solid fa-chart-simple"></i> 주간 현황 (전체)</div>
@@ -287,12 +684,37 @@
         <header>
             <h1 id="pageTitle">대시보드</h1>
             <div style="display:flex; gap:15px; align-items:center;">
-                <button class="theme-btn" onclick="toggleTheme()"><i class="fa-solid fa-circle-half-stroke"></i> 테마</button>
+                <button class="theme-btn" onclick="toggleTheme()">
+                    <i class="fa-solid fa-circle-half-stroke"></i>
+                    <span>테마</span>
+                </button>
                 <div style="font-size:0.9rem; color:var(--text-sub);">V 2.0</div>
             </div>
         </header>
 
         <div id="tab-dashboard" class="tab-content active">
+            <!-- Search & Filter Bar -->
+            <div class="search-filter-bar">
+                <div class="search-box">
+                    <input type="text" id="dashSearchInput" placeholder="이름 또는 직급 검색..." oninput="applyDashFilters()">
+                    <i class="fa-solid fa-search"></i>
+                </div>
+                <div class="filter-group">
+                    <div class="filter-btn filter-danger" onclick="toggleDashFilter('danger')">
+                        <i class="fa-solid fa-ban"></i> 초과
+                    </div>
+                    <div class="filter-btn filter-warning" onclick="toggleDashFilter('warning')">
+                        <i class="fa-solid fa-triangle-exclamation"></i> 주의
+                    </div>
+                    <div class="filter-btn filter-safe" onclick="toggleDashFilter('safe')">
+                        <i class="fa-solid fa-check"></i> 안전
+                    </div>
+                </div>
+                <button class="clear-filters" onclick="clearDashFilters()">
+                    <i class="fa-solid fa-rotate-right"></i> 초기화
+                </button>
+            </div>
+            
             <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:20px;">
                 <div style="font-size:1.2rem; font-weight:700;"><i class="fa-solid fa-user-tie" style="color:#a78bfa"></i> Managers</div>
                 <button class="btn btn-capture" onclick="captureSection('managerSection', 'Managers_Status')"><i class="fa-solid fa-camera"></i> 캡처</button>
@@ -309,6 +731,28 @@
         <div id="tab-weekly" class="tab-content">
             
             <div id="weeklyFullReport">
+                <!-- Search & Filter Bar -->
+                <div class="search-filter-bar">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="이름 또는 직급 검색..." oninput="applyFilters()">
+                        <i class="fa-solid fa-search"></i>
+                    </div>
+                    <div class="filter-group">
+                        <div class="filter-btn filter-danger" onclick="toggleFilter('danger')">
+                            <i class="fa-solid fa-ban"></i> 초과
+                        </div>
+                        <div class="filter-btn filter-warning" onclick="toggleFilter('warning')">
+                            <i class="fa-solid fa-triangle-exclamation"></i> 주의
+                        </div>
+                        <div class="filter-btn filter-safe" onclick="toggleFilter('safe')">
+                            <i class="fa-solid fa-check"></i> 안전
+                        </div>
+                    </div>
+                    <button class="clear-filters" onclick="clearFilters()">
+                        <i class="fa-solid fa-rotate-right"></i> 초기화
+                    </button>
+                </div>
+                
                 <div class="summary-widgets" id="weeklyWidgets"></div>
 
                 <div class="table-card" id="weeklyReportArea">
@@ -319,22 +763,22 @@
                             <button class="btn btn-capture" onclick="captureSection('weeklyFullReport', 'Weekly_Report')"><i class="fa-solid fa-camera"></i> 캡처</button>
                         </div>
                     </div>
-                <div style="overflow-x:auto;">
-                    <table class="weekly-table">
-                        <thead>
-                            <tr>
-                                <th width="5%" style="text-align:center;">순위</th>
-                                <th width="20%">이름 / 직급</th>
-                                <th width="35%">근무 진행률</th>
-                                <th width="15%" style="text-align:right">총 예상</th>
-                                <th width="10%" style="text-align:center">상태</th>
-                                <th width="15%" style="text-align:right">잔여</th>
-                            </tr>
-                        </thead>
-                        <tbody id="weeklyTbody"></tbody>
-                    </table>
+                    <div style="overflow-x:auto;">
+                        <table class="weekly-table">
+                            <thead>
+                                <tr>
+                                    <th width="5%" style="text-align:center;">순위</th>
+                                    <th width="20%">이름 / 직급</th>
+                                    <th width="35%">근무 진행률</th>
+                                    <th width="15%" style="text-align:right">총 예상</th>
+                                    <th width="10%" style="text-align:center">상태</th>
+                                    <th width="15%" style="text-align:right">잔여</th>
+                                </tr>
+                            </thead>
+                            <tbody id="weeklyTbody"></tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
             </div>
         </div>
 
@@ -496,6 +940,12 @@
 
         let members = JSON.parse(localStorage.getItem('gwj2_v15_members')) || defaultMembers;
         let requests = JSON.parse(localStorage.getItem('gwj2_v15_requests')) || { overtime: [], early: [] };
+        
+        // Filter states
+        let activeFilters = { danger: false, warning: false, safe: false };
+        let dashActiveFilters = { danger: false, warning: false, safe: false };
+        let allWeeklyData = [];
+        let allDashData = [];
 
         window.onload = function() {
             renderDashboard(); initSelects(); renderRequestTable('overtime'); renderRequestTable('early'); renderTeamTable(); renderWeeklyTable();
@@ -515,17 +965,47 @@
             if(t==='weekly')renderWeeklyTable(); 
         }
 
-        // --- Weekly Table ---
+        // --- Weekly Table with Filters ---
         function renderWeeklyTable() {
-            const tbody = document.getElementById('weeklyTbody'); tbody.innerHTML = '';
+            const tbody = document.getElementById('weeklyTbody');
             const widgets = document.getElementById('weeklyWidgets');
             
-            let data = members.map(m => { const base=40; const approved=calcTotalApprovedTime(m.name); return { name:m.name, role:m.role, total:base+approved }; });
+            let data = members.map(m => { 
+                const base=40; 
+                const approved=calcTotalApprovedTime(m.name); 
+                return { name:m.name, role:m.role, total:base+approved }; 
+            });
             data.sort((a,b)=>b.total-a.total);
-
+            
+            allWeeklyData = data; // Store for filtering
+            applyFilters(); // Apply current filters
+        }
+        
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const tbody = document.getElementById('weeklyTbody');
+            const widgets = document.getElementById('weeklyWidgets');
+            
+            let filteredData = allWeeklyData.filter(d => {
+                // Search filter
+                const matchesSearch = d.name.toLowerCase().includes(searchTerm) || 
+                                     d.role.toLowerCase().includes(searchTerm);
+                
+                // Status filter
+                let status = 'safe';
+                if(d.total >= 52) status = 'danger';
+                else if(d.total >= 45) status = 'warning';
+                
+                const hasActiveFilter = activeFilters.danger || activeFilters.warning || activeFilters.safe;
+                const matchesStatus = !hasActiveFilter || activeFilters[status];
+                
+                return matchesSearch && matchesStatus;
+            });
+            
+            tbody.innerHTML = '';
             let cntDanger=0, cntWarning=0, cntSafe=0;
 
-            data.forEach((d, idx) => {
+            filteredData.forEach((d, idx) => {
                 const remain = 52 - d.total;
                 const percent = Math.min((d.total/52)*100, 100);
                 let rowClass='', status='안전', barColor='var(--success)';
@@ -546,30 +1026,86 @@
             });
 
             widgets.innerHTML = `
-                <div class="widget-card"><div class="widget-icon" style="background:var(--primary)"><i class="fa-solid fa-users"></i></div><div class="widget-text"><div>전체 인원</div><div>${members.length}</div></div></div>
+                <div class="widget-card"><div class="widget-icon" style="background:var(--primary)"><i class="fa-solid fa-users"></i></div><div class="widget-text"><div>필터된 인원</div><div>${filteredData.length}</div></div></div>
                 <div class="widget-card" style="border-color:var(--danger)"><div class="widget-icon" style="background:var(--danger)"><i class="fa-solid fa-ban"></i></div><div class="widget-text"><div>위험 (52h+)</div><div>${cntDanger}</div></div></div>
                 <div class="widget-card" style="border-color:var(--warning)"><div class="widget-icon" style="background:var(--warning)"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="widget-text"><div>주의 (45h+)</div><div>${cntWarning}</div></div></div>
                 <div class="widget-card"><div class="widget-icon" style="background:var(--success)"><i class="fa-solid fa-check"></i></div><div class="widget-text"><div>안전</div><div>${cntSafe}</div></div></div>
             `;
         }
+        
+        function toggleFilter(type) {
+            activeFilters[type] = !activeFilters[type];
+            const btn = document.querySelector(`.filter-${type}`);
+            btn.classList.toggle('active');
+            applyFilters();
+        }
+        
+        function clearFilters() {
+            activeFilters = { danger: false, warning: false, safe: false };
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('searchInput').value = '';
+            applyFilters();
+        }
 
-        // --- Dashboard ---
+        // --- Dashboard with Filters ---
         function renderDashboard() {
-            const mgr=document.getElementById('managerGrid'), tc=document.getElementById('tcGrid'); mgr.innerHTML=''; tc.innerHTML='';
-            members.forEach(m => {
+            allDashData = members.map(m => {
                 const isMgr = m.role.includes('Manager');
                 const total = 40 + calcTotalApprovedTime(m.name);
                 const remain = 52 - total;
                 const percent = Math.min((total/52)*100, 100);
-                let statusClass='safe'; if(total>=52) statusClass='danger'; else if(total>=45) statusClass='warning';
-
-                const card = document.createElement('div'); 
-                card.className = `member-card ${statusClass} ${isMgr ? 'manager-card' : 'captain-card'}`;
-                card.innerHTML = `
-                    <div class="card-top"><div class="card-info"><div>${m.name}</div><div>${m.role}</div></div><div class="card-badge">${total.toFixed(1)}h</div></div>
-                    <div class="progress-container"><div class="progress-labels"><span>Limit: 52h</span><span class="progress-val">잔여: ${remain.toFixed(1)}h</span></div><div class="progress-track"><div class="progress-fill" style="width:${percent}%"></div></div></div>`;
-                if(isMgr) mgr.appendChild(card); else tc.appendChild(card);
+                let statusClass='safe'; 
+                if(total>=52) statusClass='danger'; 
+                else if(total>=45) statusClass='warning';
+                
+                return { ...m, isMgr, total, remain, percent, statusClass };
             });
+            
+            applyDashFilters();
+        }
+        
+        function applyDashFilters() {
+            const searchTerm = document.getElementById('dashSearchInput').value.toLowerCase();
+            const mgr = document.getElementById('managerGrid');
+            const tc = document.getElementById('tcGrid');
+            mgr.innerHTML = '';
+            tc.innerHTML = '';
+            
+            let filteredData = allDashData.filter(d => {
+                // Search filter
+                const matchesSearch = d.name.toLowerCase().includes(searchTerm) || 
+                                     d.role.toLowerCase().includes(searchTerm);
+                
+                // Status filter
+                const hasActiveFilter = dashActiveFilters.danger || dashActiveFilters.warning || dashActiveFilters.safe;
+                const matchesStatus = !hasActiveFilter || dashActiveFilters[d.statusClass];
+                
+                return matchesSearch && matchesStatus;
+            });
+            
+            filteredData.forEach(d => {
+                const card = document.createElement('div'); 
+                card.className = `member-card ${d.statusClass} ${d.isMgr ? 'manager-card' : 'captain-card'}`;
+                card.innerHTML = `
+                    <div class="card-top"><div class="card-info"><div>${d.name}</div><div>${d.role}</div></div><div class="card-badge">${d.total.toFixed(1)}h</div></div>
+                    <div class="progress-container"><div class="progress-labels"><span>Limit: 52h</span><span class="progress-val">잔여: ${d.remain.toFixed(1)}h</span></div><div class="progress-track"><div class="progress-fill" style="width:${d.percent}%"></div></div></div>`;
+                if(d.isMgr) mgr.appendChild(card); 
+                else tc.appendChild(card);
+            });
+        }
+        
+        function toggleDashFilter(type) {
+            dashActiveFilters[type] = !dashActiveFilters[type];
+            const btn = document.querySelectorAll('#tab-dashboard .filter-btn')[type === 'danger' ? 0 : type === 'warning' ? 1 : 2];
+            btn.classList.toggle('active');
+            applyDashFilters();
+        }
+        
+        function clearDashFilters() {
+            dashActiveFilters = { danger: false, warning: false, safe: false };
+            document.querySelectorAll('#tab-dashboard .filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('dashSearchInput').value = '';
+            applyDashFilters();
         }
 
         function calcTotalApprovedTime(name) {
@@ -619,16 +1155,16 @@
             else if(total>=45) { fill.style.background='var(--warning)'; }
         }
 
-        // --- Excel Export with Professional Styling ---
+        // --- Excel Export with PROPER Styling ---
         function exportToExcel(type) {
             let wb = XLSX.utils.book_new();
-            let sheetData = [];
+            let ws_data = [];
             
             if(type === 'weekly') {
-                sheetData.push(['GWJ2 OB 주간 예상 근무시간 현황']);
-                sheetData.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]);
-                sheetData.push([]);
-                sheetData.push(['순위', '이름', '직급', '총 예상 시간', '상태', '잔여 시간']);
+                ws_data.push(['GWJ2 OB 주간 예상 근무시간 현황']);
+                ws_data.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]);
+                ws_data.push([]);
+                ws_data.push(['순위', '이름', '직급', '총 예상 시간', '상태', '잔여 시간']);
                 
                 let data = members.map(m => { 
                     const base=40; 
@@ -643,302 +1179,58 @@
                     if(d.total >= 52) status = '초과';
                     else if(d.total >= 45) status = '주의';
                     
-                    sheetData.push([
+                    ws_data.push([
                         idx + 1,
                         d.name,
                         d.role,
-                        parseFloat(d.total.toFixed(1)),
+                        d.total.toFixed(1) + 'h',
                         status,
-                        parseFloat(remain.toFixed(1))
+                        remain.toFixed(1) + 'h'
                     ]);
                 });
                 
-            } else if(type === 'overtime') {
-                sheetData.push(['연장 근무 신청 내역']);
-                sheetData.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]);
-                sheetData.push([]);
-                sheetData.push(['이름', '직급', '직책', '쿠코드', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
+            } else if(type === 'overtime' || type === 'early') {
+                ws_data.push([type === 'overtime' ? '연장 근무 신청 내역' : '조출 근무 신청 내역']);
+                ws_data.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]);
+                ws_data.push([]);
+                ws_data.push(['이름', '직급', '직책', '쿠코드', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
                 
-                requests.overtime.forEach(r => {
+                requests[type].forEach(r => {
                     const total = 40 + calcTotalApprovedTime(r.name);
                     let status = '안전';
                     if(total >= 52) status = '초과';
                     else if(total >= 45) status = '주의';
-                    sheetData.push([r.name, r.nick, r.rank, r.code, r.date, r.start, r.end, r.time, total.toFixed(1) + 'h', status, r.reason]);
-                });
-                
-            } else if(type === 'early') {
-                sheetData.push(['조출 근무 신청 내역']);
-                sheetData.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]);
-                sheetData.push([]);
-                sheetData.push(['이름', '직급', '직책', '쿠코드', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
-                
-                requests.early.forEach(r => {
-                    const total = 40 + calcTotalApprovedTime(r.name);
-                    let status = '안전';
-                    if(total >= 52) status = '초과';
-                    else if(total >= 45) status = '주의';
-                    sheetData.push([r.name, r.nick, r.rank, r.code, r.date, r.start, r.end, r.time, total.toFixed(1) + 'h', status, r.reason]);
+                    ws_data.push([r.name, r.nick, r.rank, r.code, r.date, r.start, r.end, r.time, total.toFixed(1) + 'h', status, r.reason]);
                 });
                 
             } else if(type === 'team') {
-                sheetData.push(['팀 멤버 데이터']);
-                sheetData.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]);
-                sheetData.push([]);
-                sheetData.push(['이름', '직급', '직책', '쿠코드']);
+                ws_data.push(['팀 멤버 데이터']);
+                ws_data.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]);
+                ws_data.push([]);
+                ws_data.push(['이름', '직급', '직책', '쿠코드']);
                 
                 members.forEach(m => {
                     const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
                     const nick = m.role.split(' ')[0];
-                    sheetData.push([m.name, nick, rank, m.code]);
+                    ws_data.push([m.name, nick, rank, m.code]);
                 });
             }
             
-            let ws = XLSX.utils.aoa_to_sheet(sheetData);
+            let ws = XLSX.utils.aoa_to_sheet(ws_data);
             
-            // Set column widths
+            // Column widths
             if(type === 'weekly') {
-                ws['!cols'] = [
-                    {wch: 8}, {wch: 15}, {wch: 25}, {wch: 15}, {wch: 12}, {wch: 15}
-                ];
+                ws['!cols'] = [{wch: 8}, {wch: 15}, {wch: 25}, {wch: 15}, {wch: 12}, {wch: 15}];
             } else if(type === 'team') {
-                ws['!cols'] = [
-                    {wch: 12}, {wch: 20}, {wch: 12}, {wch: 15}
-                ];
+                ws['!cols'] = [{wch: 12}, {wch: 20}, {wch: 12}, {wch: 15}];
             } else {
-                ws['!cols'] = [
-                    {wch: 12}, {wch: 15}, {wch: 12}, {wch: 15}, 
-                    {wch: 12}, {wch: 10}, {wch: 10}, {wch: 12}, {wch: 12}, {wch: 10}, {wch: 35}
-                ];
-            }
-            
-            const range = XLSX.utils.decode_range(ws['!ref']);
-            const lastCol = type === 'team' ? 3 : type === 'weekly' ? 5 : 10;
-            
-            // Title row (A1) - Premium styling
-            if(ws['A1']) {
-                ws['A1'].s = {
-                    font: { bold: true, sz: 18, color: { rgb: "FFFFFF" } },
-                    fill: { fgColor: { rgb: "4F46E5" } },
-                    alignment: { horizontal: "center", vertical: "center" },
-                    border: {
-                        top: {style: "medium", color: {rgb: "4F46E5"}},
-                        bottom: {style: "medium", color: {rgb: "4F46E5"}},
-                        left: {style: "medium", color: {rgb: "4F46E5"}},
-                        right: {style: "medium", color: {rgb: "4F46E5"}}
-                    }
-                };
-            }
-            
-            // Date row (A2) - Subtle styling
-            if(ws['A2']) {
-                ws['A2'].s = {
-                    font: { sz: 9, color: { rgb: "64748B" }, italic: true },
-                    alignment: { horizontal: "left", vertical: "center" },
-                    fill: { fgColor: { rgb: "F8FAFC" } }
-                };
-            }
-            
-            // Merge title cell
-            ws['!merges'] = [{s: {r: 0, c: 0}, e: {r: 0, c: lastCol}}];
-            
-            // Header row (row 4) - Bold styling with gradient effect
-            for(let C = range.s.c; C <= range.e.c; ++C) {
-                const address = XLSX.utils.encode_col(C) + "4";
-                if(!ws[address]) continue;
-                ws[address].s = {
-                    font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } },
-                    fill: { fgColor: { rgb: "6366F1" } },
-                    alignment: { horizontal: "center", vertical: "center" },
-                    border: {
-                        top: {style: "medium", color: {rgb: "4F46E5"}},
-                        bottom: {style: "medium", color: {rgb: "4F46E5"}},
-                        left: {style: "thin", color: {rgb: "8B5CF6"}},
-                        right: {style: "thin", color: {rgb: "8B5CF6"}}
-                    }
-                };
-            }
-            
-            // Data rows styling (from row 5 onwards)
-            for(let R = 4; R <= range.e.r; ++R) {
-                const isEven = (R - 4) % 2 === 0;
-                const rowBgColor = isEven ? "FFFFFF" : "F1F5F9";
-                
-                for(let C = range.s.c; C <= range.e.c; ++C) {
-                    const address = XLSX.utils.encode_col(C) + (R + 1);
-                    if(!ws[address]) continue;
-                    
-                    let cellStyle = {
-                        font: { sz: 10, color: { rgb: "1E293B" } },
-                        fill: { fgColor: { rgb: rowBgColor } },
-                        alignment: { 
-                            horizontal: "left", 
-                            vertical: "center",
-                            wrapText: false
-                        },
-                        border: {
-                            top: {style: "thin", color: {rgb: "CBD5E1"}},
-                            bottom: {style: "thin", color: {rgb: "CBD5E1"}},
-                            left: {style: "thin", color: {rgb: "E2E8F0"}},
-                            right: {style: "thin", color: {rgb: "E2E8F0"}}
-                        }
-                    };
-                    
-                    // Rank column - center align
-                    if(C === 0 && type === 'weekly') {
-                        cellStyle.alignment.horizontal = "center";
-                        cellStyle.font.bold = true;
-                        cellStyle.font.color = { rgb: "64748B" };
-                    }
-                    
-                    // Name column - bold
-                    if((type === 'weekly' && C === 1) || ((type === 'overtime' || type === 'early' || type === 'team') && C === 0)) {
-                        cellStyle.font.bold = true;
-                        cellStyle.font.sz = 11;
-                    }
-                    
-                    // Status column special styling
-                    if(type === 'weekly' && C === 4) {
-                        const status = ws[address].v;
-                        cellStyle.alignment.horizontal = "center";
-                        cellStyle.font.bold = true;
-                        cellStyle.font.sz = 11;
-                        
-                        if(status === '초과') {
-                            cellStyle.font.color = { rgb: "FFFFFF" };
-                            cellStyle.fill.fgColor = { rgb: "EF4444" };
-                            cellStyle.border = {
-                                top: {style: "medium", color: {rgb: "DC2626"}},
-                                bottom: {style: "medium", color: {rgb: "DC2626"}},
-                                left: {style: "medium", color: {rgb: "DC2626"}},
-                                right: {style: "medium", color: {rgb: "DC2626"}}
-                            };
-                        } else if(status === '주의') {
-                            cellStyle.font.color = { rgb: "78350F" };
-                            cellStyle.fill.fgColor = { rgb: "FCD34D" };
-                            cellStyle.border = {
-                                top: {style: "medium", color: {rgb: "F59E0B"}},
-                                bottom: {style: "medium", color: {rgb: "F59E0B"}},
-                                left: {style: "medium", color: {rgb: "F59E0B"}},
-                                right: {style: "medium", color: {rgb: "F59E0B"}}
-                            };
-                        } else if(status === '안전') {
-                            cellStyle.font.color = { rgb: "FFFFFF" };
-                            cellStyle.fill.fgColor = { rgb: "10B981" };
-                            cellStyle.border = {
-                                top: {style: "medium", color: {rgb: "059669"}},
-                                bottom: {style: "medium", color: {rgb: "059669"}},
-                                left: {style: "medium", color: {rgb: "059669"}},
-                                right: {style: "medium", color: {rgb: "059669"}}
-                            };
-                        }
-                    }
-                    
-                    // Time columns - right align with bold
-                    if(type === 'weekly' && (C === 3 || C === 5)) {
-                        cellStyle.alignment.horizontal = "right";
-                        cellStyle.font.bold = true;
-                        cellStyle.font.sz = 11;
-                        cellStyle.font.color = { rgb: "4F46E5" };
-                        cellStyle.numFmt = "0.0";
-                    }
-                    
-                    // Rank column center align
-                    if((type === 'overtime' || type === 'early' || type === 'team') && C === 2) {
-                        cellStyle.alignment.horizontal = "center";
-                        cellStyle.font.bold = true;
-                    }
-                    
-                    // Code column - monospace effect
-                    if((type === 'overtime' || type === 'early' || type === 'team') && C === 3) {
-                        cellStyle.font.color = { rgb: "6366F1" };
-                        cellStyle.font.bold = true;
-                        cellStyle.alignment.horizontal = "center";
-                    }
-                    
-                    // Date columns
-                    if((type === 'overtime' || type === 'early') && C === 4) {
-                        cellStyle.alignment.horizontal = "center";
-                    }
-                    
-                    // Time columns
-                    if((type === 'overtime' || type === 'early') && (C === 5 || C === 6)) {
-                        cellStyle.alignment.horizontal = "center";
-                        cellStyle.font.color = { rgb: "64748B" };
-                    }
-                    
-                    // Required time column
-                    if((type === 'overtime' || type === 'early') && C === 7) {
-                        cellStyle.alignment.horizontal = "center";
-                        cellStyle.font.bold = true;
-                        cellStyle.font.color = { rgb: "4F46E5" };
-                        cellStyle.font.sz = 11;
-                    }
-                    
-                    // Weekly hours column
-                    if((type === 'overtime' || type === 'early') && C === 8) {
-                        cellStyle.alignment.horizontal = "center";
-                        cellStyle.font.bold = true;
-                        cellStyle.font.color = { rgb: "4F46E5" };
-                        cellStyle.font.sz = 11;
-                    }
-                    
-                    // Status column for overtime/early
-                    if((type === 'overtime' || type === 'early') && C === 9) {
-                        const status = ws[address].v;
-                        cellStyle.alignment.horizontal = "center";
-                        cellStyle.font.bold = true;
-                        cellStyle.font.sz = 11;
-                        
-                        if(status === '초과') {
-                            cellStyle.font.color = { rgb: "FFFFFF" };
-                            cellStyle.fill.fgColor = { rgb: "EF4444" };
-                            cellStyle.border = {
-                                top: {style: "medium", color: {rgb: "DC2626"}},
-                                bottom: {style: "medium", color: {rgb: "DC2626"}},
-                                left: {style: "medium", color: {rgb: "DC2626"}},
-                                right: {style: "medium", color: {rgb: "DC2626"}}
-                            };
-                        } else if(status === '주의') {
-                            cellStyle.font.color = { rgb: "78350F" };
-                            cellStyle.fill.fgColor = { rgb: "FCD34D" };
-                            cellStyle.border = {
-                                top: {style: "medium", color: {rgb: "F59E0B"}},
-                                bottom: {style: "medium", color: {rgb: "F59E0B"}},
-                                left: {style: "medium", color: {rgb: "F59E0B"}},
-                                right: {style: "medium", color: {rgb: "F59E0B"}}
-                            };
-                        } else if(status === '안전') {
-                            cellStyle.font.color = { rgb: "FFFFFF" };
-                            cellStyle.fill.fgColor = { rgb: "10B981" };
-                            cellStyle.border = {
-                                top: {style: "medium", color: {rgb: "059669"}},
-                                bottom: {style: "medium", color: {rgb: "059669"}},
-                                left: {style: "medium", color: {rgb: "059669"}},
-                                right: {style: "medium", color: {rgb: "059669"}}
-                            };
-                        }
-                    }
-                    
-                    ws[address].s = cellStyle;
-                }
-            }
-            
-            // Set row heights
-            ws['!rows'] = [];
-            ws['!rows'][0] = { hpt: 35 }; // Title row
-            ws['!rows'][1] = { hpt: 18 }; // Date row
-            ws['!rows'][3] = { hpt: 28 }; // Header row
-            
-            // Data rows
-            for(let i = 4; i <= range.e.r; i++) {
-                ws['!rows'][i] = { hpt: 22 };
+                ws['!cols'] = [{wch: 12}, {wch: 15}, {wch: 12}, {wch: 15}, {wch: 12}, {wch: 10}, {wch: 10}, {wch: 12}, {wch: 12}, {wch: 10}, {wch: 35}];
             }
             
             XLSX.utils.book_append_sheet(wb, ws, type === 'weekly' ? '주간현황' : type === 'overtime' ? '연장신청' : type === 'early' ? '조출신청' : '팀멤버');
             
             const filename = `GWJ2_${type}_${new Date().toISOString().split('T')[0]}.xlsx`;
-            XLSX.writeFile(wb, filename, {bookType: 'xlsx', type: 'binary', cellStyles: true});
+            XLSX.writeFile(wb, filename);
         }
 
         // --- Utils ---
@@ -1020,7 +1312,7 @@
                     <td>${r.name}</td>
                     <td>${r.nick}</td>
                     <td>${r.rank}</td>
-                    <td style="font-family:monospace;">${r.code}</td>
+                    <td>${r.code}</td>
                     <td>${r.date.substring(5)}</td>
                     <td style="font-size:0.85rem;color:var(--text-sub)">${r.start}~${r.end}</td>
                     <td style="font-weight:bold;color:var(--primary)">${r.time}</td>
@@ -1054,7 +1346,7 @@
             members.forEach(m=>{
                 const nick = m.role.split(' ')[0];
                 const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
-                b.innerHTML+=`<tr><td>${m.name}</td><td>${nick}</td><td>${rank}</td><td style="color:var(--primary)">${m.code}</td></tr>`;
+                b.innerHTML+=`<tr><td>${m.name}</td><td>${nick}</td><td>${rank}</td><td>${m.code}</td></tr>`;
             });
         }
         
