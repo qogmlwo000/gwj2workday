@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GWJ2 OB Workday - Bennett Ver 1.0</title>
+    <title>GWJ2 OB Workday - Bennett Ver 1.1</title>
     
     <link rel="icon" href="https://raw.githubusercontent.com/qogmlwo000/gwj2pickpackhtp/main/Bennett.ico" type="image/x-icon">
     
@@ -816,7 +816,7 @@
         <div id="tab-team" class="tab-content">
             <div class="form-container">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h3>팀 멤버 데이터</h3>
+                    <h3>팀 멤버 데이터 (Firebase Sync)</h3>
                     <div class="action-buttons">
                         <button class="btn btn-excel" onclick="exportToExcel('team')"><i class="fa-solid fa-file-excel"></i> 엑셀 다운로드</button>
                         <button class="btn btn-del" onclick="resetData()"><i class="fa-solid fa-rotate-right"></i> 초기화</button>
@@ -916,9 +916,6 @@
             
             // Calculate next Sunday at 00:00:00
             const daysUntilSunday = currentDay === 0 ? 7 : (7 - currentDay);
-            // 만약 오늘이 일요일이고, 현재 시간이 00:00:00이 지났다면, 다음주 일요일을 가리킴.
-            // 하지만 정확히 일요일 00:00:00이라면 0이 되어야 하지만, setInterval로 1초마다 돌면 거의 항상 다음주 일요일을 가리키게 됨.
-            // 로직 단순화: 오늘이 일요일이면 다음주 일요일(7일 뒤)을 타겟으로 함.
             
             const nextSunday = new Date(now);
             nextSunday.setDate(now.getDate() + daysUntilSunday);
@@ -927,7 +924,6 @@
             const diff = nextSunday - now; // Milliseconds
             
             if (diff <= 0) {
-                // Timer expired (Sunday 00:00:00) -> Wait for next cycle
                  document.getElementById('cd-days').textContent = "0";
                  document.getElementById('cd-hours').textContent = "00";
                  document.getElementById('cd-min').textContent = "00";
@@ -944,6 +940,15 @@
             document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
             document.getElementById('cd-min').textContent = String(minutes).padStart(2, '0');
             document.getElementById('cd-sec').textContent = String(seconds).padStart(2, '0');
+        }
+
+        // 🆕 Local Time Helper
+        function getLocalTodayDate() {
+            const d = new Date();
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }
 
         // --- Firebase Listener ---
@@ -1093,14 +1098,17 @@
                 daysContainer.appendChild(btn);
             }
             
-            const today = new Date();
+            const today = getLocalTodayDate(); // 🆕 Use Local Date
             const selectedDate = document.getElementById(`${type}Date`).value;
             for (let day = 1; day <= daysInMonth; day++) {
                 const btn = document.createElement('button');
                 btn.className = 'calendar-day';
                 btn.textContent = day;
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                if (today.getFullYear() === year && today.getMonth() === month && today.getDate() === day) btn.classList.add('today');
+                
+                // Compare with local today string
+                if (dateStr === today) btn.classList.add('today');
+                
                 if (selectedDate === dateStr) btn.classList.add('selected');
                 btn.onclick = () => window.selectDate(type, dateStr);
                 daysContainer.appendChild(btn);
@@ -1439,7 +1447,7 @@
             if (!window.requests[requestKey]) window.requests[requestKey] = [];
             
             const filter = window.requestDateFilters[requestKey] || 'today';
-            const today = new Date().toISOString().split('T')[0];
+            const today = getLocalTodayDate(); // 🆕 Use Local Date (KST)
             let filteredRequests = window.requests[requestKey];
             
             if (filter === 'today') {
@@ -1502,7 +1510,7 @@
             document.getElementById('calendarMonthYear').textContent = `${year}년 ${['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'][month]}`;
             const container = document.getElementById('calendarViewDays'); container.innerHTML = '';
             const firstDay = new Date(year, month, 1).getDay(), daysInMonth = new Date(year, month+1, 0).getDate(), daysInPrev = new Date(year, month, 0).getDate();
-            const today = new Date().toISOString().split('T')[0];
+            const today = getLocalTodayDate(); // 🆕 Use Local Date (KST)
             
             for(let i=firstDay-1; i>=0; i--) container.appendChild(createDay(daysInPrev-i, `${year}-${String(month).padStart(2,'0')}-${String(daysInPrev-i).padStart(2,'0')}`, true));
             for(let d=1; d<=daysInMonth; d++) container.appendChild(createDay(d, `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, false));
@@ -1524,8 +1532,13 @@
 
         window.onload = function() {
             window.initSelects();
-            const today = new Date().toISOString().split('T')[0];
-            window.initCalendar('ot', new Date()); window.initCalendar('early', new Date());
+            const today = getLocalTodayDate(); // 🆕 Use Local Date (KST)
+            
+            // 캘린더 초기화 시에도 운영 날짜 기준의 달(Month)을 보여주도록 수정
+            const opDate = new Date(today); 
+            window.initCalendar('ot', opDate); 
+            window.initCalendar('early', opDate);
+
             window.initTimePicker('otStart', '18:00'); window.initTimePicker('otEnd', '');
             window.initTimePicker('earlyStart', '08:00'); window.initTimePicker('earlyEnd', '09:00');
             window.selectDate('ot', today); window.selectDate('early', today);
