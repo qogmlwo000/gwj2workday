@@ -9,6 +9,7 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -453,6 +454,26 @@
     transform: scale(0.95) translateY(2px) !important;
     transition: 0.1s;
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+/* 토스트 알림 스타일 */
+.toast-container {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; gap: 10px; z-index: 9999;
+}
+.toast {
+    background: rgba(30, 41, 59, 0.95); color: white; padding: 12px 24px;
+    border-radius: 50px; font-size: 0.9rem; font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    animation: slideUpFade 0.3s ease-out forwards;
+    display: flex; align-items: center; gap: 10px;
+}
+.toast.success i { color: #4ade80; }
+.toast.error i { color: #f87171; }
+@keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
     </style>
 </head>
@@ -1487,7 +1508,7 @@
             try {
                 await updateDoc(docRef, { requests: updatedRequests });
                 document.getElementById(`${p}Reason`).value = '';
-                alert("✅ 저장되었습니다!");
+                showToast("저장되었습니다!");
             } catch(e) { alert("Error: " + e.message); }
         };
 
@@ -1960,7 +1981,7 @@
                 // Day조 시트
                 if (dayRequests.length > 0) {
                     let ws_data_day = [];
-                    ws_data_day.push([`${title} 근무 신청 내역 - Day조`]);
+                    ws_data_day.push([`${title} 근무 신청 내역`]);
                     ws_data_day.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); 
                     ws_data_day.push([]);
                     ws_data_day.push(['이름', '직급', '직책', '쿠코드', 'SHIFT', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
@@ -1988,14 +2009,14 @@
                     });
                     
                     let ws_day = XLSX.utils.aoa_to_sheet(ws_data_day);
-                    applyExcelStyles(ws_day, dayRequests.length + 4);
+                    applyExcelStyles(ws_day);
                     XLSX.utils.book_append_sheet(wb, ws_day, 'Day조');
                 }
                 
                 // Swing조 시트
                 if (swingRequests.length > 0) {
                     let ws_data_swing = [];
-                    ws_data_swing.push([`${title} 근무 신청 내역 - Swing조`]);
+                    ws_data_swing.push([`${title} 근무 신청 내역`]);
                     ws_data_swing.push(['생성일시: ' + new Date().toLocaleString('ko-KR')]); 
                     ws_data_swing.push([]);
                     ws_data_swing.push(['이름', '직급', '직책', '쿠코드', 'SHIFT', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
@@ -2047,94 +2068,95 @@
             XLSX.writeFile(wb, `GWJ2_${type}_${new Date().toISOString().split('T')[0]}.xlsx`);
         };
         
-        // 🆕 엑셀 스타일 적용 함수
-        function applyExcelStyles(ws, dataRowCount) {
-            const range = XLSX.utils.decode_range(ws['!ref']);
-            
-            // 열 너비 설정
-            ws['!cols'] = [
-                { wch: 10 },  // 이름
-                { wch: 12 },  // 직급
-                { wch: 10 },  // 직책
-                { wch: 12 },  // 쿠코드
-                { wch: 10 },  // SHIFT
-                { wch: 12 },  // 일자
-                { wch: 8 },   // 시작
-                { wch: 8 },   // 종료
-                { wch: 10 },  // 필요시간
-                { wch: 12 },  // 주간시간
-                { wch: 8 },   // 상태
-                { wch: 30 }   // 사유
-            ];
-            
-            // 모든 셀에 스타일 적용
-            for (let R = range.s.r; R <= range.e.r; ++R) {
-                for (let C = range.s.c; C <= range.e.c; ++C) {
-                    const cell_address = XLSX.utils.encode_cell({ r: R, c: C });
-                    if (!ws[cell_address]) continue;
-                    
-                    if (!ws[cell_address].s) ws[cell_address].s = {};
-                    
-                    // 테두리
-                    ws[cell_address].s.border = {
-                        top: { style: 'thin', color: { rgb: 'D0D0D0' } },
-                        bottom: { style: 'thin', color: { rgb: 'D0D0D0' } },
-                        left: { style: 'thin', color: { rgb: 'D0D0D0' } },
-                        right: { style: 'thin', color: { rgb: 'D0D0D0' } }
-                    };
-                    
-                    // 헤더 행 (4번째 줄)
-                    if (R === 3) {
-                        ws[cell_address].s.fill = {
-                            fgColor: { rgb: '4472C4' }
-                        };
-                        ws[cell_address].s.font = {
-                            bold: true,
-                            color: { rgb: 'FFFFFF' }
-                        };
-                        ws[cell_address].s.alignment = {
-                            horizontal: 'center',
-                            vertical: 'center'
-                        };
-                    }
-                    
-                    // 데이터 행
-                    if (R > 3) {
-                        ws[cell_address].s.alignment = {
-                            horizontal: 'center',
-                            vertical: 'center'
-                        };
-                        
-                        // 상태 열 색상
-                        if (C === 10) {
-                            const cellValue = ws[cell_address].v;
-                            if (cellValue === '초과') {
-                                ws[cell_address].s.fill = { fgColor: { rgb: 'FFC7CE' } };
-                                ws[cell_address].s.font = { color: { rgb: '9C0006' }, bold: true };
-                            } else if (cellValue === '주의') {
-                                ws[cell_address].s.fill = { fgColor: { rgb: 'FFEB9C' } };
-                                ws[cell_address].s.font = { color: { rgb: '9C5700' }, bold: true };
-                            } else {
-                                ws[cell_address].s.fill = { fgColor: { rgb: 'C6EFCE' } };
-                                ws[cell_address].s.font = { color: { rgb: '006100' }, bold: true };
-                            }
+    // 🎨 [최종 수정] 엑셀 스타일 + 셀 병합 함수 (제목, 날짜 예쁘게)
+    function applyExcelStyles(ws) {
+        // 데이터 범위 계산
+        const range = XLSX.utils.decode_range(ws['!ref']);
+        const lastCol = range.e.c; // 마지막 열 인덱스 (자동 계산)
+
+        // 1. 셀 병합 (제목 줄과 날짜 줄을 전체 너비로 병합)
+        if (!ws['!merges']) ws['!merges'] = [];
+        ws['!merges'].push({ s: {r:0, c:0}, e: {r:0, c: lastCol} }); // 첫 번째 줄(제목) 병합
+        ws['!merges'].push({ s: {r:1, c:0}, e: {r:1, c: lastCol} }); // 두 번째 줄(일시) 병합
+
+        // 2. 열 너비 설정
+        ws['!cols'] = [
+            { wch: 10 }, { wch: 15 }, { wch: 15 }, { wch: 12 }, { wch: 12 },
+            { wch: 15 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 15 },
+            { wch: 10 }, { wch: 40 }, { wch: 10 }
+        ];
+
+        // 3. 모든 셀에 스타일 적용
+        for (let R = range.s.r; R <= range.e.r; ++R) {
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+                const cell_address = XLSX.utils.encode_cell({ r: R, c: C });
+                if (!ws[cell_address]) continue;
+
+                // 스타일 객체 초기화
+                if (!ws[cell_address].s) ws[cell_address].s = {};
+
+                // 🌟 [제목 줄 스타일] (첫 번째 줄)
+                if (R === 0) {
+                    ws[cell_address].s.font = { name: "Malgun Gothic", sz: 16, bold: true, color: { rgb: "4F46E5" } }; // 크고 보라색
+                    ws[cell_address].s.alignment = { horizontal: 'center', vertical: 'center' };
+                    ws[cell_address].s.fill = { fgColor: { rgb: "EEF2FF" } }; // 아주 연한 보라색 배경
+                    continue; // 제목은 테두리 안 침
+                }
+
+                // 🕒 [생성일시 줄 스타일] (두 번째 줄)
+                if (R === 1) {
+                    ws[cell_address].s.font = { name: "Malgun Gothic", sz: 10, italic: true, color: { rgb: "6B7280" } }; // 회색, 기울임
+                    ws[cell_address].s.alignment = { horizontal: 'right', vertical: 'center' }; // 우측 정렬
+                    continue;
+                }
+
+                // [공통] 본문 테두리 및 정렬
+                ws[cell_address].s.border = {
+                    top: { style: 'thin', color: { rgb: "CCCCCC" } },
+                    bottom: { style: 'thin', color: { rgb: "CCCCCC" } },
+                    left: { style: 'thin', color: { rgb: "CCCCCC" } },
+                    right: { style: 'thin', color: { rgb: "CCCCCC" } }
+                };
+                ws[cell_address].s.alignment = { horizontal: 'center', vertical: 'center' };
+                ws[cell_address].s.font = { name: "Malgun Gothic", sz: 11 };
+
+                // [헤더] 테이블 컬럼명 (4번째 줄)
+                if (R === 3) {
+                    ws[cell_address].s.fill = { fgColor: { rgb: "4F46E5" } }; // 진한 보라색
+                    ws[cell_address].s.font = { name: "Malgun Gothic", sz: 11, bold: true, color: { rgb: "FFFFFF" } };
+                }
+
+                // [데이터] 내용 (5번째 줄 이후)
+                if (R > 3) {
+                    // 상태 열 (K열 -> index 10)
+                    if (C === 10) {
+                        const v = ws[cell_address].v;
+                        if (v === '초과') {
+                            ws[cell_address].s.font = { bold: true, color: { rgb: "DC2626" } };
+                            ws[cell_address].s.fill = { fgColor: { rgb: "FEE2E2" } };
+                        } else if (v === '주의') {
+                            ws[cell_address].s.font = { bold: true, color: { rgb: "D97706" } };
+                            ws[cell_address].s.fill = { fgColor: { rgb: "FEF3C7" } };
+                        } else {
+                            ws[cell_address].s.font = { bold: true, color: { rgb: "059669" } };
+                            ws[cell_address].s.fill = { fgColor: { rgb: "D1FAE5" } };
                         }
-                        
-                        // SHIFT 열 색상
-                        if (C === 4) {
-                            const cellValue = ws[cell_address].v;
-                            if (cellValue && cellValue.includes('Day')) {
-                                ws[cell_address].s.fill = { fgColor: { rgb: 'FFE699' } };
-                                ws[cell_address].s.font = { bold: true };
-                            } else if (cellValue && cellValue.includes('Swing')) {
-                                ws[cell_address].s.fill = { fgColor: { rgb: 'B4C7E7' } };
-                                ws[cell_address].s.font = { bold: true };
-                            }
+                    }
+                    // SHIFT 열 (E열 -> index 4)
+                    if (C === 4) {
+                        const v = ws[cell_address].v;
+                        if (v && v.includes('Day')) {
+                            ws[cell_address].s.fill = { fgColor: { rgb: "FFF7ED" } };
+                            ws[cell_address].s.font = { color: { rgb: "EA580C" }, bold: true };
+                        } else if (v && v.includes('Swing')) {
+                            ws[cell_address].s.fill = { fgColor: { rgb: "EEF2FF" } };
+                            ws[cell_address].s.font = { color: { rgb: "4F46E5" }, bold: true };
                         }
                     }
                 }
             }
         }
+    }
 
         // 📋 [수정] 테이블 렌더링 함수 (날짜 필터링, SHIFT 표시, 들여쓰기 정리 완료)
     window.renderRequestTable = function(type) {
@@ -2453,6 +2475,20 @@
             setInterval(updateResetTimer, 1000);
             updateResetTimer(); // Initial call
         };
+		
+		window.showToast = function(msg, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const el = document.createElement('div');
+    const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
+    el.className = `toast ${type}`;
+    el.innerHTML = `<i class="fa-solid ${icon}"></i><span>${msg}</span>`;
+    container.appendChild(el);
+    setTimeout(() => {
+        el.style.opacity = '0';
+        setTimeout(() => el.remove(), 300);
+    }, 3000); // 3초 뒤 사라짐
+};
     </script>
+	<div id="toastContainer" class="toast-container"></div>
 </body>
 </html>
