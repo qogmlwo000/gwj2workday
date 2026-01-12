@@ -475,6 +475,54 @@
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* 👇 [추가] 비밀번호 모달 스타일 */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
+    z-index: 2000; display: none; opacity: 0; transition: opacity 0.3s;
+    align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; opacity: 1; }
+
+.modal-card {
+    background: var(--bg-nav); border: 1px solid var(--border);
+    border-radius: 20px; padding: 30px; width: 90%; max-width: 400px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-align: center;
+}
+.modal-overlay.open .modal-card { transform: scale(1); }
+
+.modal-icon-circle {
+    width: 60px; height: 60px; background: rgba(239, 68, 68, 0.1);
+    color: var(--danger); border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; font-size: 1.8rem;
+    margin: 0 auto 20px auto;
+}
+
+.modal-input-box { margin: 20px 0; position: relative; }
+.modal-input-box input {
+    width: 100%; padding: 14px 16px; background: var(--bg-body);
+    border: 2px solid var(--border); border-radius: 12px;
+    color: var(--text-main); font-size: 1.2rem; text-align: center;
+    letter-spacing: 4px; font-family: 'Courier New', monospace;
+    transition: 0.3s;
+}
+.modal-input-box input:focus {
+    border-color: var(--danger); box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+}
+
+.modal-btns { display: flex; gap: 12px; margin-top: 25px; }
+.modal-btn {
+    flex: 1; padding: 14px; border-radius: 12px; border: none;
+    font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 1rem;
+}
+.btn-cancel { background: var(--border); color: var(--text-sub); }
+.btn-cancel:hover { background: var(--bg-glass); color: var(--text-main); }
+.btn-confirm { background: var(--danger); color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+.btn-confirm:hover { background: #dc2626; transform: translateY(-2px); }
+}
     </style>
 </head>
 <body>
@@ -1512,58 +1560,82 @@
             } catch(e) { alert("Error: " + e.message); }
         };
 
-        // 🔒 [수정] 삭제 시 비밀번호 확인 기능 추가
-        window.deleteRequest = async function(t, i) {
-            // 1. 관리자 비밀번호 설정 (원하는 비밀번호로 변경하세요)
-            const ADMIN_PW = "1234";
+        // --- 🔐 [통합] 삭제 및 초기화 보안 모달 로직 ---
 
-            // 2. 비밀번호 입력 받기
-            const inputPw = prompt("🗑️ 삭제 권한 확인\n\n관리자 비밀번호를 입력하세요:", "");
+        // 현재 수행할 작업 저장 (type: 'delete' 또는 'reset')
+        let pendingAction = { type: null, target: null, index: null };
 
-            // 3. 취소 버튼을 눌렀거나 입력이 없는 경우 중단
-            if (inputPw === null) return;
-
-            // 4. 비밀번호 검증
-            if (inputPw === ADMIN_PW) {
-                // 비밀번호 일치 시 삭제 진행
-                if(confirm('정말 삭제하시겠습니까? (복구 불가)')){
-                    const updatedRequests = { ...window.requests };
-                    
-                    // 해당 인덱스 데이터 삭제
-                    updatedRequests[t].splice(i, 1);
-                    
-                    try { 
-                        // Firebase 업데이트
-                        await updateDoc(docRef, { requests: updatedRequests }); 
-                        showToast("성공적으로 삭제되었습니다."); // 기존 showToast 함수 활용
-                    }
-                    catch(e) { 
-                        alert("Error: " + e.message); 
-                    }
-                }
-            } else {
-                // 비밀번호 불일치 시 경고
-                alert("⛔ 비밀번호가 올바르지 않습니다.");
-            }
+        // 1. [삭제] 버튼 클릭 시
+        window.deleteRequest = function(t, i) {
+            pendingAction = { type: 'delete', target: t, index: i };
+            openSecurityModal("🗑️ 삭제 확인", "해당 내역을 삭제하려면 비밀번호를 입력하세요.<br><span style='color:#ef4444; font-size:0.8rem; font-weight:600;'>(주의: 삭제 후 복구 불가)</span><br><span style='color:#27D3F5; font-size:0.8rem; font-weight:600;'>비밀번호 : 1234</span>");
         };
 
-        // 🔒 [수정] 초기화 시 비밀번호 확인 기능 추가
-        window.resetData = async function() {
-            const ADMIN_PW = "1234"; // 비밀번호 설정
-            const inputPw = prompt("⚠️ 데이터 초기화 확인\n\n모든 데이터를 삭제하려면 비밀번호를 입력하세요:", "");
+        // 2. [초기화] 버튼 클릭 시
+        window.resetData = function() {
+            pendingAction = { type: 'reset', target: null, index: null };
+            openSecurityModal("⚠️ 데이터 초기화", "모든 데이터를 삭제하려면 비밀번호를 입력하세요.<br><span style='color:var(--danger); font-size:0.8rem;'>(복구 불가능)</span><br><span style='color:#27D3F5; font-size:0.8rem; font-weight:600;'>비밀번호 : 1234</span>");
+        };
 
-            if (inputPw === null) return;
+        // 3. 모달 열기 (텍스트 변경 포함)
+        function openSecurityModal(title, desc) {
+            const modal = document.getElementById('securityModal');
+            const input = document.getElementById('modalPwInput');
+            
+            document.getElementById('modalTitle').innerHTML = title;
+            document.getElementById('modalDesc').innerHTML = desc;
+            
+            input.value = ''; // 비밀번호 초기화
+            modal.classList.add('open');
+            setTimeout(() => input.focus(), 100);
+        }
+
+        // 4. 모달 닫기
+        window.closeSecurityModal = function() {
+            document.getElementById('securityModal').classList.remove('open');
+            pendingAction = { type: null, target: null, index: null };
+        };
+
+        // 5. 비밀번호 확인 및 실행
+        window.confirmSecurityAction = async function() {
+            const ADMIN_PW = "1234"; // 🔑 관리자 비밀번호
+            const inputPw = document.getElementById('modalPwInput').value;
+            const inputEl = document.getElementById('modalPwInput');
 
             if (inputPw === ADMIN_PW) {
-                if(confirm('⚠️ 정말로 모든 데이터를 초기화하시겠습니까? (복구 불가)')){
-                    try {
+                // 비밀번호 일치 시 작업 수행
+                const { type, target, index } = pendingAction;
+
+                try {
+                    // A. 초기화 작업
+                    if (type === 'reset') {
                         await setDoc(docRef, { requests: { overtime: [], early: [], special: [] }, members: defaultMembers });
-                        alert("초기화 완료");
-                        location.reload(); // 페이지 새로고침
-                    } catch(e) { alert("Error: " + e.message); }
+                        showToast("모든 데이터가 초기화되었습니다.");
+                        location.reload(); // 새로고침
+                    } 
+                    // B. 삭제 작업
+                    else if (type === 'delete' && target) {
+                        const updatedRequests = { ...window.requests };
+                        updatedRequests[target].splice(index, 1);
+                        await updateDoc(docRef, { requests: updatedRequests });
+                        showToast("삭제되었습니다.");
+                    }
+                    
+                    closeSecurityModal(); // 성공 시 닫기
+
+                } catch (e) {
+                    alert("Error: " + e.message);
                 }
+
             } else {
-                alert("⛔ 비밀번호가 올바르지 않습니다.");
+                // 비밀번호 틀림
+                inputEl.style.borderColor = "var(--danger)";
+                setTimeout(() => { 
+                    alert("⛔ 비밀번호가 틀렸습니다."); 
+                    inputEl.value = '';
+                    inputEl.style.borderColor = "var(--border)";
+                    inputEl.focus();
+                }, 100);
             }
         };
 
@@ -2602,5 +2674,24 @@
 };
     </script>
 	<div id="toastContainer" class="toast-container"></div>
+	
+	<div id="securityModal" class="modal-overlay" onclick="if(event.target === this) closeSecurityModal()">
+    <div class="modal-card">
+        <div class="modal-icon-circle">
+            <i class="fa-solid fa-lock"></i>
+        </div>
+        <h3 id="modalTitle" style="margin:0 0 8px 0; font-size:1.4rem;">보안 확인</h3>
+        <p id="modalDesc" style="margin:0; color:var(--text-sub); font-size:0.9rem;">관리자 비밀번호를 입력하세요.</p>
+        
+        <div class="modal-input-box">
+            <input type="password" id="modalPwInput" placeholder="●●●●" maxlength="4" onkeypress="if(event.key==='Enter') confirmSecurityAction()">
+        </div>
+
+        <div class="modal-btns">
+            <button class="modal-btn btn-cancel" onclick="closeSecurityModal()">취소</button>
+            <button class="modal-btn btn-confirm" onclick="confirmSecurityAction()">확인</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
