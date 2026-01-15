@@ -1412,6 +1412,37 @@
 		
 		<div id="tab-team" class="tab-content">
             <div class="form-container">
+			<div style="background:var(--bg-nav); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:24px;">
+                    <h4 style="margin:0 0 16px 0; color:var(--text-main);"><i class="fa-solid fa-user-plus"></i> 새 멤버 추가</h4>
+                    <div class="form-row" style="align-items:end;">
+                        <div class="modern-input-group">
+                            <label>이름</label>
+                            <input type="text" id="newMemName" class="searchable-select-input" placeholder="예: 홍길동" style="padding:10px;">
+                        </div>
+                        <div class="modern-input-group">
+                            <label>닉네임</label>
+                            <input type="text" id="newMemNick" class="searchable-select-input" placeholder="예: Hong" style="padding:10px;">
+                        </div>
+                        <div class="modern-input-group">
+                            <label>직책 (Role)</label>
+                            <div class="searchable-select-wrapper">
+                                <select id="newMemRole" class="searchable-select-input" 
+                                        style="padding:10px; height:46px; cursor:pointer; appearance:none; -webkit-appearance:none;">
+                                    <option value="T/C">T/C</option>
+                                    <option value="Manager">Manager</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--text-sub); pointer-events:none; font-size:0.8rem;"></i>
+                            </div>
+                        </div>
+                        <div class="modern-input-group">
+                            <label>쿠코드</label>
+                            <input type="text" id="newMemCode" class="searchable-select-input" placeholder="예: A1234567" style="padding:10px;">
+                        </div>
+                        <button class="btn" onclick="addNewMember()" style="background:var(--primary); color:white; height:46px;">
+                            <i class="fa-solid fa-plus"></i> 추가
+                        </button>
+                    </div>
+                </div>
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                     <h3 style="margin:0;">팀 멤버 데이터 (Firebase Sync)</h3>
                     <div class="action-buttons">
@@ -1442,10 +1473,8 @@
                             <tr>
                                 <th width="15%">이름</th>
                                 <th width="15%">닉네임</th>
-                                <th width="10%">직책</th>
-                                <th width="15%">쿠코드</th>
-                                <th width="45%">휴무일 설정</th>
-                            </tr>
+                                <th width="15%">직책</th> <th width="15%">쿠코드</th>
+                                <th width="30%">휴무일 설정</th> <th width="10%">관리</th> </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
@@ -1733,16 +1762,26 @@
                 const { type, target, index } = pendingAction;
 
                 try {
+                    // 1. 전체 초기화 (Reset)
                     if (type === 'reset') {
                         await setDoc(docRef, { requests: { overtime: [], early: [], special: [] }, members: defaultMembers });
                         showToast("모든 데이터가 초기화되었습니다.");
                         location.reload();
                     } 
+                    // 2. 신청 내역 삭제 (Request Delete)
                     else if (type === 'delete' && target) {
                         const updatedRequests = { ...window.requests };
                         updatedRequests[target].splice(index, 1);
                         await updateDoc(docRef, { requests: updatedRequests });
                         showToast("삭제되었습니다.");
+                    }
+                    // 3. [여기가 추가된 부분] 멤버 삭제 (Member Delete)
+                    else if (type === 'member_delete') {
+                        window.members.splice(index, 1); // 배열에서 해당 멤버 삭제
+                        await updateDoc(docRef, { members: window.members }); // Firebase 저장
+                        showToast("멤버가 삭제되었습니다.");
+                        renderTeamTable(); // 테이블 즉시 갱신
+                        initSelects();     // 검색창 드롭다운 목록 갱신
                     }
                     
                     closeSecurityModal();
@@ -1752,6 +1791,7 @@
                 }
 
             } else {
+                // 비밀번호 틀렸을 때
                 inputEl.style.borderColor = "var(--danger)";
                 setTimeout(() => { 
                     alert("⛔ 비밀번호가 틀렸습니다."); 
@@ -2877,6 +2917,45 @@
             }
         };
 
+        // [추가] 멤버 추가 함수
+        window.addNewMember = async function() {
+            const name = document.getElementById('newMemName').value.trim();
+            const nick = document.getElementById('newMemNick').value.trim();
+            const roleSelect = document.getElementById('newMemRole').value;
+            const code = document.getElementById('newMemCode').value.trim();
+
+            if(!name || !nick || !code) return alert("모든 정보를 입력해주세요.");
+
+            // 역할 조합 (예: Bennett (T/C))
+            const fullRole = `${nick} (${roleSelect})`;
+
+            const newMember = { name, role: fullRole, code, daysOff: [] };
+            
+            // 기존 배열에 추가
+            window.members.push(newMember);
+
+            try {
+                await updateDoc(docRef, { members: window.members });
+                showToast(`${name}님이 추가되었습니다.`);
+                // 입력창 초기화
+                document.getElementById('newMemName').value = '';
+                document.getElementById('newMemNick').value = '';
+                document.getElementById('newMemCode').value = '';
+                renderTeamTable(); // 테이블 갱신
+                initSelects(); // 검색창 드롭다운도 갱신
+            } catch(e) {
+                alert("Error: " + e.message);
+            }
+        };
+
+        // [추가] 멤버 삭제 함수 (보안 모달 연동)
+        window.deleteMember = function(index) {
+            // 기존 pendingAction을 활용해 삭제 유형을 'member_delete'로 지정
+            pendingAction = { type: 'member_delete', target: null, index: index };
+            openSecurityModal("🗑️ 멤버 삭제", "정말 삭제하시겠습니까?<br><span style='color:var(--danger)'>복구할 수 없습니다.</span><br><span style='color:#27D3F5; font-size:0.8rem; font-weight:600;'>비밀번호 : 1234</span>");
+        };
+
+        // [수정] renderTeamTable 함수 (삭제 버튼 추가됨)
         window.renderTeamTable = function() {
             const tbody = document.getElementById('teamTable').querySelector('tbody');
             tbody.innerHTML = '';
@@ -2887,17 +2966,14 @@
                 const nick = m.role.split(' ')[0];
                 const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
                 
-                if (!m.daysOff) {
-                    m.daysOff = [];
-                }
+                if (!m.daysOff) m.daysOff = [];
                 
                 const daysOffHTML = daysOfWeek.map(day => {
                     const isSelected = m.daysOff.includes(day);
                     return `
-                        <button 
-                            class="filter-btn ${isSelected ? 'active' : ''}" 
+                        <button class="filter-btn ${isSelected ? 'active' : ''}" 
                             onclick="toggleDayOff(${index}, '${day}')"
-                            style="padding:6px 12px; font-size:0.85rem; border-radius:8px; min-width:45px;">
+                            style="padding:6px 10px; font-size:0.8rem; border-radius:6px; min-width:36px;">
                             ${day}
                         </button>
                     `;
@@ -2907,12 +2983,13 @@
                     <tr>
                         <td style="font-weight:700;">${m.name}</td>
                         <td>${nick}</td>
-                        <td>${rank}</td>
+                        <td><span class="status-badge" style="border:1px solid var(--border); color:var(--text-sub); width:auto; padding:2px 8px;">${rank}</span></td>
                         <td style="font-family:monospace; color:var(--text-sub);">${m.code}</td>
+                        <td><div style="display:flex; gap:4px; flex-wrap:wrap;">${daysOffHTML}</div></td>
                         <td>
-                            <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                                ${daysOffHTML}
-                            </div>
+                            <button class="btn btn-del" onclick="deleteMember(${index})" style="padding:6px 10px;">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
                         </td>
                     </tr>
                 `;
