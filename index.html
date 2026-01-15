@@ -477,6 +477,31 @@
             background: var(--primary); color: white; border-color: var(--primary);
             transform: translateY(-1px);
         }
+		
+		/* 수정 버튼 스타일 */
+        .btn-edit { background: rgba(99, 102, 241, 0.15); color: var(--primary); padding: 6px 10px; border-radius: 6px; }
+        .btn-edit:hover { background: var(--primary); color: white; }
+        
+        /* 버튼 그룹 (수정/삭제 나란히 배치) */
+        .action-btn-group { display: flex; gap: 6px; justify-content: center; }
+		
+		/* [추가] 팝업창 내 input 디자인 강제 통일 */
+        #editRequestModal input[type="date"], 
+        #editRequestModal input[type="time"] {
+            background: var(--bg-nav);
+            color: var(--text-main);
+            border: 2px solid var(--border);
+            font-family: var(--font-main);
+        }
+        #editRequestModal input:focus {
+            border-color: var(--primary);
+            background: var(--input-bg);
+        }
+        /* 캘린더 아이콘 색상 (브라우저 기본 아이콘) - 다크모드 대응 */
+        ::-webkit-calendar-picker-indicator {
+            filter: invert(0.5);
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -551,16 +576,20 @@
             </div>
             
             <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:20px;">
-                <div style="font-size:1.2rem; font-weight:700;"><i class="fa-solid fa-user-tie" style="color:#a78bfa"></i> Managers</div>
-                <button class="btn btn-capture" onclick="captureSection('managerSection', 'Managers_Status')"><i class="fa-solid fa-camera"></i> 캡처</button>
+                <div style="font-size:1.2rem; font-weight:700; color:#f59e0b;">
+                    <i class="fa-solid fa-sun"></i> DAY Shift
+                </div>
+                <button class="btn btn-capture" onclick="captureSection('daySection', 'Day_Shift_Status')"><i class="fa-solid fa-camera"></i> 캡처</button>
             </div>
-            <div id="managerSection"><div class="dash-grid" id="managerGrid"></div></div>
+            <div id="daySection"><div class="dash-grid" id="dayGrid"></div></div>
 
-            <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:20px; margin-top:30px;">
-                <div style="font-size:1.2rem; font-weight:700;"><i class="fa-solid fa-headset" style="color:#22d3ee"></i> Team Captains</div>
-                <button class="btn btn-capture" onclick="captureSection('tcSection', 'TC_Status')"><i class="fa-solid fa-camera"></i> 캡처</button>
+            <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:20px; margin-top:40px;">
+                <div style="font-size:1.2rem; font-weight:700; color:#6366f1;">
+                    <i class="fa-solid fa-moon"></i> SWING Shift
+                </div>
+                <button class="btn btn-capture" onclick="captureSection('swingSection', 'Swing_Shift_Status')"><i class="fa-solid fa-camera"></i> 캡처</button>
             </div>
-            <div id="tcSection"><div class="dash-grid" id="tcGrid"></div></div>
+            <div id="swingSection"><div class="dash-grid" id="swingGrid"></div></div>
         </div>
 
         <div id="tab-calendar" class="tab-content">
@@ -877,14 +906,15 @@
                 </div>
                 <div style="overflow-x:auto;">
                     <table class="weekly-table" id="otTable">
-                        <thead>
-                            <tr>
-                                <th>이름</th><th>닉네임</th><th>직책</th><th>쿠코드</th><th>SHIFT</th>
-                                <th>일자</th><th>시간</th><th>필요시간</th><th width="150">주간 근무시간</th><th>사유</th><th>삭제</th>
-                            </tr>
-                        </thead>
-                        <tbody id="otTbody"></tbody>
-                    </table>
+                            <thead>
+                                <tr>
+                                    <th>이름</th><th>닉네임</th><th>직책</th><th>쿠코드</th><th>SHIFT</th>
+                                    <th>일자</th><th>시간</th><th>필요시간</th><th width="150">주간 근무시간</th><th>사유</th>
+                                    <th style="text-align:center;">관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="otTbody"></tbody>
+                        </table>
                 </div>
             </div>
         </div>
@@ -1140,14 +1170,15 @@
                 </div>
                 <div style="overflow-x:auto;">
                     <table class="weekly-table" id="earlyTable">
-                        <thead>
-                            <tr>
-                                <th>이름</th><th>닉네임</th><th>직책</th><th>쿠코드</th><th>SHIFT</th>
-                                <th>일자</th><th>시간</th><th>필요시간</th><th width="150">주간 근무시간</th><th>사유</th><th>삭제</th>
-                            </tr>
-                        </thead>
-                        <tbody id="earlyTbody"></tbody>
-                    </table>
+                            <thead>
+                                <tr>
+                                    <th>이름</th><th>닉네임</th><th>직책</th><th>쿠코드</th><th>SHIFT</th>
+                                    <th>일자</th><th>시간</th><th>필요시간</th><th width="150">주간 근무시간</th><th>사유</th>
+                                    <th style="text-align:center;">관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="earlyTbody"></tbody>
+                        </table>
                 </div>
             </div>
         </div>
@@ -1398,21 +1429,22 @@
                 </div>
                 <div style="overflow-x:auto;">
                     <table class="weekly-table" id="specialTable">
-                        <thead>
-                            <tr>
-                                <th>이름</th><th>닉네임</th><th>직책</th><th>쿠코드</th><th>SHIFT</th>
-                                <th>일자</th><th>시간</th><th>필요시간</th><th width="150">주간 근무시간</th><th>사유</th><th>삭제</th>
-                            </tr>
-                        </thead>
-                        <tbody id="specialTbody"></tbody>
-                    </table>
+                            <thead>
+                                <tr>
+                                    <th>이름</th><th>닉네임</th><th>직책</th><th>쿠코드</th><th>SHIFT</th>
+                                    <th>일자</th><th>시간</th><th>필요시간</th><th width="150">주간 근무시간</th><th>사유</th>
+                                    <th style="text-align:center;">관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="specialTbody"></tbody>
+                        </table>
                 </div>
             </div>
         </div>
 		
 		<div id="tab-team" class="tab-content">
             <div class="form-container">
-			<div style="background:var(--bg-nav); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:24px;">
+                <div style="background:var(--bg-nav); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:24px;">
                     <h4 style="margin:0 0 16px 0; color:var(--text-main);"><i class="fa-solid fa-user-plus"></i> 새 멤버 추가</h4>
                     <div class="form-row" style="align-items:end;">
                         <div class="modern-input-group">
@@ -1423,17 +1455,29 @@
                             <label>닉네임</label>
                             <input type="text" id="newMemNick" class="searchable-select-input" placeholder="예: Hong" style="padding:10px;">
                         </div>
+                        
                         <div class="modern-input-group">
                             <label>직책 (Role)</label>
                             <div class="searchable-select-wrapper">
-                                <select id="newMemRole" class="searchable-select-input" 
-                                        style="padding:10px; height:46px; cursor:pointer; appearance:none; -webkit-appearance:none;">
+                                <select id="newMemRole" class="searchable-select-input" style="padding:10px; height:46px; cursor:pointer; appearance:none; -webkit-appearance:none;">
                                     <option value="T/C">T/C</option>
                                     <option value="Manager">Manager</option>
                                 </select>
                                 <i class="fa-solid fa-chevron-down" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--text-sub); pointer-events:none; font-size:0.8rem;"></i>
                             </div>
                         </div>
+
+                        <div class="modern-input-group">
+                            <label>근무조 (Shift)</label>
+                            <div class="searchable-select-wrapper">
+                                <select id="newMemShift" class="searchable-select-input" style="padding:10px; height:46px; cursor:pointer; appearance:none; -webkit-appearance:none;">
+                                    <option value="day">Day조</option>
+                                    <option value="swing">Swing조</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--text-sub); pointer-events:none; font-size:0.8rem;"></i>
+                            </div>
+                        </div>
+
                         <div class="modern-input-group">
                             <label>쿠코드</label>
                             <input type="text" id="newMemCode" class="searchable-select-input" placeholder="예: A1234567" style="padding:10px;">
@@ -1443,6 +1487,7 @@
                         </button>
                     </div>
                 </div>
+
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                     <h3 style="margin:0;">팀 멤버 데이터 (Firebase Sync)</h3>
                     <div class="action-buttons">
@@ -1455,26 +1500,17 @@
                     </div>
                 </div>
                 
-                <div style="background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.3); border-radius:12px; padding:16px; margin-bottom:20px;">
-                    <div style="display:flex; align-items:center; gap:10px; color:var(--primary); font-weight:700; margin-bottom:8px;">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <span>휴무일 설정 방법</span>
-                    </div>
-                    <ul style="margin:0; padding-left:20px; color:var(--text-sub); font-size:0.9rem; line-height:1.8;">
-                        <li>각 멤버의 휴무일을 클릭하여 선택/해제할 수 있습니다</li>
-                        <li>변경사항은 자동으로 Firebase에 저장됩니다</li>
-                        <li>휴무일은 주간 근무시간 계산 시 자동으로 반영됩니다</li>
-                    </ul>
-                </div>
-                
                 <div style="overflow-x:auto;">
                     <table class="weekly-table" id="teamTable">
                         <thead>
                             <tr>
                                 <th width="15%">이름</th>
-                                <th width="15%">닉네임</th>
-                                <th width="15%">직책</th> <th width="15%">쿠코드</th>
-                                <th width="30%">휴무일 설정</th> <th width="10%">관리</th> </tr>
+                                <th width="10%">닉네임</th>
+                                <th width="10%">직책</th>
+                                <th width="10%">근무조</th> <th width="15%">쿠코드</th>
+                                <th width="30%">휴무일 설정</th>
+                                <th width="10%">관리</th>
+                            </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
@@ -1677,28 +1713,34 @@
             }
         };
         
+        // 1. 현재 수정 중인 상태를 저장할 변수
+        window.editingState = { isEditing: false, type: null, id: null };
+
+        // 2. 신청 및 수정 처리 함수 (기존 addRequest 대체)
         window.addRequest = async function(t) {
             const p = t === 'overtime' ? 'ot' : t === 'early' ? 'early' : 'special';
-            const idx = document.getElementById(`${p}Select`).value;
-            if(idx === "") return alert("관리자를 선택하세요!");
             
-            const m = window.members[idx];
+            // 입력값 가져오기
+            const idx = document.getElementById(`${p}Select`).value;
             const date = document.getElementById(`${p}Date`).value;
             const timeText = document.getElementById(`${p}Diff`).innerText || '0.0h';
             const reason = document.getElementById(`${p}Reason`).value;
+            const shiftValue = document.getElementById(`${p}Shift`).value;
             
+            // 유효성 검사
+            if(idx === "") return alert("관리자를 선택하세요!");
             if(!date) return alert("날짜를 선택하세요!");
             if(parseFloat(timeText.replace('h','')) <= 0) return alert("시간을 입력하세요!");
             if(!reason.trim()) return alert("사유를 입력하세요!");
-            
+
+            const m = window.members[idx];
             const nick = m.role.split(' ')[0];
             const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
-            
-            const shiftValue = document.getElementById(`${p}Shift`).value;
             const shiftLabel = shiftValue === 'day' ? 'Day조' : shiftValue === 'swing' ? 'Swing조' : '';
-            
-            const req = {
-                id: Date.now(), 
+
+            // 데이터 객체 생성
+            const reqData = {
+                id: window.editingState.isEditing ? window.editingState.id : Date.now(), // 수정이면 기존 ID 유지
                 name: m.name, 
                 nick: nick, 
                 rank: rank, 
@@ -1714,13 +1756,102 @@
             
             const updatedRequests = { ...window.requests };
             if (!updatedRequests[t]) updatedRequests[t] = [];
-            updatedRequests[t].push(req);
+
+            if (window.editingState.isEditing && window.editingState.type === t) {
+                // [수정 모드] 기존 데이터 찾아서 교체
+                const targetIdx = updatedRequests[t].findIndex(r => r.id === window.editingState.id);
+                if (targetIdx !== -1) {
+                    updatedRequests[t][targetIdx] = reqData;
+                    showToast("수정되었습니다! 📝");
+                }
+            } else {
+                // [신규 모드] 배열에 추가
+                updatedRequests[t].push(reqData);
+                showToast("저장되었습니다! ✅");
+            }
             
             try {
                 await updateDoc(docRef, { requests: updatedRequests });
+                
+                // 폼 초기화 및 수정 모드 해제
                 document.getElementById(`${p}Reason`).value = '';
-                showToast("저장되었습니다!");
+                cancelEditMode(t); 
+                
             } catch(e) { alert("Error: " + e.message); }
+        };
+
+        // 3. 수정 버튼 클릭 시 폼에 데이터 채우기 (새로 추가)
+        window.editRequest = function(type, id) {
+            const req = window.requests[type].find(r => r.id === id);
+            if(!req) return;
+
+            const p = type === 'overtime' ? 'ot' : type === 'early' ? 'early' : 'special';
+
+            // 상태 설정
+            window.editingState = { isEditing: true, type: type, id: id };
+
+            // 관리자 선택 복원
+            const memIdx = window.members.findIndex(m => m.code === req.code);
+            if(memIdx !== -1) {
+                document.getElementById(`${p}Select`).value = memIdx;
+                document.getElementById(`${p}SelectInput`).value = `${req.name} (${window.members[memIdx].role})`;
+                document.getElementById(`${p}Placeholder`).style.display = 'none';
+                document.getElementById(`${p}Analysis`).style.display = 'block';
+                updateAnalysis(p);
+            }
+
+            // 근무조 복원
+            document.getElementById(`${p}Shift`).value = req.shiftType || '';
+            document.getElementById(`${p}ShiftDisplay`).value = req.shift ? req.shift : '';
+
+            // 날짜 및 시간 복원
+            window.selectDate(p, req.date); 
+            window.setTimeValue(`${p}Start`, req.start);
+            window.setTimeValue(`${p}End`, req.end);
+            window.calcDiff(p);
+
+            // 사유 복원
+            document.getElementById(`${p}Reason`).value = req.reason;
+
+            // 버튼 디자인 변경 (신청하기 -> 수정완료)
+            const btn = document.querySelector(`#tab-${type} .submit-btn`);
+            btn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> 수정 완료';
+            btn.style.background = 'linear-gradient(135deg, #10b981, #059669)'; 
+            
+            // 취소 버튼 표시
+            let cancelBtn = document.getElementById(`${p}CancelBtn`);
+            if(!cancelBtn) {
+                cancelBtn = document.createElement('button');
+                cancelBtn.id = `${p}CancelBtn`;
+                cancelBtn.className = 'submit-btn';
+                cancelBtn.style.background = 'var(--border)';
+                cancelBtn.style.color = 'var(--text-sub)';
+                cancelBtn.style.marginTop = '10px';
+                cancelBtn.innerHTML = '<i class="fa-solid fa-xmark"></i> 취소';
+                cancelBtn.onclick = () => cancelEditMode(type);
+                btn.parentNode.insertBefore(cancelBtn, btn.nextSibling);
+            }
+
+            // 폼으로 스크롤 이동
+            document.querySelector(`#tab-${type} .form-container`).scrollIntoView({ behavior: 'smooth' });
+        };
+
+        // 4. 수정 모드 취소 함수 (새로 추가)
+        window.cancelEditMode = function(type) {
+            const p = type === 'overtime' ? 'ot' : type === 'early' ? 'early' : 'special';
+            window.editingState = { isEditing: false, type: null, id: null };
+            
+            // 버튼 원복
+            const btn = document.querySelector(`#tab-${type} .submit-btn`);
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> 신청하기';
+            btn.style.background = ''; 
+
+            // 취소 버튼 제거
+            const cancelBtn = document.getElementById(`${p}CancelBtn`);
+            if(cancelBtn) cancelBtn.remove();
+
+            // 폼 리셋
+            document.getElementById(`${p}Reason`).value = '';
         };
 
         // --- 보안 모달 로직 ---
@@ -1910,30 +2041,40 @@
                 event.preventDefault();
             }
             
-            // [중요] 전달받은 code(쿠코드)와 일치하는 멤버의 진짜 인덱스를 찾습니다.
+            // 1. 멤버 찾기
             const realIndex = window.members.findIndex(m => m.code === code);
-
             if (realIndex === -1) {
                 alert("멤버 데이터를 찾을 수 없습니다.");
                 return;
             }
             
-            // 찾아낸 진짜 인덱스를 저장합니다.
+            // 2. 관리자 입력창 UI 업데이트
             document.getElementById(`${type}Select`).value = realIndex;
             document.getElementById(`${type}SelectInput`).value = `${name} (${role})`;
             document.getElementById(`${type}SelectDropdown`).classList.remove('show');
             document.getElementById(`${type}ClearBtn`).style.display = 'block';
             
-            // 드롭다운 내의 스타일 업데이트
+            // 드롭다운 선택 스타일 처리
             document.querySelectorAll(`#${type}SelectDropdown .searchable-select-option`).forEach(opt => {
                 opt.classList.remove('selected');
             });
-            
             const selectedOption = document.querySelector(`#${type}SelectDropdown .searchable-select-option[data-index="${realIndex}"]`);
-            if (selectedOption) {
-                selectedOption.classList.add('selected');
-            }
+            if (selectedOption) selectedOption.classList.add('selected');
             
+            
+            // 3. [핵심 기능 추가] 해당 멤버의 근무조(Shift) 자동 선택
+            const member = window.members[realIndex];
+            const memShift = member.shift || 'day'; // 설정 없으면 기본값 day
+            
+            let shiftText = '';
+            if (memShift === 'day') shiftText = 'DAY조 (09:00 ~ 18:00)';
+            else if (memShift === 'swing') shiftText = 'SWING조 (19:00 ~ 04:00)';
+            
+            // 우리가 만든 selectShift 함수를 호출해서 근무조 UI와 시간을 자동으로 바꿈
+            selectShift(type, memShift, shiftText);
+
+
+            // 4. 분석 패널(근무시간 현황) 업데이트
             updateAnalysis(type);
         };
 
@@ -2103,17 +2244,27 @@
             input.classList.toggle('active');
         };
 
+        // [수정됨] 시간 확인 버튼 (계산 로직 연결 추가)
         window.confirmTime = function(id) {
             const state = window.timePickerStates[id];
             if (!state || state.hour === undefined || state.minute === undefined) return alert('시간을 선택하세요!');
+            
             const timeStr = `${String(state.hour).padStart(2, '0')}:${String(state.minute).padStart(2, '0')}`;
             document.getElementById(id).value = timeStr;
+            
             const display = document.getElementById(`${id}Display`);
             display.textContent = timeStr; 
             display.classList.remove('placeholder');
+            
             document.getElementById(`${id}Picker`).classList.remove('show');
             document.querySelector(`#${id}Picker`).previousElementSibling.querySelector('.custom-time-input').classList.remove('active');
-            calcDiff(id.includes('ot') ? 'ot' : id.includes('early') ? 'early' : 'special');
+            
+            // [추가된 부분] 팝업창이면 팝업용 계산기, 아니면 일반 계산기 실행
+            if (id.startsWith('editReq')) {
+                calcEditDiff();
+            } else {
+                calcDiff(id.includes('ot') ? 'ot' : id.includes('early') ? 'early' : 'special');
+            }
         };
 		
 		// [추가됨] 근무조 드롭다운 열기/닫기
@@ -2175,7 +2326,8 @@
             calcDiff(type);
         };
 
-        function setTimeValue(id, timeStr) {
+        // [수정됨] window. 을 붙여서 전역 함수로 변경
+        window.setTimeValue = function(id, timeStr) {
             const display = document.getElementById(`${id}Display`);
             if (!timeStr) { 
                 document.getElementById(id).value = ''; 
@@ -2188,7 +2340,7 @@
             display.textContent = timeStr; 
             display.classList.remove('placeholder');
             window.timePickerStates[id] = { hour, minute };
-        }
+        };
 
         window.setQuickTime = function(t, h) {
             h = parseFloat(h); 
@@ -2336,23 +2488,56 @@
 
         window.applyDashFilters = function() {
             const searchTerm = document.getElementById('dashSearchInput').value.toLowerCase();
-            const mgr = document.getElementById('managerGrid');
-            const tc = document.getElementById('tcGrid');
-            mgr.innerHTML = ''; tc.innerHTML = '';
+            const dayGrid = document.getElementById('dayGrid');
+            const swingGrid = document.getElementById('swingGrid');
+            
+            dayGrid.innerHTML = ''; 
+            swingGrid.innerHTML = '';
+            
             let filteredData = window.allDashData.filter(d => {
                 const matchesSearch = d.name.toLowerCase().includes(searchTerm) || d.role.toLowerCase().includes(searchTerm);
                 const hasActiveFilter = window.dashActiveFilters.danger || window.dashActiveFilters.warning || window.dashActiveFilters.safe;
                 const matchesStatus = !hasActiveFilter || window.dashActiveFilters[d.statusClass];
                 return matchesSearch && matchesStatus;
             });
+
             filteredData.forEach(d => {
+                // 매니저/캡틴에 따라 카드 스타일 결정
+                const cardClass = d.isMgr ? 'manager-card' : 'captain-card';
+                // 해당 멤버의 shift 값 확인 (없으면 기본 day)
+                const memShift = d.shift || 'day';
+
                 const card = document.createElement('div');
-                card.className = `member-card ${d.statusClass} ${d.isMgr ? 'manager-card' : 'captain-card'}`;
+                card.className = `member-card ${d.statusClass} ${cardClass}`;
                 card.innerHTML = `
-                    <div class="card-top"><div class="card-info"><div>${d.name}</div><div>${d.role}</div></div><div class="card-badge">${d.total.toFixed(1)}h</div></div>
-                    <div class="progress-container"><div class="progress-labels"><span>Limit: 52h</span><span class="progress-val">잔여: ${d.remain.toFixed(1)}h</span></div><div class="progress-track"><div class="progress-fill" style="width:${d.percent}%"></div></div></div>`;
-                if(d.isMgr) mgr.appendChild(card); else tc.appendChild(card);
+                    <div class="card-top">
+                        <div class="card-info">
+                            <div>${d.name}</div>
+                            <div>${d.role}</div>
+                        </div>
+                        <div class="card-badge">${d.total.toFixed(1)}h</div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-labels">
+                            <span>Limit: 52h</span>
+                            <span class="progress-val">잔여: ${d.remain.toFixed(1)}h</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width:${d.percent}%"></div>
+                        </div>
+                    </div>`;
+                
+                // 근무조에 따라 다른 구역에 추가
+                if (memShift === 'swing') {
+                    swingGrid.appendChild(card);
+                } else {
+                    dayGrid.appendChild(card); // 기본값 Day
+                }
             });
+            
+            // 데이터가 없을 경우 안내 문구
+            if(dayGrid.children.length === 0) dayGrid.innerHTML = '<div style="color:var(--text-sub); padding:10px;">데이터 없음</div>';
+            if(swingGrid.children.length === 0) swingGrid.innerHTML = '<div style="color:var(--text-sub); padding:10px;">데이터 없음</div>';
         };
 
         window.toggleDashFilter = function(type) {
@@ -2431,6 +2616,84 @@
             
             if(total>=52) { dang.style.display='block'; fill.style.background='var(--danger)'; }
             else if(total>=45) { fill.style.background='var(--warning)'; }
+        };
+		
+		// [수정됨] 팝업 열기 (커스텀 피커 데이터 연결)
+        window.openEditPopup = function(type, id) {
+            const req = window.requests[type].find(r => r.id === id);
+            if(!req) return;
+
+            // 기본 데이터
+            document.getElementById('editReqId').value = id;
+            document.getElementById('editReqType').value = type;
+            document.getElementById('editReqReason').value = req.reason;
+
+            // 날짜 설정 (커스텀 달력 UI 업데이트)
+            window.selectDate('editReq', req.date);
+
+            // 시간 설정 (커스텀 시계 UI 업데이트)
+            window.setTimeValue('editReqStart', req.start);
+            window.setTimeValue('editReqEnd', req.end);
+            
+            // 시간 차이 계산
+            window.calcEditDiff();
+
+            // 팝업 띄우기
+            document.getElementById('editRequestModal').classList.add('open');
+        };
+
+        // 수정 팝업 닫기
+        window.closeEditPopup = function() {
+            document.getElementById('editRequestModal').classList.remove('open');
+        };
+
+        // 팝업 내부 시간 계산기
+        window.calcEditDiff = function() {
+            const s = document.getElementById('editReqStart').value;
+            const e = document.getElementById('editReqEnd').value;
+            
+            if(s && e) {
+                const S = new Date(`2000-01-01 ${s}`);
+                const E = new Date(`2000-01-01 ${e}`);
+                if (E < S) E.setDate(E.getDate() + 1);
+                let diff = (E - S) / (1000 * 60 * 60);
+                if (diff >= 9) diff -= 1; // 휴게시간 공제 로직 유지
+                document.getElementById('editReqDiff').innerText = diff.toFixed(1) + 'h';
+            } else {
+                document.getElementById('editReqDiff').innerText = '0.0h';
+            }
+        };
+
+        // 수정사항 저장하기
+        window.saveEditPopup = async function() {
+            const id = parseInt(document.getElementById('editReqId').value);
+            const type = document.getElementById('editReqType').value;
+            const date = document.getElementById('editReqDate').value;
+            const start = document.getElementById('editReqStart').value;
+            const end = document.getElementById('editReqEnd').value;
+            const time = document.getElementById('editReqDiff').innerText;
+            const reason = document.getElementById('editReqReason').value;
+
+            if(!date || !start || !end || !reason) return alert("모든 내용을 입력해주세요.");
+
+            const updatedRequests = { ...window.requests };
+            const targetIdx = updatedRequests[type].findIndex(r => r.id === id);
+            
+            if (targetIdx !== -1) {
+                // 기존 데이터에 새로운 값만 덮어쓰기 (이름, 직책 등은 유지)
+                updatedRequests[type][targetIdx] = { 
+                    ...updatedRequests[type][targetIdx], 
+                    date, start, end, time, reason 
+                };
+                
+                try {
+                    await updateDoc(docRef, { requests: updatedRequests });
+                    showToast("수정되었습니다! 📝");
+                    closeEditPopup();
+                } catch(e) {
+                    alert("Error: " + e.message);
+                }
+            }
         };
 		
 		window.renderRequestTable = function(type) {
@@ -2520,10 +2783,16 @@
                             </div>
                         </td>
                         <td>${r.reason}</td>
-                        <td>
-                            <button class="btn btn-del" onclick="deleteRequest('${requestKey}',${originalIndex})">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
+                        
+                        <td style="text-align:center;">
+                            <div class="action-btn-group">
+                                <button class="btn btn-edit" onclick="openEditPopup('${requestKey}', ${r.id})">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button class="btn btn-del" onclick="deleteRequest('${requestKey}',${originalIndex})">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -2922,27 +3191,27 @@
             const name = document.getElementById('newMemName').value.trim();
             const nick = document.getElementById('newMemNick').value.trim();
             const roleSelect = document.getElementById('newMemRole').value;
+            const shiftSelect = document.getElementById('newMemShift').value; // 추가됨
             const code = document.getElementById('newMemCode').value.trim();
 
             if(!name || !nick || !code) return alert("모든 정보를 입력해주세요.");
 
-            // 역할 조합 (예: Bennett (T/C))
             const fullRole = `${nick} (${roleSelect})`;
-
-            const newMember = { name, role: fullRole, code, daysOff: [] };
             
-            // 기존 배열에 추가
+            // shift 속성 추가
+            const newMember = { name, role: fullRole, code, shift: shiftSelect, daysOff: [] };
+            
             window.members.push(newMember);
 
             try {
                 await updateDoc(docRef, { members: window.members });
                 showToast(`${name}님이 추가되었습니다.`);
-                // 입력창 초기화
+                
                 document.getElementById('newMemName').value = '';
                 document.getElementById('newMemNick').value = '';
                 document.getElementById('newMemCode').value = '';
-                renderTeamTable(); // 테이블 갱신
-                initSelects(); // 검색창 드롭다운도 갱신
+                renderTeamTable(); 
+                initSelects(); 
             } catch(e) {
                 alert("Error: " + e.message);
             }
@@ -2965,25 +3234,29 @@
             window.members.forEach((m, index) => {
                 const nick = m.role.split(' ')[0];
                 const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
+                const currentShift = m.shift || 'day'; // 값이 없으면 기본 day
                 
                 if (!m.daysOff) m.daysOff = [];
                 
                 const daysOffHTML = daysOfWeek.map(day => {
                     const isSelected = m.daysOff.includes(day);
-                    return `
-                        <button class="filter-btn ${isSelected ? 'active' : ''}" 
-                            onclick="toggleDayOff(${index}, '${day}')"
-                            style="padding:6px 10px; font-size:0.8rem; border-radius:6px; min-width:36px;">
-                            ${day}
-                        </button>
-                    `;
+                    return `<button class="filter-btn ${isSelected ? 'active' : ''}" onclick="toggleDayOff(${index}, '${day}')" style="padding:6px 10px; font-size:0.8rem; border-radius:6px; min-width:36px;">${day}</button>`;
                 }).join('');
                 
+                // 근무조 변경 셀렉트 박스
+                const shiftSelectHTML = `
+                    <select onchange="updateMemberShift(${index}, this.value)" style="background:var(--bg-body); color:var(--text-main); border:1px solid var(--border); padding:4px; border-radius:6px; font-family:inherit;">
+                        <option value="day" ${currentShift==='day'?'selected':''}>Day</option>
+                        <option value="swing" ${currentShift==='swing'?'selected':''}>Swing</option>
+                    </select>
+                `;
+
                 tbody.innerHTML += `
                     <tr>
                         <td style="font-weight:700;">${m.name}</td>
                         <td>${nick}</td>
                         <td><span class="status-badge" style="border:1px solid var(--border); color:var(--text-sub); width:auto; padding:2px 8px;">${rank}</span></td>
+                        <td>${shiftSelectHTML}</td>
                         <td style="font-family:monospace; color:var(--text-sub);">${m.code}</td>
                         <td><div style="display:flex; gap:4px; flex-wrap:wrap;">${daysOffHTML}</div></td>
                         <td>
@@ -2994,6 +3267,16 @@
                     </tr>
                 `;
             });
+        };
+
+        // [추가됨] 근무조 변경 즉시 저장 함수
+        window.updateMemberShift = async function(index, newShift) {
+            window.members[index].shift = newShift;
+            try {
+                await updateDoc(docRef, { members: window.members });
+                showToast("근무조가 변경되었습니다.");
+                refreshUI(); // 대시보드 등 즉시 반영
+            } catch(e) { console.error(e); }
         };
 
         window.showToast = function(msg, type = 'success') {
@@ -3052,10 +3335,123 @@
                     document.querySelectorAll('.custom-date-input, .custom-time-input').forEach(i => i.classList.remove('active'));
                 }
             });
+			
+			// [추가] 팝업창용 달력/시계 초기화
+            const popupDate = new Date(today);
+            window.initCalendar('editReq', popupDate);
+            window.initTimePicker('editReqStart', '09:00');
+            window.initTimePicker('editReqEnd', '18:00');
             
             setInterval(updateResetTimer, 1000);
             updateResetTimer();
         };
     </script>
+	<div id="editRequestModal" class="modal-overlay" onclick="if(event.target === this) closeEditPopup()">
+        <div class="modal-card" style="max-width: 480px; text-align: left; padding: 24px;">
+            
+            <div style="text-align:center; margin-bottom:24px; border-bottom:1px solid var(--border); padding-bottom:15px;">
+                <h3 style="margin:0; font-size:1.3rem; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <i class="fa-solid fa-pen-to-square" style="color:var(--primary)"></i> 내용 수정
+                </h3>
+            </div>
+            
+            <input type="hidden" id="editReqId">
+            <input type="hidden" id="editReqType">
+
+            <div class="modern-form" style="gap:16px;">
+                
+                <div class="modern-input-group">
+                    <label><i class="fa-solid fa-calendar-days"></i> 날짜</label>
+                    <div class="custom-date-picker">
+                        <div class="modern-input-wrapper input-with-icon">
+                            <i class="fa-solid fa-calendar-check"></i>
+                            <div class="custom-date-input" onclick="toggleCalendar('editReq')" style="height:50px;">
+                                <span class="date-display" id="editReqDateDisplay">날짜 선택</span>
+                                <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
+                            </div>
+                            <input type="hidden" id="editReqDate">
+                        </div>
+                        <div class="calendar-dropdown" id="editReqCalendar">
+                            <div class="calendar-header">
+                                <button class="calendar-nav-btn" onclick="changeMonth('editReq', -1)"><i class="fa-solid fa-chevron-left"></i></button>
+                                <div class="calendar-month-year" id="editReqMonthYear"></div>
+                                <button class="calendar-nav-btn" onclick="changeMonth('editReq', 1)"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                            <div class="calendar-days" id="editReqCalendarDays"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="modern-input-group">
+                        <label><i class="fa-solid fa-clock"></i> 시작</label>
+                        <div class="custom-time-picker">
+                            <div class="modern-input-wrapper input-with-icon">
+                                <i class="fa-solid fa-play"></i>
+                                <div class="custom-time-input" onclick="toggleTimePicker('editReqStart')" style="height:50px;">
+                                    <span class="time-display" id="editReqStartDisplay">00:00</span>
+                                    <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
+                                </div>
+                                <input type="hidden" id="editReqStart">
+                            </div>
+                            <div class="time-dropdown" id="editReqStartPicker">
+                                <div class="time-selector">
+                                    <div class="time-column"><div class="time-scroll" id="editReqStartHour"></div></div>
+                                    <div class="time-separator">:</div>
+                                    <div class="time-column"><div class="time-scroll" id="editReqStartMinute"></div></div>
+                                </div>
+                                <button class="time-confirm-btn" onclick="confirmTime('editReqStart')">확인</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modern-input-group">
+                        <label><i class="fa-solid fa-clock"></i> 종료</label>
+                        <div class="custom-time-picker">
+                            <div class="modern-input-wrapper input-with-icon">
+                                <i class="fa-solid fa-stop"></i>
+                                <div class="custom-time-input" onclick="toggleTimePicker('editReqEnd')" style="height:50px;">
+                                    <span class="time-display" id="editReqEndDisplay">00:00</span>
+                                    <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
+                                </div>
+                                <input type="hidden" id="editReqEnd">
+                            </div>
+                            <div class="time-dropdown" id="editReqEndPicker">
+                                <div class="time-selector">
+                                    <div class="time-column"><div class="time-scroll" id="editReqEndHour"></div></div>
+                                    <div class="time-separator">:</div>
+                                    <div class="time-column"><div class="time-scroll" id="editReqEndMinute"></div></div>
+                                </div>
+                                <button class="time-confirm-btn" onclick="confirmTime('editReqEnd')">확인</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="calculated-result" style="margin-top:0; padding:12px 16px;">
+                    <div class="label" style="font-size:0.85rem;">수정된 시간</div>
+                    <div class="value" style="font-size:1.3rem;">
+                        <i class="fa-solid fa-hourglass-half"></i> <span id="editReqDiff">0.0h</span>
+                    </div>
+                </div>
+
+                <div class="modern-input-group">
+                    <label><i class="fa-solid fa-comment"></i> 사유</label>
+                    <div class="modern-input-wrapper">
+                        <textarea id="editReqReason" style="min-height: 80px; resize:none;"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-btns" style="margin-top:24px;">
+                <button class="modal-btn btn-cancel" onclick="closeEditPopup()">
+                    <i class="fa-solid fa-xmark"></i> 취소
+                </button>
+                <button class="modal-btn" style="background: linear-gradient(135deg, var(--primary), #8b5cf6); color:white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);" onclick="saveEditPopup()">
+                    <i class="fa-solid fa-check"></i> 저장하기
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
