@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GWJ2 OB Workday - Bennett Ver 1.0</title>
+    <title>GWJ2 OB Workday - Bennett Ver 1.5</title>
     
     <link rel="icon" href="https://raw.githubusercontent.com/qogmlwo000/gwj2pickpackhtp/main/Bennett.ico" type="image/x-icon">
     
@@ -485,7 +485,7 @@
         /* 버튼 그룹 (수정/삭제 나란히 배치) */
         .action-btn-group { display: flex; gap: 6px; justify-content: center; }
 		
-		/* [추가] 팝업창 내 input 디자인 강제 통일 */
+		/*  팝업창 내 input 디자인 강제 통일 */
         #editRequestModal input[type="date"], 
         #editRequestModal input[type="time"] {
             background: var(--bg-nav);
@@ -503,7 +503,7 @@
             cursor: pointer;
         }
 		
-		/* [추가] 정렬 가능한 테이블 헤더 스타일 */
+		/*  정렬 가능한 테이블 헤더 스타일 */
         .sortable-th { cursor: pointer; transition: 0.2s; user-select: none; }
         .sortable-th:hover { color: var(--primary); background: rgba(99, 102, 241, 0.1); }
         .sort-icon { margin-left: 6px; font-size: 0.8rem; color: var(--text-sub); opacity: 0.3; }
@@ -528,6 +528,7 @@
         <div class="nav-item" onclick="switchTab('weekly')"><i class="fa-solid fa-chart-simple"></i> 주간 현황 (전체)</div>
         <div class="nav-item" onclick="switchTab('overtime')"><i class="fa-solid fa-clock"></i> 연장 신청</div>
         <div class="nav-item" onclick="switchTab('early')"><i class="fa-solid fa-sun"></i> 조출 신청</div>
+		<div class="nav-item" onclick="switchTab('leave')"><i class="fa-solid fa-plane-departure"></i> 휴가 신청</div>
         <div class="nav-item" onclick="switchTab('special')"><i class="fa-solid fa-calendar-plus"></i> 특근 신청</div>
 		<div class="nav-item" onclick="switchTab('team')"><i class="fa-solid fa-users-gear"></i> 팀 설정</div>
     </nav>
@@ -550,7 +551,7 @@
                         </div>
                     </div>
                 </div>
-                <div style="font-size:0.9rem; color:var(--text-sub);">V 1.0 - Bennett</div>
+                <div style="font-size:0.9rem; color:var(--text-sub);">V 1.5 - Bennett</div>
             </div>
         </header>
 
@@ -1176,6 +1177,190 @@
             </div>
         </div>
 		
+		<div id="tab-leave" class="tab-content">
+            <div class="split-layout">
+                <div>
+                    <div class="form-container">
+                        <h3 style="margin-top:0; margin-bottom:24px; display:flex; align-items:center; gap:10px;">
+                            <i class="fa-solid fa-plane-departure" style="color:#10b981"></i> 휴가 신청
+                        </h3>
+                        <div class="modern-form">
+                            <div class="modern-input-group">
+                                <label><i class="fa-solid fa-user"></i> 관리자 선택</label>
+                                <div class="searchable-select-wrapper">
+                                    <i class="fa-solid fa-user-tie" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--primary); z-index:1; pointer-events:none;"></i>
+                                    <input type="text" class="searchable-select-input" id="leaveSelectInput" placeholder="이름 또는 직책으로 검색..." autocomplete="off" onfocus="showSearchableDropdown('leave')" oninput="filterSearchableOptions('leave')">
+                                    <button class="clear-select-btn" onclick="clearSearchableSelect('leave')" style="display:none;" id="leaveClearBtn"><i class="fa-solid fa-xmark"></i></button>
+                                    <input type="hidden" id="leaveSelect">
+                                    <div class="searchable-select-dropdown" id="leaveSelectDropdown"></div>
+                                </div>
+                            </div>
+
+                            <div class="modern-input-group">
+                                <label><i class="fa-solid fa-list-check"></i> 휴가 종류</label>
+                                <div class="searchable-select-wrapper">
+                                    <select id="leaveType" class="searchable-select-input" onchange="calcLeaveDiff()" style="padding:14px 16px; height:50px; cursor:pointer; appearance:none; -webkit-appearance:none;">
+                                        <option value="8">연차 (1일 / -8h)</option>
+                                        <option value="4_am">오전 반차 (0.5일 / -4h)</option>
+                                        <option value="4_pm">오후 반차 (0.5일 / -4h)</option>
+                                    </select>
+                                    <i class="fa-solid fa-chevron-down" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--text-sub); pointer-events:none; font-size:0.8rem;"></i>
+                                </div>
+                            </div>
+
+                            <div class="modern-input-group">
+                                <label><i class="fa-solid fa-calendar"></i> 휴가 날짜</label>
+                                <div class="custom-date-picker">
+                                    <div class="modern-input-wrapper input-with-icon">
+                                        <i class="fa-solid fa-calendar-day"></i>
+                                        <div class="custom-date-input" onclick="toggleCalendar('leave')">
+                                            <span class="date-display placeholder" id="leaveDateDisplay">날짜 선택</span>
+                                            <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
+                                        </div>
+                                        <input type="hidden" id="leaveDate">
+                                    </div>
+                                    <div class="calendar-dropdown" id="leaveCalendar">
+                                        <div class="calendar-header">
+                                            <button class="calendar-nav-btn" onclick="changeMonth('leave', -1)"><i class="fa-solid fa-chevron-left"></i></button>
+                                            <div class="calendar-month-year" id="leaveMonthYear"></div>
+                                            <button class="calendar-nav-btn" onclick="changeMonth('leave', 1)"><i class="fa-solid fa-chevron-right"></i></button>
+                                        </div>
+                                        <div class="calendar-days" id="leaveCalendarDays"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="calculated-result" style="border-color:var(--success); background:rgba(16, 185, 129, 0.05);">
+                                <div class="label">차감 시간</div>
+                                <div class="value" style="color:var(--success);"><i class="fa-solid fa-minus"></i> <span id="leaveDiff">8.0h</span></div>
+                            </div>
+
+                            <div class="modern-input-group reason-input">
+                                <label><i class="fa-solid fa-comment"></i> 사유 (선택)</label>
+                                <div class="reason-tags">
+                                    <button class="reason-tag" onclick="setReason('leave', '개인 사유')">개인 사유</button>
+                                    <button class="reason-tag" onclick="setReason('leave', '병원 진료')">병원 진료</button>
+                                    <button class="reason-tag" onclick="setReason('leave', '가족 행사')">가족 행사</button>
+                                </div>
+                                <textarea id="leaveReason" placeholder="예: 개인 사정으로 인한 연차 사용"></textarea>
+                            </div>
+
+                            <button class="submit-btn" onclick="addRequest('leave')" style="background:linear-gradient(135deg, #10b981, #059669);">
+                                <i class="fa-solid fa-paper-plane"></i> 신청하기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="analysis-panel" id="leaveAnalysis" style="display:none;">
+                        <div style="border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:15px;">
+                            <div style="font-size:1.3rem; font-weight:800;" id="leaveAnaName">-</div>
+                            <div style="font-size:0.85rem;" id="leaveAnaRole">-</div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <span>기본</span>
+                            <div style="display:flex; align-items:center; gap:5px;">
+                                <input type="number" id="leaveBase" value="40" style="width:50px; background:transparent; border:none; border-bottom:1px solid #999; color:inherit; text-align:right;" oninput="updateAnalysis('leave')">
+                                <span style="color:var(--text-sub);">h</span>
+                            </div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                            <span>기승인</span>
+                            <span style="font-weight:600;" id="leaveApproved">0.0 h</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:var(--success);">
+                            <span>- 현재 차감</span>
+                            <span style="font-weight:600;" id="leaveCurrent">0.0 h</span>
+                        </div>
+                        <div style="border-top:1px solid var(--border); padding-top:10px; margin-top:15px; display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:1.1rem; font-weight:700;">이번 주 예상</span>
+                            <span style="font-size:1.8rem; font-weight:800; color:var(--primary);" id="leaveTotal">40.0 h</span>
+                        </div>
+                    </div>
+                    <div id="leavePlaceholder" style="text-align:center; padding:40px; color:var(--text-sub); border:2px dashed var(--border); border-radius:16px;">
+                        관리자를 선택하세요.
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-card" id="leaveTableArea" style="margin-top:24px;">
+                <div class="table-header">
+                    <div style="flex:1;">
+                        <h3 style="margin:0 0 8px 0;">📋 휴가 사용 내역</h3>
+                        
+                        <div style="display:flex; gap:12px; align-items:center; margin-bottom:8px;">
+                            <label style="font-size:0.85rem; color:var(--text-sub); font-weight:600;">
+                                <i class="fa-solid fa-calendar"></i> 신청일:
+                            </label>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <button class="filter-btn" onclick="setRequestDateFilter('leave', 'yesterday')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-backward"></i> 어제
+                                </button>
+                                <button class="filter-btn" id="leaveFilterToday" onclick="setRequestDateFilter('leave', 'today')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-calendar-day"></i> 오늘
+                                </button>
+                                <button class="filter-btn" onclick="setRequestDateFilter('leave', 'tomorrow')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-forward"></i> 내일
+                                </button>
+                                <button class="filter-btn" onclick="setRequestDateFilter('leave', 'week')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-calendar-week"></i> 이번 주
+                                </button>
+                                <button class="filter-btn" onclick="setRequestDateFilter('leave', 'all')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-calendar-days"></i> 전체
+                                </button>
+                                <button class="filter-btn" onclick="openCustomDateFilter('leave')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-calendar-alt"></i> 날짜 선택
+                                </button>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; gap:12px; align-items:center;">
+                            <label style="font-size:0.85rem; color:var(--text-sub); font-weight:600;">
+                                <i class="fa-solid fa-users"></i> 근무 조:
+                            </label>
+                            <div style="display:flex; gap:8px;">
+                                <button class="filter-btn" id="leaveShiftAll" onclick="setShiftFilter('leave', 'all')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-list"></i> 전체
+                                </button>
+                                <button class="filter-btn" onclick="setShiftFilter('leave', 'day')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-sun"></i> Day조
+                                </button>
+                                <button class="filter-btn" onclick="setShiftFilter('leave', 'swing')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
+                                    <i class="fa-solid fa-moon"></i> Swing조
+                                </button>
+                            </div>
+                            <div style="margin-left:8px; font-size:0.75rem; color:var(--text-sub);">
+                                <span id="leaveFilterCount">0</span>건 표시중
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-del" onclick="exportToExcel('leave')"><i class="fa-solid fa-file-excel"></i> 엑셀</button>
+                </div>
+
+                <div style="overflow-x:auto;">
+                    <table class="weekly-table" id="leaveTable">
+                        <thead>
+                            <tr>
+                                <th>이름</th>
+                                <th>닉네임</th>
+                                <th>직책</th>
+                                <th>쿠코드</th>
+                                <th>SHIFT</th>
+                                <th>일자</th>
+                                <th>구분</th>
+                                <th>차감</th>
+                                <th width="150">주간 근무시간</th>
+                                <th>사유</th>
+                                <th style="text-align:center;">관리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaveTbody"></tbody>
+                    </table>
+                </div>
+            </div>
+		</div>
+		
 		<div id="tab-special" class="tab-content">
             <div class="split-layout">
                 <div>
@@ -1188,18 +1373,8 @@
                                 <label><i class="fa-solid fa-user"></i> 관리자 선택</label>
                                 <div class="searchable-select-wrapper">
                                     <i class="fa-solid fa-user-tie" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--primary); z-index:1; pointer-events:none;"></i>
-                                    <input 
-                                        type="text" 
-                                        class="searchable-select-input" 
-                                        id="specialSelectInput"
-                                        placeholder="이름 또는 직책으로 검색..."
-                                        autocomplete="off"
-                                        onfocus="showSearchableDropdown('special')"
-                                        oninput="filterSearchableOptions('special')"
-                                    >
-                                    <button class="clear-select-btn" onclick="clearSearchableSelect('special')" style="display:none;" id="specialClearBtn">
-                                        <i class="fa-solid fa-xmark"></i>
-                                    </button>
+                                    <input type="text" class="searchable-select-input" id="specialSelectInput" placeholder="이름 또는 직책으로 검색..." autocomplete="off" onfocus="showSearchableDropdown('special')" oninput="filterSearchableOptions('special')">
+                                    <button class="clear-select-btn" onclick="clearSearchableSelect('special')" style="display:none;" id="specialClearBtn"><i class="fa-solid fa-xmark"></i></button>
                                     <input type="hidden" id="specialSelect">
                                     <div class="searchable-select-dropdown" id="specialSelectDropdown"></div>
                                 </div>
@@ -1212,15 +1387,12 @@
                                     <input type="text" id="specialShiftDisplay" class="searchable-select-input" placeholder="선택하세요" readonly onclick="toggleShiftDropdown('special')" style="cursor:pointer; caret-color: transparent;">
                                     <input type="hidden" id="specialShift">
                                     <i class="fa-solid fa-chevron-down" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--text-sub); pointer-events:none; font-size:0.8rem;"></i>
-
                                     <div class="searchable-select-dropdown" id="specialShiftDropdown">
                                         <div class="searchable-select-option" onclick="selectShift('special', 'day', 'DAY조 (09:00 ~ 18:00)')">
-                                            <span class="option-name">☀️ DAY조</span>
-                                            <span class="option-role">09:00 ~ 18:00</span>
+                                            <span class="option-name">☀️ DAY조</span><span class="option-role">09:00 ~ 18:00</span>
                                         </div>
                                         <div class="searchable-select-option" onclick="selectShift('special', 'swing', 'SWING조 (19:00 ~ 04:00)')">
-                                            <span class="option-name">🌙 SWING조</span>
-                                            <span class="option-role">19:00 ~ 04:00</span>
+                                            <span class="option-name">🌙 SWING조</span><span class="option-role">19:00 ~ 04:00</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1368,51 +1540,29 @@
                 <div class="table-header">
                     <div style="flex:1;">
                         <h3 style="margin:0 0 8px 0;">📋 특근 신청 내역</h3>
-                        
                         <div style="display:flex; gap:12px; align-items:center; margin-bottom:8px;">
                             <label style="font-size:0.85rem; color:var(--text-sub); font-weight:600;">
                                 <i class="fa-solid fa-calendar"></i> 신청일:
                             </label>
                             <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                                <button class="filter-btn" onclick="setRequestDateFilter('special', 'yesterday')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
-                                    <i class="fa-solid fa-backward"></i> 어제
-                                </button>
-                                <button class="filter-btn" id="specialFilterToday" onclick="setRequestDateFilter('special', 'today')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
-                                    <i class="fa-solid fa-calendar-day"></i> 오늘
-                                </button>
-                                <button class="filter-btn" onclick="setRequestDateFilter('special', 'tomorrow')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
-                                    <i class="fa-solid fa-forward"></i> 내일
-                                </button>
-                                <button class="filter-btn" onclick="setRequestDateFilter('special', 'week')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
-                                    <i class="fa-solid fa-calendar-week"></i> 이번 주
-                                </button>
-                                <button class="filter-btn" onclick="setRequestDateFilter('special', 'all')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
-                                    <i class="fa-solid fa-calendar-days"></i> 전체
-                                </button>
-                                <button class="filter-btn" onclick="openCustomDateFilter('special')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
-                                    <i class="fa-solid fa-calendar-alt"></i> 날짜 선택
-                                </button>
+                                <button class="filter-btn" onclick="setRequestDateFilter('special', 'yesterday')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;"><i class="fa-solid fa-backward"></i> 어제</button>
+                                <button class="filter-btn" id="specialFilterToday" onclick="setRequestDateFilter('special', 'today')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;"><i class="fa-solid fa-calendar-day"></i> 오늘</button>
+                                <button class="filter-btn" onclick="setRequestDateFilter('special', 'tomorrow')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;"><i class="fa-solid fa-forward"></i> 내일</button>
+                                <button class="filter-btn" onclick="setRequestDateFilter('special', 'week')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;"><i class="fa-solid fa-calendar-week"></i> 이번 주</button>
+                                <button class="filter-btn" onclick="setRequestDateFilter('special', 'all')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;"><i class="fa-solid fa-calendar-days"></i> 전체</button>
+                                <button class="filter-btn" onclick="openCustomDateFilter('special')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;"><i class="fa-solid fa-calendar-alt"></i> 날짜 선택</button>
                             </div>
                         </div>
-                        
                         <div style="display:flex; gap:12px; align-items:center;">
                             <label style="font-size:0.85rem; color:var(--text-sub); font-weight:600;">
                                 <i class="fa-solid fa-users"></i> 근무 조:
                             </label>
                             <div style="display:flex; gap:8px;">
-                                <button class="filter-btn" id="specialShiftAll" onclick="setShiftFilter('special', 'all')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
-                                    <i class="fa-solid fa-list"></i> 전체
-                                </button>
-                                <button class="filter-btn" onclick="setShiftFilter('special', 'day')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
-                                    <i class="fa-solid fa-sun"></i> Day조
-                                </button>
-                                <button class="filter-btn" onclick="setShiftFilter('special', 'swing')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;">
-                                    <i class="fa-solid fa-moon"></i> Swing조
-                                </button>
+                                <button class="filter-btn" id="specialShiftAll" onclick="setShiftFilter('special', 'all')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;"><i class="fa-solid fa-list"></i> 전체</button>
+                                <button class="filter-btn" onclick="setShiftFilter('special', 'day')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;"><i class="fa-solid fa-sun"></i> Day조</button>
+                                <button class="filter-btn" onclick="setShiftFilter('special', 'swing')" style="border-radius:8px; padding:6px 12px; font-size:0.8rem;"><i class="fa-solid fa-moon"></i> Swing조</button>
                             </div>
-                            <div style="margin-left:8px; font-size:0.75rem; color:var(--text-sub);">
-                                <span id="specialFilterCount">0</span>건 표시중
-                            </div>
+                            <div style="margin-left:8px; font-size:0.75rem; color:var(--text-sub);"><span id="specialFilterCount">0</span>건 표시중</div>
                         </div>
                     </div>
                     <div class="action-buttons">
@@ -1422,20 +1572,20 @@
                 </div>
                 <div style="overflow-x:auto;">
                     <table class="weekly-table" id="specialTable">
-                            <thead>
-                                <tr>
-                                    <th>이름</th><th>닉네임</th><th>직책</th><th>쿠코드</th><th>SHIFT</th>
-                                    <th>일자</th><th>시간</th><th>필요시간</th><th width="150">주간 근무시간</th><th>사유</th>
-                                    <th style="text-align:center;">관리</th>
-                                </tr>
-                            </thead>
-                            <tbody id="specialTbody"></tbody>
-                        </table>
+                        <thead>
+                            <tr>
+                                <th>이름</th><th>닉네임</th><th>직책</th><th>쿠코드</th><th>SHIFT</th>
+                                <th>일자</th><th>시간</th><th>필요시간</th><th width="150">주간 근무시간</th><th>사유</th>
+                                <th style="text-align:center;">관리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="specialTbody"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
-		
-		<div id="tab-team" class="tab-content">
+
+        <div id="tab-team" class="tab-content">
             <div class="form-container">
                 <div style="background:var(--bg-nav); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:24px;">
                     <h4 style="margin:0 0 16px 0; color:var(--text-main);"><i class="fa-solid fa-user-plus"></i> 새 멤버 추가</h4>
@@ -1448,7 +1598,6 @@
                             <label>닉네임</label>
                             <input type="text" id="newMemNick" class="searchable-select-input" placeholder="예: Hong" style="padding:10px;">
                         </div>
-                        
                         <div class="modern-input-group">
                             <label>직책 (Role)</label>
                             <div class="searchable-select-wrapper">
@@ -1459,7 +1608,6 @@
                                 <i class="fa-solid fa-chevron-down" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--text-sub); pointer-events:none; font-size:0.8rem;"></i>
                             </div>
                         </div>
-
                         <div class="modern-input-group">
                             <label>근무조 (Shift)</label>
                             <div class="searchable-select-wrapper">
@@ -1470,7 +1618,6 @@
                                 <i class="fa-solid fa-chevron-down" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--text-sub); pointer-events:none; font-size:0.8rem;"></i>
                             </div>
                         </div>
-
                         <div class="modern-input-group">
                             <label>쿠코드</label>
                             <input type="text" id="newMemCode" class="searchable-select-input" placeholder="예: A1234567" style="padding:10px;">
@@ -1484,12 +1631,8 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                     <h3 style="margin:0;">팀 멤버 데이터 (Firebase Sync)</h3>
                     <div class="action-buttons">
-                        <button class="btn btn-excel" onclick="exportToExcel('team')">
-                            <i class="fa-solid fa-file-excel"></i> 엑셀 다운로드
-                        </button>
-                        <button class="btn btn-del" onclick="resetData()">
-                            <i class="fa-solid fa-rotate-right"></i> 초기화
-                        </button>
+                        <button class="btn btn-excel" onclick="exportToExcel('team')"><i class="fa-solid fa-file-excel"></i> 엑셀 다운로드</button>
+                        <button class="btn btn-del" onclick="resetData()"><i class="fa-solid fa-rotate-right"></i> 초기화</button>
                     </div>
                 </div>
                 
@@ -1497,21 +1640,11 @@
                     <table class="weekly-table" id="teamTable">
                         <thead>
                             <tr>
-                                <th width="15%" class="sortable-th" onclick="sortTeam('name')">
-                                    이름 <i id="sort-icon-name" class="fa-solid fa-sort sort-icon"></i>
-                                </th>
-                                <th width="15%" class="sortable-th" onclick="sortTeam('nick')">
-                                    닉네임 <i id="sort-icon-nick" class="fa-solid fa-sort sort-icon"></i>
-                                </th>
-                                <th width="10%" class="sortable-th" onclick="sortTeam('role')">
-                                    직책 <i id="sort-icon-role" class="fa-solid fa-sort sort-icon"></i>
-                                </th>
-                                <th width="10%" class="sortable-th" onclick="sortTeam('shift')">
-                                    근무조 <i id="sort-icon-shift" class="fa-solid fa-sort sort-icon"></i>
-                                </th>
-                                <th width="15%" class="sortable-th" onclick="sortTeam('code')">
-                                    쿠코드 <i id="sort-icon-code" class="fa-solid fa-sort sort-icon"></i>
-                                </th>
+                                <th width="15%" class="sortable-th" onclick="sortTeam('name')">이름 <i id="sort-icon-name" class="fa-solid fa-sort sort-icon"></i></th>
+                                <th width="15%" class="sortable-th" onclick="sortTeam('nick')">닉네임 <i id="sort-icon-nick" class="fa-solid fa-sort sort-icon"></i></th>
+                                <th width="10%" class="sortable-th" onclick="sortTeam('role')">직책 <i id="sort-icon-role" class="fa-solid fa-sort sort-icon"></i></th>
+                                <th width="10%" class="sortable-th" onclick="sortTeam('shift')">근무조 <i id="sort-icon-shift" class="fa-solid fa-sort sort-icon"></i></th>
+                                <th width="15%" class="sortable-th" onclick="sortTeam('code')">쿠코드 <i id="sort-icon-code" class="fa-solid fa-sort sort-icon"></i></th>
                                 <th width="25%">휴무일 설정</th>
                                 <th width="10%">관리</th>
                             </tr>
@@ -1550,9 +1683,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, onSnapshot, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // ============================================
-        // ⚠️ Firebase 설정 (여기에 본인 설정 입력)
-        // ============================================
         const firebaseConfig = {
             apiKey: "AIzaSyAkH7IODBuZOrJ2ZTd9PpbJF045hnmU98Q",
             authDomain: "gwj2obworkday.firebaseapp.com",
@@ -1603,7 +1733,7 @@
         ];
 
         window.members = defaultMembers;
-        window.requests = { overtime: [], early: [], special: [] };
+        window.requests = { overtime: [], early: [], special: [], leave: [] };
         window.activeFilters = { danger: false, warning: false, safe: false };
         window.dashActiveFilters = { danger: false, warning: false, safe: false };
         window.allWeeklyData = [];
@@ -1670,7 +1800,11 @@
             
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                window.requests = data.requests || { overtime: [], early: [], special: [] };
+
+                window.requests = data.requests || { overtime: [], early: [], special: [], leave: [] };
+                
+                if (!window.requests.leave) window.requests.leave = [];
+
                 if (data.members) window.members = data.members;
                 refreshUI();
             } else {
@@ -1686,12 +1820,19 @@
             renderRequestTable('overtime');
             renderRequestTable('early');
             renderRequestTable('special');
-            renderTeamTable();
+            renderRequestTable('leave');
+            
+            // 안전장치 추가: 테이블이 있을 때만 렌더링
+            if(document.getElementById('teamTable')) {
+                renderTeamTable();
+            }
+            
             renderWeeklyTable();
             renderCalendarView();
             if(document.getElementById('otAnalysis').style.display !== 'none') updateAnalysis('ot');
             if(document.getElementById('earlyAnalysis').style.display !== 'none') updateAnalysis('early');
             if(document.getElementById('specialAnalysis').style.display !== 'none') updateAnalysis('special');
+            if(document.getElementById('leaveAnalysis') && document.getElementById('leaveAnalysis').style.display !== 'none') updateAnalysis('leave');
         }
 		
 		// --- Helper Functions ---
@@ -1707,19 +1848,60 @@
         
         // 1. 현재 수정 중인 상태를 저장할 변수
         window.editingState = { isEditing: false, type: null, id: null };
+		
+		window.addRequest = async function(t) {
+            // --- [휴가 신청 로직] ---
+            if (t === 'leave') {
+                const idx = document.getElementById('leaveSelect').value;
+                const date = document.getElementById('leaveDate').value;
+                const typeVal = document.getElementById('leaveType').value;
+                const reason = document.getElementById('leaveReason').value;
 
-        // 2. 신청 및 수정 처리 함수 (기존 addRequest 대체)
-        window.addRequest = async function(t) {
+                if(idx === "") return alert("관리자를 선택하세요!");
+                if(!date) return alert("날짜를 선택하세요!");
+
+                const m = window.members[idx];
+                const nick = m.role.split(' ')[0];
+                const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
+                
+                // 휴가 종류에 따른 시간 설정 (-8 또는 -4)
+                let typeText = '연차 (8h)';
+                let deduc = '8.0h';
+                if(typeVal === '4_am') { typeText = '오전반차 (4h)'; deduc = '4.0h'; }
+                if(typeVal === '4_pm') { typeText = '오후반차 (4h)'; deduc = '4.0h'; }
+
+                const reqData = {
+                    id: Date.now(),
+                    name: m.name, nick, rank, code: m.code,
+                    shift: m.shift || 'day', 
+                    date: date,
+                    type: typeText, 
+                    time: deduc,    
+                    val: parseFloat(deduc), // 계산용 숫자
+                    reason: reason || '-'
+                };
+
+                const updatedRequests = { ...window.requests };
+                if (!updatedRequests.leave) updatedRequests.leave = [];
+                updatedRequests.leave.push(reqData);
+
+                try {
+                    await updateDoc(docRef, { requests: updatedRequests });
+                    showToast("휴가가 등록되었습니다! ✈️");
+                    document.getElementById('leaveReason').value = '';
+                } catch(e) { alert("Error: " + e.message); }
+                return; 
+            }
+
+            // --- [기존 연장/조출/특근 로직] ---
             const p = t === 'overtime' ? 'ot' : t === 'early' ? 'early' : 'special';
             
-            // 입력값 가져오기
             const idx = document.getElementById(`${p}Select`).value;
             const date = document.getElementById(`${p}Date`).value;
             const timeText = document.getElementById(`${p}Diff`).innerText || '0.0h';
             const reason = document.getElementById(`${p}Reason`).value;
             const shiftValue = document.getElementById(`${p}Shift`).value;
             
-            // 유효성 검사
             if(idx === "") return alert("관리자를 선택하세요!");
             if(!date) return alert("날짜를 선택하세요!");
             if(parseFloat(timeText.replace('h','')) <= 0) return alert("시간을 입력하세요!");
@@ -1730,45 +1912,34 @@
             const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
             const shiftLabel = shiftValue === 'day' ? 'Day조' : shiftValue === 'swing' ? 'Swing조' : '';
 
-            // 데이터 객체 생성
             const reqData = {
-                id: window.editingState.isEditing ? window.editingState.id : Date.now(), // 수정이면 기존 ID 유지
-                name: m.name, 
-                nick: nick, 
-                rank: rank, 
-                code: m.code,
-                shift: shiftLabel,
-                shiftType: shiftValue,
+                id: window.editingState.isEditing ? window.editingState.id : Date.now(),
+                name: m.name, nick: nick, rank: rank, code: m.code,
+                shift: shiftLabel, shiftType: shiftValue,
                 date: date, 
                 start: document.getElementById(`${p}Start`).value,
                 end: document.getElementById(`${p}End`).value, 
-                time: timeText, 
-                reason: reason
+                time: timeText, reason: reason
             };
             
             const updatedRequests = { ...window.requests };
             if (!updatedRequests[t]) updatedRequests[t] = [];
 
             if (window.editingState.isEditing && window.editingState.type === t) {
-                // [수정 모드] 기존 데이터 찾아서 교체
                 const targetIdx = updatedRequests[t].findIndex(r => r.id === window.editingState.id);
                 if (targetIdx !== -1) {
                     updatedRequests[t][targetIdx] = reqData;
                     showToast("수정되었습니다! 📝");
                 }
             } else {
-                // [신규 모드] 배열에 추가
                 updatedRequests[t].push(reqData);
                 showToast("저장되었습니다! ✅");
             }
             
             try {
                 await updateDoc(docRef, { requests: updatedRequests });
-                
-                // 폼 초기화 및 수정 모드 해제
                 document.getElementById(`${p}Reason`).value = '';
                 cancelEditMode(t); 
-                
             } catch(e) { alert("Error: " + e.message); }
         };
 
@@ -1939,6 +2110,7 @@
             renderSearchableDropdown('ot');
             renderSearchableDropdown('early');
             renderSearchableDropdown('special');
+			renderSearchableDropdown('leave');
         };
 
         window.renderSearchableDropdown = function(type) {
@@ -2054,16 +2226,24 @@
             if (selectedOption) selectedOption.classList.add('selected');
             
             
-            // 3. [핵심 기능 추가] 해당 멤버의 근무조(Shift) 자동 선택
-            const member = window.members[realIndex];
-            const memShift = member.shift || 'day'; // 설정 없으면 기본값 day
-            
-            let shiftText = '';
-            if (memShift === 'day') shiftText = 'DAY조 (09:00 ~ 18:00)';
-            else if (memShift === 'swing') shiftText = 'SWING조 (19:00 ~ 04:00)';
-            
-            // 우리가 만든 selectShift 함수를 호출해서 근무조 UI와 시간을 자동으로 바꿈
-            selectShift(type, memShift, shiftText);
+            // 3.  근무조(Shift) 자동 선택 로직
+            // 🚨 휴가(leave) 탭에는 Shift 입력창이 없으므로, 휴가가 아닐 때만 실행해야 합니다.
+            if (type !== 'leave') {
+                const member = window.members[realIndex];
+                const memShift = member.shift || 'day'; 
+                
+                let shiftText = '';
+                if (memShift === 'day') shiftText = 'DAY조 (09:00 ~ 18:00)';
+                else if (memShift === 'swing') shiftText = 'SWING조 (19:00 ~ 04:00)';
+                
+                // 근무조 변경 함수 호출
+                selectShift(type, memShift, shiftText);
+                
+                //  기본 근무시간(Base) 자동 입력 (휴가 탭 제외)
+                const baseHours = window.calcBaseHours(member);
+                const baseInput = document.getElementById(`${type}Base`);
+                if(baseInput) baseInput.value = baseHours;
+            }
 
 
             // 4. 분석 패널(근무시간 현황) 업데이트
@@ -2104,6 +2284,7 @@
                 weekly:'주간 현황 (전체)', 
                 overtime:'연장 신청', 
                 early:'조출 신청', 
+				leave: '휴가 신청', 
                 special:'특근 신청',
                 team:'팀 설정'
             };
@@ -2114,6 +2295,7 @@
             if(t==='weekly') renderWeeklyTable();
             if(t==='overtime') renderRequestTable('overtime');
             if(t==='early') renderRequestTable('early');
+			if(t==='leave') renderRequestTable('leave');
             if(t==='special') renderRequestTable('special');
         };
 		
@@ -2400,6 +2582,13 @@
             updateAnalysis(t);
         };
 		
+		window.calcBaseHours = function(m) {
+            if (!m) return 40;
+            const daysOffCount = (m.daysOff && m.daysOff.length > 0) ? m.daysOff.length : 2;
+            const workDays = 7 - daysOffCount;
+            return workDays * 8;
+        };
+		
 		window.renderWeeklyTable = function() {
             const tbody = document.getElementById('weeklyTbody');
             const widgets = document.getElementById('weeklyWidgets');
@@ -2546,27 +2735,15 @@
         };
 
         window.calcTotalApprovedTime = function(name) {
-            // 1. 멤버 정보 찾기
+            // 1. 멤버 및 휴무일 기준 주간 범위 찾기
             const m = window.members.find(x => x.name === name);
-            if(!m) return 0; // 멤버 없으면 0
+            if(!m) return 0;
 
-            // 2. 휴무일을 숫자로 변환 (일:0 ~ 토:6)
             const dayMap = { '일':0, '월':1, '화':2, '수':3, '목':4, '금':5, '토':6 };
             let offDays = (m.daysOff || []).map(d => dayMap[d]);
-
-            // 3. 주간 시작 요일 판단 로직
-            // 기본값: 일요일(0) 시작 (휴무일 설정이 없을 경우)
             let startDay = 0; 
 
             if (offDays.length > 0) {
-                // "연속된 휴무의 마지막 날" 다음 날을 시작일로 봅니다.
-                // 예: [금(5), 토(6)] -> 토요일 다음인 일요일(0)이 시작
-                // 예: [화(2), 수(3)] -> 수요일 다음인 목요일(4)이 시작
-                
-                // 간단하고 강력한 규칙: 
-                // "오늘이 휴무인데, 내일은 휴무가 아니라면 내일이 시작일이다."
-                
-                // 모든 요일(0~6)을 돌면서 패턴을 찾습니다.
                 for (let i = 0; i < 7; i++) {
                     let nextDay = (i + 1) % 7;
                     if (offDays.includes(i) && !offDays.includes(nextDay)) {
@@ -2576,27 +2753,23 @@
                 }
             }
 
-            // 4. 판단된 시작 요일 기준으로 이번 주 날짜 범위 계산
             const d = new Date();
             const currentDay = d.getDay();
-            
             let distance = currentDay - startDay;
             if (distance < 0) distance += 7;
             
-            // 이번 주 시작일 (00:00:00)
             const weekStart = new Date(d);
             weekStart.setDate(d.getDate() - distance);
             weekStart.setHours(0, 0, 0, 0);
             
-            // 이번 주 종료일 (6일 후 23:59:59)
             const weekEnd = new Date(weekStart);
             weekEnd.setDate(weekStart.getDate() + 6);
             weekEnd.setHours(23, 59, 59, 999);
             
-            // 5. 범위 내 근무시간 합산
             let t = 0;
-            const allReqs = [...window.requests.overtime, ...window.requests.early, ...(window.requests.special || [])];
             
+            // 2. 근무 시간 더하기 (+)
+            const allReqs = [...window.requests.overtime, ...window.requests.early, ...(window.requests.special || [])];
             allReqs.forEach(r => { 
                 if (r.name === name) { 
                     const rd = new Date(r.date + 'T00:00:00'); 
@@ -2605,58 +2778,136 @@
                     }
                 } 
             });
+
+            // 3. 휴가 시간 빼기 (-)
+            const leaveReqs = window.requests.leave || [];
+            leaveReqs.forEach(r => {
+                if (r.name === name) {
+                    const rd = new Date(r.date + 'T00:00:00');
+                    if (rd >= weekStart && rd <= weekEnd) {
+                        // 저장된 값(val)이나 텍스트(time)를 보고 차감
+                        const deduc = r.val || parseFloat(r.time.replace('h','')) || 0;
+                        t -= deduc; 
+                    }
+                }
+            });
+
             return t;
         };
 
         window.updateAnalysis = function(type) {
-            const idx = document.getElementById(`${type}Select`).value;
-            const panel = document.getElementById(`${type}Analysis`), ph = document.getElementById(`${type}Placeholder`);
+            const idxElement = document.getElementById(`${type}Select`);
+            if (!idxElement) return; 
             
-            if(idx==="") { panel.style.display='none'; ph.style.display='block'; return; }
+            const idx = idxElement.value;
+            const panel = document.getElementById(`${type}Analysis`);
+            const ph = document.getElementById(`${type}Placeholder`);
             
-            panel.style.display='block'; ph.style.display='none';
-            
-            const m = window.members[idx];
-            document.getElementById(`${type}AnaName`).innerText = m.name; 
-            document.getElementById(`${type}AnaRole`).innerText = m.role;
-            
-            const base = parseFloat(document.getElementById(`${type}Base`).value)||0;
-            const currText = document.getElementById(`${type}Diff`).innerText || '0.0h';
-            const curr = parseFloat(currText.replace('h',''))||0;
-            
-            let approved = 0;
-            const inputDate = document.getElementById(`${type}Date`).value;
-            
-            if(inputDate) {
-                const target = new Date(inputDate + 'T00:00:00'), day=target.getDay(), diff=target.getDate()-day;
-                const sun=new Date(target.setDate(diff)); sun.setHours(0,0,0,0);
-                const sat=new Date(sun); sat.setDate(sun.getDate()+6); sat.setHours(23,59,59,999);
-                
-                [...window.requests.overtime, ...window.requests.early, ...(window.requests.special || [])].forEach(r => { 
-                    if(r.name===m.name) { 
-                        const rd=new Date(r.date + 'T00:00:00'); 
-                        if(rd>=sun && rd<=sat) approved+=parseFloat(r.time.replace('h',''))||0; 
-                    } 
-                });
+            // 선택된 멤버가 없으면 패널 숨김
+            if (idx === "") { 
+                if(panel) panel.style.display='none'; 
+                if(ph) ph.style.display='block'; 
+                return; 
             }
             
+            if(panel) panel.style.display='block'; 
+            if(ph) ph.style.display='none';
+            
+            const m = window.members[idx];
+            
+            // 이름과 직책 업데이트
+            const nameEl = document.getElementById(`${type}AnaName`);
+            const roleEl = document.getElementById(`${type}AnaRole`);
+            if(nameEl) nameEl.innerText = m.name;
+            if(roleEl) roleEl.innerText = m.role;
+            
+            // =========================================================
+            // [1] 휴가(leave) 탭 전용 로직
+            // =========================================================
+            if (type === 'leave') {
+                const baseInput = document.getElementById('leaveBase');
+                let base = baseInput ? parseFloat(baseInput.value) : 0;
+                
+                // 기본값이 0이면 자동 계산해서 넣기
+                if (base === 0) {
+                     base = window.calcBaseHours(m);
+                     if(baseInput) baseInput.value = base;
+                }
+
+                // 선택한 휴가 종류에 따른 차감 시간 확인
+                const typeValElement = document.getElementById('leaveType');
+                const typeVal = typeValElement ? typeValElement.value : '8';
+                let deduc = (typeVal === '8') ? 8 : 4;
+                
+                // 현재까지 확정된 시간 합계 (기본 + 추가 - 기사용휴가)
+                // filteredRequests가 아니라 전역 함수를 사용해야 합니다.
+                const currentTotal = base + window.calcTotalApprovedTime(m.name);
+                
+                // UI 업데이트
+                const currEl = document.getElementById('leaveCurrent');
+                if(currEl) currEl.innerText = `- ${deduc.toFixed(1)} h`;
+                
+                const totalEl = document.getElementById('leaveTotal');
+                if(totalEl) totalEl.innerText = (currentTotal - deduc).toFixed(1) + ' h'; 
+                
+                const appEl = document.getElementById('leaveApproved');
+                if(appEl) appEl.innerText = currentTotal.toFixed(1) + ' h (현재)';
+
+                return; // 휴가 로직 종료
+            }
+
+            // =========================================================
+            // [2] 연장/조출/특근 탭 로직
+            // =========================================================
+            const baseInput = document.getElementById(`${type}Base`);
+            const base = baseInput ? parseFloat(baseInput.value) : 0;
+            
+            const diffEl = document.getElementById(`${type}Diff`);
+            const currText = diffEl ? diffEl.innerText : '0.0h';
+            const curr = parseFloat(currText.replace('h','')) || 0;
+            
+            // 기승인 시간 계산
+            let approved = 0;
+            const inputDate = document.getElementById(`${type}Date`).value;
+            if (inputDate) {
+                 approved = window.calcTotalApprovedTime(m.name); 
+            }
+            
+            // UI 업데이트
+            const appEl = document.getElementById(`${type}Approved`);
+            if(appEl) appEl.innerText = approved.toFixed(1) + ' h';
+            
+            const currEl = document.getElementById(`${type}Current`);
+            if(currEl) currEl.innerText = curr.toFixed(1) + ' h';
+
             const total = base + approved + curr;
             const remain = 52 - total;
             const percent = Math.min((total/52)*100, 100);
             
-            document.getElementById(`${type}Approved`).innerText = approved.toFixed(1)+' h';
-            document.getElementById(`${type}Current`).innerText = curr.toFixed(1)+' h';
-            document.getElementById(`${type}Total`).innerText = total.toFixed(1)+' h';
-            document.getElementById(`${type}AnaRemain`).innerText = remain.toFixed(1)+'h';
+            const totalEl = document.getElementById(`${type}Total`);
+            if(totalEl) totalEl.innerText = total.toFixed(1) + ' h';
             
+            const remainEl = document.getElementById(`${type}AnaRemain`);
+            if(remainEl) remainEl.innerText = remain.toFixed(1) + 'h';
+            
+            // 게이지 바 업데이트
             const fill = document.getElementById(`${type}AnaFill`);
-            fill.style.width = percent + '%';
+            if(fill) fill.style.width = percent + '%';
             
-            const dang=document.getElementById(`${type}AlertDanger`);
-            dang.style.display='none'; fill.style.background='var(--success)';
-            
-            if(total>=52) { dang.style.display='block'; fill.style.background='var(--danger)'; }
-            else if(total>=45) { fill.style.background='var(--warning)'; }
+            // 위험 알림창 처리
+            const dang = document.getElementById(`${type}AlertDanger`);
+            if(dang) {
+                dang.style.display = 'none'; 
+                if(fill) fill.style.background = 'var(--success)';
+                
+                if(total >= 52) { 
+                    dang.style.display = 'block'; 
+                    if(fill) fill.style.background = 'var(--danger)'; 
+                }
+                else if(total >= 45) { 
+                    if(fill) fill.style.background = 'var(--warning)'; 
+                }
+            }
         };
 		
 		// [수정됨] 팝업 열기 (커스텀 피커 데이터 연결)
@@ -2738,13 +2989,14 @@
         };
 		
 		window.renderRequestTable = function(type) {
-            const tbodyId = type === 'overtime' ? 'ot' : type === 'early' ? 'early' : 'special';
+            const tbodyId = type === 'overtime' ? 'ot' : (type === 'early' ? 'early' : (type === 'special' ? 'special' : 'leave'));
             const requestKey = type;
             const b = document.getElementById(`${tbodyId}Tbody`);
             b.innerHTML = '';
 
             if (!window.requests[requestKey]) window.requests[requestKey] = [];
 
+            // --- 필터링 로직 (기존과 동일) ---
             const filter = window.requestDateFilters[requestKey] || 'today';
             const shiftFilter = window.shiftFilters[requestKey] || 'all';
             const customDate = window.customDateFilters[requestKey];
@@ -2766,13 +3018,8 @@
                 const d = new Date();
                 const day = d.getDay();
                 const diff = d.getDate() - day;
-                const sun = new Date(d.setDate(diff));
-                sun.setHours(0, 0, 0, 0);
-
-                const sat = new Date(sun);
-                sat.setDate(sun.getDate() + 6);
-                sat.setHours(23, 59, 59, 999);
-
+                const sun = new Date(d.setDate(diff)); sun.setHours(0, 0, 0, 0);
+                const sat = new Date(sun); sat.setDate(sun.getDate() + 6); sat.setHours(23, 59, 59, 999);
                 filteredRequests = filteredRequests.filter(r => {
                     const rd = new Date(r.date + 'T00:00:00');
                     return rd >= sun && rd <= sat;
@@ -2780,33 +3027,69 @@
             }
 
             if (shiftFilter !== 'all') {
-                filteredRequests = filteredRequests.filter(r => r.shiftType === shiftFilter);
+                // 휴가 데이터엔 shiftType이 없을 수 있으므로 안전장치
+                filteredRequests = filteredRequests.filter(r => (r.shiftType || r.shift) === shiftFilter);
             }
 
             document.getElementById(`${tbodyId}FilterCount`).textContent = filteredRequests.length;
 
+            // --- 행 그리기 (디자인 통일) ---
             filteredRequests.forEach((r, i) => {
-                const total = 40 + window.calcTotalApprovedTime(r.name);
+                // 1. 주간 근무 시간 계산
+                const member = window.members.find(m => m.name === r.name);
+                const base = window.calcBaseHours(member);
+                const total = base + window.calcTotalApprovedTime(r.name);
                 const percent = Math.min((total / 52) * 100, 100);
                 
                 let statusColor = 'var(--success)';
                 if (total >= 52) statusColor = 'var(--danger)';
                 else if (total >= 45) statusColor = 'var(--warning)';
 
+                // 2. SHIFT 뱃지 디자인 (통일됨)
+                // 데이터에 shiftType이 없으면 shift 문자열로 판단
+                const isDay = (r.shiftType === 'day') || (r.shift === 'day') || (r.shift === 'Day조');
+                const shiftLabel = isDay ? 'Day조' : 'Swing조';
+                const badgeBg = isDay ? 'rgba(245, 158, 11, 0.15)' : 'rgba(99, 102, 241, 0.15)';
+                const badgeColor = isDay ? 'var(--warning)' : 'var(--primary)';
+                const badgeBorder = isDay ? 'var(--warning)' : 'var(--primary)';
+
+                const shiftBadge = `
+                    <span style="display:inline-block; padding:4px 8px; border-radius:6px; font-size:0.7rem; font-weight:700; background:${badgeBg}; color:${badgeColor}; border: 1px solid ${badgeBorder};">
+                        ${shiftLabel}
+                    </span>`;
+
                 const originalIndex = window.requests[requestKey].findIndex(req => req.id === r.id);
 
-                const shiftBadge = r.shift ? `
-                    <span style="
-                        display:inline-block; 
-                        padding:4px 8px; 
-                        border-radius:6px; 
-                        font-size:0.7rem; 
-                        font-weight:700;
-                        background:${r.shiftType === 'day' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(99, 102, 241, 0.15)'};
-                        color:${r.shiftType === 'day' ? 'var(--warning)' : 'var(--primary)'};
-                        border: 1px solid ${r.shiftType === 'day' ? 'var(--warning)' : 'var(--primary)'};
-                    ">${r.shift}</span>` : '-';
+                // 3. 시간/구분 컬럼 처리
+                let timeColumnHtml = '';
+                let typeColumnHtml = '';
+                
+                if (type === 'leave') {
+                    // 휴가인 경우: 구분(연차 등) + 차감시간
+                    typeColumnHtml = `<span style="font-size:0.85rem; font-weight:600; color:var(--text-main);">${r.type}</span>`;
+                    timeColumnHtml = `<span style="font-weight:bold; color:var(--success);">- ${r.time}</span>`;
+                } else {
+                    // 일반 근무인 경우: 시작~종료 + 소요시간
+                    typeColumnHtml = `<span style="font-size:0.85rem; color:var(--text-sub);">${r.start} ~ ${r.end}</span>`;
+                    timeColumnHtml = `<span style="font-weight:bold; color:var(--primary);">${r.time}</span>`;
+                }
 
+                // 4. 관리 버튼 (휴가는 수정 없이 삭제만)
+                let actionBtns = '';
+                if (type === 'leave') {
+                    actionBtns = `
+                        <button class="btn btn-del" onclick="deleteRequest('${requestKey}',${originalIndex})">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>`;
+                } else {
+                    actionBtns = `
+                        <div class="action-btn-group">
+                            <button class="btn btn-edit" onclick="openEditPopup('${requestKey}', ${r.id})"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-del" onclick="deleteRequest('${requestKey}',${originalIndex})"><i class="fa-solid fa-trash"></i></button>
+                        </div>`;
+                }
+
+                // 5. 최종 HTML 삽입
                 b.innerHTML += `
                     <tr>
                         <td>${r.name}</td>
@@ -2815,8 +3098,8 @@
                         <td>${r.code}</td>
                         <td>${shiftBadge}</td>
                         <td>${r.date.substring(5)}</td>
-                        <td style="font-size:0.85rem;color:var(--text-sub)">${r.start}~${r.end}</td>
-                        <td style="font-weight:bold;color:var(--primary)">${r.time}</td>
+                        <td>${typeColumnHtml}</td>
+                        <td>${timeColumnHtml}</td>
                         <td>
                             <div style="font-size:0.75rem;color:var(--text-sub);margin-bottom:4px;">${total.toFixed(1)}h / 52h</div>
                             <div style="width:100%;height:6px;background:var(--border);border-radius:4px;overflow:hidden;">
@@ -2824,17 +3107,7 @@
                             </div>
                         </td>
                         <td>${r.reason}</td>
-                        
-                        <td style="text-align:center;">
-                            <div class="action-btn-group">
-                                <button class="btn btn-edit" onclick="openEditPopup('${requestKey}', ${r.id})">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <button class="btn btn-del" onclick="deleteRequest('${requestKey}',${originalIndex})">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
+                        <td style="text-align:center;">${actionBtns}</td>
                     </tr>
                 `;
             });
@@ -2847,11 +3120,19 @@
                 window.customDateFilters[type] = null;
             }
             
-            const tbodyId = type === 'overtime' ? 'ot' : (type === 'early' ? 'early' : 'special');
-            const container = document.getElementById(`${tbodyId}FilterToday`).parentElement;
+            //  type이 'leave'이면 id prefix도 'leave'로 설정
+            const tbodyId = type === 'leave' ? 'leave' : (type === 'overtime' ? 'ot' : (type === 'early' ? 'early' : 'special'));
             
+            // 버튼 컨테이너 찾기
+            const todayBtn = document.getElementById(`${tbodyId}FilterToday`);
+            if(!todayBtn) return; // 안전장치
+
+            const container = todayBtn.parentElement;
+            
+            // 모든 버튼 비활성화
             container.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             
+            // 클릭한 버튼 활성화
             if (filter === 'yesterday') {
                 container.querySelectorAll('.filter-btn')[0].classList.add('active');
             } else if (filter === 'today') {
@@ -2870,17 +3151,25 @@
         window.setShiftFilter = function(type, shift) {
             window.shiftFilters[type] = shift;
             
-            const tbodyId = type === 'overtime' ? 'ot' : type === 'early' ? 'early' : 'special';
-            const container = document.getElementById(`${tbodyId}ShiftAll`).parentElement;
+            //  leave 케이스 추가
+            const tbodyId = type === 'leave' ? 'leave' : (type === 'overtime' ? 'ot' : (type === 'early' ? 'early' : 'special'));
             
+            const allBtn = document.getElementById(`${tbodyId}ShiftAll`);
+            if(!allBtn) return; // 안전장치
+
+            const container = allBtn.parentElement;
+            
+            // 초기화
             container.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             
+            // 활성화
             if (shift === 'all') {
                 document.getElementById(`${tbodyId}ShiftAll`).classList.add('active');
             } else {
                 const buttons = container.querySelectorAll('.filter-btn');
                 buttons.forEach(btn => {
-                    if (btn.textContent.includes(shift === 'day' ? 'Day조' : 'Swing조')) {
+                    // Day조, Swing조 텍스트가 포함된 버튼 찾기
+                    if (btn.textContent.toLowerCase().includes(shift === 'day' ? 'day' : 'swing')) {
                         btn.classList.add('active');
                     }
                 });
@@ -2896,18 +3185,25 @@
                 window.customDateFilters[type] = dateStr;
                 window.requestDateFilters[type] = 'custom';
                 
-                const tbodyId = type === 'overtime' ? 'ot' : type === 'early' ? 'early' : 'special';
-                const container = document.getElementById(`${tbodyId}FilterToday`).parentElement.parentElement;
-                const dateFilterButtons = container.querySelector('div[style*="flex-wrap"]');
+                //  leave 케이스 추가
+                const tbodyId = type === 'leave' ? 'leave' : (type === 'overtime' ? 'ot' : (type === 'early' ? 'early' : 'special'));
                 
-                dateFilterButtons.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-                
-                dateFilterButtons.querySelectorAll('.filter-btn').forEach(btn => {
-                    if (btn.textContent.includes('날짜 선택')) {
-                        btn.classList.add('active');
-                        btn.innerHTML = `<i class="fa-solid fa-calendar-check"></i> ${dateStr}`;
-                    }
-                });
+                const todayBtn = document.getElementById(`${tbodyId}FilterToday`);
+                if(todayBtn) {
+                    const container = todayBtn.parentElement.parentElement; // 버튼 그룹 상위
+                    const dateFilterButtons = container.querySelector('div[style*="flex-wrap"]');
+                    
+                    // 기존 활성화 제거
+                    dateFilterButtons.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                    
+                    // '날짜 선택' 버튼 찾아서 활성화 및 날짜 표시
+                    dateFilterButtons.querySelectorAll('.filter-btn').forEach(btn => {
+                        if (btn.textContent.includes('날짜 선택') || btn.innerHTML.includes('fa-calendar-check')) {
+                            btn.classList.add('active');
+                            btn.innerHTML = `<i class="fa-solid fa-calendar-check"></i> ${dateStr}`;
+                        }
+                    });
+                }
                 
                 window.renderRequestTable(type);
             }
@@ -3227,7 +3523,7 @@
             }
         };
 
-        // [추가] 멤버 추가 함수
+        //  멤버 추가 함수
         window.addNewMember = async function() {
             const name = document.getElementById('newMemName').value.trim();
             const nick = document.getElementById('newMemNick').value.trim();
@@ -3258,17 +3554,17 @@
             }
         };
 
-        // [추가] 멤버 삭제 함수 (보안 모달 연동)
+        //  멤버 삭제 함수 (보안 모달 연동)
         window.deleteMember = function(index) {
             // 기존 pendingAction을 활용해 삭제 유형을 'member_delete'로 지정
             pendingAction = { type: 'member_delete', target: null, index: index };
             openSecurityModal("🗑️ 멤버 삭제", "정말 삭제하시겠습니까?<br><span style='color:var(--danger)'>복구할 수 없습니다.</span><br><span style='color:#27D3F5; font-size:0.8rem; font-weight:600;'>비밀번호 : 1234</span>");
         };
 		
-		// [추가] 정렬 상태 저장 변수
+		//  정렬 상태 저장 변수
         window.teamSortState = { key: null, order: 'asc' };
 
-        // [추가] 팀 멤버 정렬 함수
+        //  팀 멤버 정렬 함수
         window.sortTeam = function(key) {
             // 정렬 순서 토글 (asc <-> desc)
             if (window.teamSortState.key === key) {
@@ -3290,7 +3586,7 @@
                     valB = b.role.split(' ')[0].toLowerCase(); 
                 }
                 else if (key === 'role') { 
-                    // [핵심 수정] 닉네임은 무시하고 'Manager' 여부로만 정렬
+                    //  닉네임은 무시하고 'Manager' 여부로만 정렬
                     // Manager에게 '1', T/C에게 '2'를 부여하여 Manager가 먼저 오게 함
                     valA = a.role.includes('Manager') ? '1' : '2'; 
                     valB = b.role.includes('Manager') ? '1' : '2'; 
@@ -3306,7 +3602,7 @@
                 if (valA < valB) return window.teamSortState.order === 'asc' ? -1 : 1;
                 if (valA > valB) return window.teamSortState.order === 'asc' ? 1 : -1;
                 
-                // [추가 팁] 만약 정렬 기준값이 같으면(예: 둘 다 Manager면), 이름순으로 2차 정렬
+                //  만약 정렬 기준값이 같으면(예: 둘 다 Manager면), 이름순으로 2차 정렬
                 if (valA === valB) {
                     return a.name < b.name ? -1 : 1;
                 }
@@ -3317,7 +3613,7 @@
             renderTeamTable(); // 테이블 갱신
         };
 
-        // [추가] 정렬 아이콘 업데이트 함수 (renderTeamTable 안에서 호출됨)
+        //  정렬 아이콘 업데이트 함수 (renderTeamTable 안에서 호출됨)
         function updateSortIcons() {
             // 모든 아이콘 초기화
             document.querySelectorAll('.sortable-th').forEach(th => th.classList.remove('active'));
@@ -3341,7 +3637,10 @@
 
         // 정렬 아이콘 업데이트 기능이 추가된 최종 테이블 렌더링 함수
         window.renderTeamTable = function() {
-            const tbody = document.getElementById('teamTable').querySelector('tbody');
+            const table = document.getElementById('teamTable');
+            if (!table) return; // 테이블이 없으면 중단 (에러 방지)
+            
+            const tbody = table.querySelector('tbody');
             tbody.innerHTML = '';
             
             const daysOfWeek = ['월', '화', '수', '목', '금', '토', '일'];
@@ -3385,11 +3684,10 @@
                 `;
             });
 
-            // [여기가 핵심!] 테이블을 다 그린 후에 정렬 아이콘 화살표 방향을 업데이트합니다.
             updateSortIcons(); 
         };
 
-        // [추가됨] 근무조 변경 즉시 저장 함수
+        // 근무조 변경 즉시 저장 함수
         window.updateMemberShift = async function(index, newShift) {
             window.members[index].shift = newShift;
             try {
@@ -3411,16 +3709,27 @@
                 setTimeout(() => el.remove(), 300);
             }, 3000);
         };
+		
+		window.calcLeaveDiff = function() {
+            const val = document.getElementById('leaveType').value;
+            const display = document.getElementById('leaveDiff');
+            if(val === '8') display.innerText = '8.0h';
+            else display.innerText = '4.0h';
+            updateAnalysis('leave');
+        };
 
         window.onload = function() {
             window.initSelects();
             const today = getLocalTodayDate();
-            
             const opDate = new Date(today); 
+            
+            // 달력 초기화
             window.initCalendar('ot', opDate); 
             window.initCalendar('early', opDate);
             window.initCalendar('special', opDate);
+            window.initCalendar('leave', opDate); 
             
+            // 시간 선택기 초기화
             window.initTimePicker('otStart', '18:00'); 
             window.initTimePicker('otEnd', '');
             window.initTimePicker('earlyStart', '08:00'); 
@@ -3428,40 +3737,45 @@
             window.initTimePicker('specialStart', '09:00');
             window.initTimePicker('specialEnd', '18:00');
             
+            // 날짜 선택
             window.selectDate('ot', today); 
             window.selectDate('early', today);
             window.selectDate('special', today);
+            window.selectDate('leave', today); 
             
+            // [수정됨] 필터 버튼 활성화 (휴가 탭 포함)
             document.getElementById('otFilterToday').classList.add('active'); 
             document.getElementById('earlyFilterToday').classList.add('active');
             document.getElementById('specialFilterToday').classList.add('active');
+            
+            const leaveFilterBtn = document.getElementById('leaveFilterToday');
+            if(leaveFilterBtn) leaveFilterBtn.classList.add('active'); // ✅ 추가됨
             
             document.getElementById('otShiftAll').classList.add('active');
             document.getElementById('earlyShiftAll').classList.add('active');
             document.getElementById('specialShiftAll').classList.add('active');
             
+            const leaveShiftBtn = document.getElementById('leaveShiftAll');
+            if(leaveShiftBtn) leaveShiftBtn.classList.add('active'); // ✅ 추가됨
+            
+            // 테마 설정
             const savedTheme = localStorage.getItem('gwj2_theme') || 'dark'; 
             document.documentElement.setAttribute('data-theme', savedTheme);
             
+            // 팝업 초기화 등 나머지 코드...
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('.searchable-select-wrapper') && 
                     !e.target.closest('.custom-date-picker') && 
                     !e.target.closest('.custom-time-picker')) {
-                    
-                    document.querySelectorAll('.searchable-select-dropdown, .calendar-dropdown, .time-dropdown').forEach(d => {
-                        d.classList.remove('show');
-                    });
+                    document.querySelectorAll('.searchable-select-dropdown, .calendar-dropdown, .time-dropdown').forEach(d => d.classList.remove('show'));
                     document.querySelectorAll('.custom-date-input, .custom-time-input').forEach(i => i.classList.remove('active'));
                 }
             });
             
-            // 팝업창용 달력/시계 초기화
             const popupDate = new Date(today);
             window.initCalendar('editReq', popupDate);
             window.initTimePicker('editReqStart', '09:00');
             window.initTimePicker('editReqEnd', '18:00');
-            
-            // [삭제됨] setInterval 및 updateResetTimer 호출 제거
         };
     </script>
 	<div id="editRequestModal" class="modal-overlay" onclick="if(event.target === this) closeEditPopup()">
