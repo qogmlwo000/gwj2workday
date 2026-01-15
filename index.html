@@ -502,6 +502,12 @@
             filter: invert(0.5);
             cursor: pointer;
         }
+		
+		/* [추가] 정렬 가능한 테이블 헤더 스타일 */
+        .sortable-th { cursor: pointer; transition: 0.2s; user-select: none; }
+        .sortable-th:hover { color: var(--primary); background: rgba(99, 102, 241, 0.1); }
+        .sort-icon { margin-left: 6px; font-size: 0.8rem; color: var(--text-sub); opacity: 0.3; }
+        .sortable-th.active .sort-icon { opacity: 1; color: var(--primary); }
     </style>
 </head>
 
@@ -1504,11 +1510,22 @@
                     <table class="weekly-table" id="teamTable">
                         <thead>
                             <tr>
-                                <th width="15%">이름</th>
-                                <th width="10%">닉네임</th>
-                                <th width="10%">직책</th>
-                                <th width="10%">근무조</th> <th width="15%">쿠코드</th>
-                                <th width="30%">휴무일 설정</th>
+                                <th width="15%" class="sortable-th" onclick="sortTeam('name')">
+                                    이름 <i id="sort-icon-name" class="fa-solid fa-sort sort-icon"></i>
+                                </th>
+                                <th width="15%" class="sortable-th" onclick="sortTeam('nick')">
+                                    닉네임 <i id="sort-icon-nick" class="fa-solid fa-sort sort-icon"></i>
+                                </th>
+                                <th width="10%" class="sortable-th" onclick="sortTeam('role')">
+                                    직책 <i id="sort-icon-role" class="fa-solid fa-sort sort-icon"></i>
+                                </th>
+                                <th width="10%" class="sortable-th" onclick="sortTeam('shift')">
+                                    근무조 <i id="sort-icon-shift" class="fa-solid fa-sort sort-icon"></i>
+                                </th>
+                                <th width="15%" class="sortable-th" onclick="sortTeam('code')">
+                                    쿠코드 <i id="sort-icon-code" class="fa-solid fa-sort sort-icon"></i>
+                                </th>
+                                <th width="25%">휴무일 설정</th>
                                 <th width="10%">관리</th>
                             </tr>
                         </thead>
@@ -3223,8 +3240,82 @@
             pendingAction = { type: 'member_delete', target: null, index: index };
             openSecurityModal("🗑️ 멤버 삭제", "정말 삭제하시겠습니까?<br><span style='color:var(--danger)'>복구할 수 없습니다.</span><br><span style='color:#27D3F5; font-size:0.8rem; font-weight:600;'>비밀번호 : 1234</span>");
         };
+		
+		// [추가] 정렬 상태 저장 변수
+        window.teamSortState = { key: null, order: 'asc' };
 
-        // [수정] renderTeamTable 함수 (삭제 버튼 추가됨)
+        // [추가] 팀 멤버 정렬 함수
+        window.sortTeam = function(key) {
+            // 정렬 순서 토글 (asc <-> desc)
+            if (window.teamSortState.key === key) {
+                window.teamSortState.order = window.teamSortState.order === 'asc' ? 'desc' : 'asc';
+            } else {
+                window.teamSortState.key = key;
+                window.teamSortState.order = 'asc';
+            }
+
+            window.members.sort((a, b) => {
+                let valA, valB;
+
+                if (key === 'name') { 
+                    valA = a.name; valB = b.name; 
+                }
+                else if (key === 'nick') { 
+                    // 닉네임만 추출해서 비교 (예: "Pitt (Manager)" -> "pitt")
+                    valA = a.role.split(' ')[0].toLowerCase(); 
+                    valB = b.role.split(' ')[0].toLowerCase(); 
+                }
+                else if (key === 'role') { 
+                    // [핵심 수정] 닉네임은 무시하고 'Manager' 여부로만 정렬
+                    // Manager에게 '1', T/C에게 '2'를 부여하여 Manager가 먼저 오게 함
+                    valA = a.role.includes('Manager') ? '1' : '2'; 
+                    valB = b.role.includes('Manager') ? '1' : '2'; 
+                }
+                else if (key === 'shift') { 
+                    valA = a.shift || 'day'; valB = b.shift || 'day'; 
+                }
+                else if (key === 'code') { 
+                    valA = a.code; valB = b.code; 
+                }
+
+                // 값 비교
+                if (valA < valB) return window.teamSortState.order === 'asc' ? -1 : 1;
+                if (valA > valB) return window.teamSortState.order === 'asc' ? 1 : -1;
+                
+                // [추가 팁] 만약 정렬 기준값이 같으면(예: 둘 다 Manager면), 이름순으로 2차 정렬
+                if (valA === valB) {
+                    return a.name < b.name ? -1 : 1;
+                }
+                
+                return 0;
+            });
+
+            renderTeamTable(); // 테이블 갱신
+        };
+
+        // [추가] 정렬 아이콘 업데이트 함수 (renderTeamTable 안에서 호출됨)
+        function updateSortIcons() {
+            // 모든 아이콘 초기화
+            document.querySelectorAll('.sortable-th').forEach(th => th.classList.remove('active'));
+            document.querySelectorAll('.sort-icon').forEach(i => i.className = 'fa-solid fa-sort sort-icon');
+
+            const key = window.teamSortState.key;
+            const order = window.teamSortState.order;
+
+            if (key) {
+                const iconId = `sort-icon-${key}`;
+                const iconEl = document.getElementById(iconId);
+                if (iconEl) {
+                    iconEl.parentElement.classList.add('active'); // 색상 강조
+                    // 아이콘 모양 변경 (오름차순/내림차순)
+                    iconEl.className = order === 'asc' 
+                        ? 'fa-solid fa-sort-up sort-icon' 
+                        : 'fa-solid fa-sort-down sort-icon';
+                }
+            }
+        }
+
+        // 정렬 아이콘 업데이트 기능이 추가된 최종 테이블 렌더링 함수
         window.renderTeamTable = function() {
             const tbody = document.getElementById('teamTable').querySelector('tbody');
             tbody.innerHTML = '';
@@ -3238,12 +3329,13 @@
                 
                 if (!m.daysOff) m.daysOff = [];
                 
+                // 휴무일 버튼 생성
                 const daysOffHTML = daysOfWeek.map(day => {
                     const isSelected = m.daysOff.includes(day);
                     return `<button class="filter-btn ${isSelected ? 'active' : ''}" onclick="toggleDayOff(${index}, '${day}')" style="padding:6px 10px; font-size:0.8rem; border-radius:6px; min-width:36px;">${day}</button>`;
                 }).join('');
                 
-                // 근무조 변경 셀렉트 박스
+                // 근무조 변경 셀렉트 박스 생성
                 const shiftSelectHTML = `
                     <select onchange="updateMemberShift(${index}, this.value)" style="background:var(--bg-body); color:var(--text-main); border:1px solid var(--border); padding:4px; border-radius:6px; font-family:inherit;">
                         <option value="day" ${currentShift==='day'?'selected':''}>Day</option>
@@ -3251,6 +3343,7 @@
                     </select>
                 `;
 
+                // 테이블 행 추가
                 tbody.innerHTML += `
                     <tr>
                         <td style="font-weight:700;">${m.name}</td>
@@ -3267,6 +3360,9 @@
                     </tr>
                 `;
             });
+
+            // [여기가 핵심!] 테이블을 다 그린 후에 정렬 아이콘 화살표 방향을 업데이트합니다.
+            updateSortIcons(); 
         };
 
         // [추가됨] 근무조 변경 즉시 저장 함수
