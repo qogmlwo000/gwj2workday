@@ -361,6 +361,151 @@
             .split-layout { grid-template-columns: 1fr; }
             .analysis-panel { position: static; }
         }
+		
+		@media (max-width: 768px) {
+            /* 대시보드 카드 */
+            .dash-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .member-card {
+                padding: 16px;
+            }
+
+            .card-info div:first-child {
+                font-size: 1rem;
+            }
+
+            .card-badge {
+                font-size: 1rem !important;
+                padding: 6px 12px !important;
+            }
+
+            /* 위젯 카드 */
+            .widget-card {
+                padding: 16px;
+                gap: 12px;
+            }
+
+            .widget-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+
+            .widget-text div:last-child {
+                font-size: 1.3rem;
+            }
+
+            /* 테이블 */
+            .weekly-table {
+                font-size: 0.85rem;
+            }
+
+            .weekly-table th,
+            .weekly-table td {
+                padding: 10px 8px;
+            }
+
+            /* 폼 레이아웃 */
+            .split-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            /* 분석 패널 */
+            .analysis-panel {
+                position: static;
+                margin-bottom: 20px;
+            }
+
+            /* 헤더 */
+            header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: stretch;
+            }
+
+            header > div {
+                width: 100%;
+                justify-content: center;
+            }
+
+            /* 테마 토글 */
+            .theme-toggle-container {
+                justify-content: center;
+            }
+
+            /* 검색 필터 바 */
+            .search-filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .filter-group {
+                justify-content: center;
+            }
+
+            /* 캘린더 뷰 */
+            .calendar-view-day {
+                min-height: 80px;
+                padding: 6px;
+            }
+
+            .calendar-view-day-number {
+                font-size: 0.9rem;
+            }
+
+            .calendar-event {
+                font-size: 0.65rem;
+                padding: 3px 6px;
+            }
+
+            /* 테이블 헤더 */
+            .table-header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: stretch;
+            }
+
+            .action-buttons {
+                display: flex;
+                gap: 8px;
+                justify-content: stretch;
+            }
+
+            .action-buttons .btn {
+                flex: 1;
+            }
+        }
+
+        /* 아주 작은 화면 (갤럭시 폴드 등) */
+        @media (max-width: 360px) {
+            .logo-text .main {
+                font-size: 1.2rem;
+            }
+
+            .nav-item {
+                font-size: 0.8rem;
+                padding: 10px 12px;
+            }
+
+            .summary-widgets {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
 
         .btn:active, .filter-btn:active, .nav-item:active, .calendar-day:active, .submit-btn:active, .calendar-nav-btn:active {
             transform: scale(0.95) translateY(2px) !important; transition: 0.1s; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1) !important;
@@ -544,6 +689,130 @@
             cursor: pointer;
             accent-color: var(--primary);
         }
+		
+		/* 모바일 스와이프 효과 */
+        main {
+            touch-action: pan-y;
+            position: relative;
+        }
+
+        .swipe-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .swipe-indicator.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .nav-item {
+                font-size: 0.85rem;
+                padding: 12px 14px;
+            }
+            
+            .summary-widgets {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .dash-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+		
+		/* 모바일 입력 최적화 */
+        @media (max-width: 768px) {
+            .modern-input-wrapper input,
+            .modern-input-wrapper select,
+            .modern-input-wrapper textarea {
+                font-size: 16px; /* iOS 자동 줌 방지 */
+                padding: 16px;
+            }
+
+            .custom-date-input,
+            .custom-time-input {
+                padding: 16px 16px 16px 45px;
+                font-size: 16px;
+            }
+
+            .searchable-select-input {
+                font-size: 16px;
+                padding: 16px 40px 16px 45px;
+            }
+
+            .time-preset-btn {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+                min-width: 80px;
+            }
+
+            .submit-btn {
+                padding: 18px;
+                font-size: 1.1rem;
+                min-height: 56px;
+            }
+
+            .modal-btn {
+                padding: 16px;
+                font-size: 1.05rem;
+                min-height: 52px;
+            }
+
+            /* 입력 필드 포커스 시 강조 */
+            .modern-input-wrapper input:focus,
+            .modern-input-wrapper select:focus,
+            .modern-input-wrapper textarea:focus {
+                border-width: 3px;
+                transform: scale(1.02);
+            }
+
+            /* 버튼 터치 영역 확대 */
+            .btn,
+            .filter-btn,
+            .calendar-day {
+                min-height: 44px; /* iOS 권장 터치 크기 */
+            }
+
+            .calendar-nav-btn {
+                width: 40px;
+                height: 40px;
+            }
+
+            /* 드롭다운 크기 조정 */
+            .calendar-dropdown {
+                max-width: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .time-dropdown {
+                max-width: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            /* 검색 드롭다운 최적화 */
+            .searchable-select-dropdown {
+                max-height: 60vh;
+                font-size: 16px;
+            }
+
+            .searchable-select-option {
+                padding: 16px;
+                min-height: 56px;
+            }
+        }
     </style>
 </head>
 
@@ -571,25 +840,35 @@
 
     <main id="mainArea">
         <header>
-            <h1 id="pageTitle">대시보드</h1>
-            <div style="display:flex; gap:15px; align-items:center;">
-                <div id="connection-status" class="connection-badge status-loading">
-                    <span class="conn-dot"></span>
-                    <span id="conn-text">연결 중...</span>
-                </div>
+    <h1 id="pageTitle">대시보드</h1>
+    <div style="display:flex; gap:15px; align-items:center;">
+        <div id="connection-status" class="connection-badge status-loading">
+            <span class="conn-dot"></span>
+            <span id="conn-text">연결 중...</span>
+        </div>
 
-                <div class="theme-toggle-container">
-                    <div class="theme-toggle" onclick="toggleTheme()">
-                        <div class="theme-toggle-slider"></div>
-                        <div class="theme-options">
-                            <div class="theme-option dark"><i class="fa-solid fa-moon"></i><span>Dark </span></div>
-                            <div class="theme-option light"><i class="fa-solid fa-sun"></i><span> Light</span></div>
-                        </div>
-                    </div>
-                </div>
-                <div style="font-size:0.9rem; color:var(--text-sub);">V 1.5 - Bennett</div>
+        <!-- 🆕 여기에 타이머 추가 -->
+        <div class="reset-timer-container">
+            <span class="reset-label">현재 시각</span>
+            <div class="timer-digits">
+                <span id="cd-days">일</span>
+                <span id="cd-hours">00</span>:<span id="cd-min">00</span>:<span id="cd-sec">00</span>
             </div>
-        </header>
+            <i class="fa-solid fa-clock timer-icon"></i>
+        </div>
+
+        <div class="theme-toggle-container">
+            <div class="theme-toggle" onclick="toggleTheme()">
+                <div class="theme-toggle-slider"></div>
+                <div class="theme-options">
+                    <div class="theme-option dark"><i class="fa-solid fa-moon"></i><span>Dark </span></div>
+                    <div class="theme-option light"><i class="fa-solid fa-sun"></i><span> Light</span></div>
+                </div>
+            </div>
+        </div>
+        <div style="font-size:0.9rem; color:var(--text-sub);">V 1.5 - Bennett</div>
+    </div>
+</header>
 
         <div id="tab-dashboard" class="tab-content active">
             <div class="search-filter-bar">
@@ -1907,15 +2186,16 @@
                 if(typeVal === '4_pm') { typeText = '오후반차 (4h)'; deduc = '4.0h'; }
 
                 const reqData = {
-                    id: Date.now(),
-                    name: m.name, nick, rank, code: m.code,
-                    shift: m.shift || 'day', 
-                    date: date,
-                    type: typeText, 
-                    time: deduc,    
-                    val: parseFloat(deduc), // 계산용 숫자
-                    reason: reason || '-'
-                };
+    id: Date.now(),
+    name: m.name, nick, rank, code: m.code,
+    shift: (m.shift === 'day') ? 'Day조' : 'Swing조',  // ✅ 문자열 형식 통일
+    shiftType: m.shift || 'day',  // ✅ 필터링용 추가
+    date: date,
+    type: typeText, 
+    time: deduc,    
+    val: parseFloat(deduc),
+    reason: reason || '-'
+};
 
                 const updatedRequests = { ...window.requests };
                 if (!updatedRequests.leave) updatedRequests.leave = [];
@@ -2235,56 +2515,54 @@
         };
 
         window.selectSearchableOption = function(type, code, name, role) {
-            // 이벤트 전파 차단
-            if (event) {
-                event.stopPropagation();
-                event.preventDefault();
-            }
-            
-            // 1. 멤버 찾기
-            const realIndex = window.members.findIndex(m => m.code === code);
-            if (realIndex === -1) {
-                alert("멤버 데이터를 찾을 수 없습니다.");
-                return;
-            }
-            
-            // 2. 관리자 입력창 UI 업데이트
-            document.getElementById(`${type}Select`).value = realIndex;
-            document.getElementById(`${type}SelectInput`).value = `${name} (${role})`;
-            document.getElementById(`${type}SelectDropdown`).classList.remove('show');
-            document.getElementById(`${type}ClearBtn`).style.display = 'block';
-            
-            // 드롭다운 선택 스타일 처리
-            document.querySelectorAll(`#${type}SelectDropdown .searchable-select-option`).forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            const selectedOption = document.querySelector(`#${type}SelectDropdown .searchable-select-option[data-index="${realIndex}"]`);
-            if (selectedOption) selectedOption.classList.add('selected');
-            
-            
-            // 3.  근무조(Shift) 자동 선택 로직
-            // 🚨 휴가(leave) 탭에는 Shift 입력창이 없으므로, 휴가가 아닐 때만 실행해야 합니다.
-            if (type !== 'leave') {
-                const member = window.members[realIndex];
-                const memShift = member.shift || 'day'; 
-                
-                let shiftText = '';
-                if (memShift === 'day') shiftText = 'DAY조 (09:00 ~ 18:00)';
-                else if (memShift === 'swing') shiftText = 'SWING조 (19:00 ~ 04:00)';
-                
-                // 근무조 변경 함수 호출
-                selectShift(type, memShift, shiftText);
-                
-                //  기본 근무시간(Base) 자동 입력 (휴가 탭 제외)
-                const baseHours = window.calcBaseHours(member);
-                const baseInput = document.getElementById(`${type}Base`);
-                if(baseInput) baseInput.value = baseHours;
-            }
+    // 이벤트 전파 차단
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+    
+    // 1. 멤버 찾기
+    const realIndex = window.members.findIndex(m => m.code === code);
+    if (realIndex === -1) {
+        alert("멤버 데이터를 찾을 수 없습니다.");
+        return;
+    }
+    
+    // 2. 관리자 입력창 UI 업데이트
+    document.getElementById(`${type}Select`).value = realIndex;
+    document.getElementById(`${type}SelectInput`).value = `${name} (${role})`;
+    document.getElementById(`${type}SelectDropdown`).classList.remove('show');
+    document.getElementById(`${type}ClearBtn`).style.display = 'block';
+    
+    // 드롭다운 선택 스타일 처리
+    document.querySelectorAll(`#${type}SelectDropdown .searchable-select-option`).forEach(opt => {
+        opt.classList.remove('selected');
+    });
+    const selectedOption = document.querySelector(`#${type}SelectDropdown .searchable-select-option[data-index="${realIndex}"]`);
+    if (selectedOption) selectedOption.classList.add('selected');
+    
+    // 3. 근무조(Shift) 자동 선택 로직
+    // 🚨 휴가(leave) 탭에는 Shift 입력창이 없으므로, 휴가가 아닐 때만 실행해야 합니다.
+    if (type !== 'leave') {
+        const member = window.members[realIndex];
+        const memShift = member.shift || 'day'; 
+        
+        let shiftText = '';
+        if (memShift === 'day') shiftText = 'DAY조 (09:00 ~ 18:00)';
+        else if (memShift === 'swing') shiftText = 'SWING조 (19:00 ~ 04:00)';
+        
+        // 근무조 변경 함수 호출
+        selectShift(type, memShift, shiftText);
+        
+        // 기본 근무시간(Base) 자동 입력 (휴가 탭 제외)
+        const baseHours = window.calcBaseHours(member);
+        const baseInput = document.getElementById(`${type}Base`);
+        if(baseInput) baseInput.value = baseHours;
+    }
 
-
-            // 4. 분석 패널(근무시간 현황) 업데이트
-            updateAnalysis(type);
-        };
+    // 4. 분석 패널(근무시간 현황) 업데이트
+    updateAnalysis(type);
+};
 
         window.clearSearchableSelect = function(type) {
             document.getElementById(`${type}Select`).value = '';
@@ -3080,9 +3358,18 @@
             }
 
             if (shiftFilter !== 'all') {
-                // 휴가 데이터엔 shiftType이 없을 수 있으므로 안전장치
-                filteredRequests = filteredRequests.filter(r => (r.shiftType || r.shift) === shiftFilter);
-            }
+    filteredRequests = filteredRequests.filter(r => {
+        // shiftType이 있으면 사용 (overtime, early, special)
+        if (r.shiftType) {
+            return r.shiftType === shiftFilter;
+        }
+        // shift 문자열에서 day/swing 판단 (leave)
+        if (r.shift) {
+            return r.shift.toLowerCase().includes(shiftFilter);
+        }
+        return false;
+    });
+}
 
             document.getElementById(`${tbodyId}FilterCount`).textContent = filteredRequests.length;
 
@@ -3790,66 +4077,222 @@
             else display.innerText = '4.0h';
             updateAnalysis('leave');
         };
+		
+		// 스와이프 탭 전환 기능
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const horizontalSwipe = Math.abs(touchEndX - touchStartX);
+            const verticalSwipe = Math.abs(touchEndY - touchStartY);
+            
+            // 수평 스와이프가 수직보다 크면 탭 전환
+            if (horizontalSwipe > verticalSwipe && horizontalSwipe > swipeThreshold) {
+                const tabs = ['dashboard', 'calendar', 'weekly', 'overtime', 'early', 'leave', 'special', 'team'];
+                const activeTab = document.querySelector('.nav-item.active');
+                const activeIndex = Array.from(document.querySelectorAll('.nav-item')).indexOf(activeTab);
+                
+                let nextIndex;
+                if (touchEndX < touchStartX) {
+                    // 왼쪽으로 스와이프 - 다음 탭
+                    nextIndex = (activeIndex + 1) % tabs.length;
+                    showSwipeIndicator('◀ ' + getTabName(tabs[nextIndex]));
+                } else {
+                    // 오른쪽으로 스와이프 - 이전 탭
+                    nextIndex = (activeIndex - 1 + tabs.length) % tabs.length;
+                    showSwipeIndicator(getTabName(tabs[nextIndex]) + ' ▶');
+                }
+                
+                setTimeout(() => {
+                    document.querySelectorAll('.nav-item')[nextIndex].click();
+                }, 100);
+            }
+        }
+
+        function getTabName(tabId) {
+            const names = {
+                dashboard: '대시보드',
+                calendar: '캘린더',
+                weekly: '주간현황',
+                overtime: '연장',
+                early: '조출',
+                leave: '휴가',
+                special: '특근',
+                team: '팀설정'
+            };
+            return names[tabId] || tabId;
+        }
+
+        function showSwipeIndicator(text) {
+            let indicator = document.querySelector('.swipe-indicator');
+            if (!indicator) {
+                indicator = document.createElement('div');
+                indicator.className = 'swipe-indicator';
+                document.body.appendChild(indicator);
+            }
+            indicator.textContent = text;
+            indicator.classList.add('show');
+            setTimeout(() => indicator.classList.remove('show'), 800);
+        }
+
+        const mainArea = document.getElementById('mainArea');
+        mainArea.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+
+        mainArea.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
+            handleSwipe();
+        }, { passive: true });
+
+        // 반응형 동적 조정
+        function adjustForScreenSize() {
+            const width = window.innerWidth;
+            
+            if (width <= 768) {
+                // 모바일: 테이블을 카드 형태로 변환하는 옵션
+                document.querySelectorAll('.weekly-table').forEach(table => {
+                    table.style.fontSize = '0.85rem';
+                });
+
+                // 위젯 개수 조정
+                const widgets = document.getElementById('weeklyWidgets');
+                if (widgets && width <= 480) {
+                    widgets.style.gridTemplateColumns = '1fr';
+                }
+            }
+        }
+
+        // 화면 크기 변경 감지
+        window.addEventListener('resize', adjustForScreenSize);
+        window.addEventListener('orientationchange', adjustForScreenSize);
+		
+		// 화면 크기 변경 감지
+        window.addEventListener('resize', adjustForScreenSize);
+        window.addEventListener('orientationchange', adjustForScreenSize);
+
+        // 햅틱 피드백 함수
+        function hapticFeedback(type = 'light') {
+            if ('vibrate' in navigator) {
+                switch(type) {
+                    case 'light':
+                        navigator.vibrate(10);
+                        break;
+                    case 'medium':
+                        navigator.vibrate(20);
+                        break;
+                    case 'heavy':
+                        navigator.vibrate([30, 10, 30]);
+                        break;
+                }
+            }
+        }
 
         window.onload = function() {
-            window.initSelects();
-            const today = getLocalTodayDate();
-            const opDate = new Date(today); 
-            
-            // 달력 초기화
-            window.initCalendar('ot', opDate); 
-            window.initCalendar('early', opDate);
-            window.initCalendar('special', opDate);
-            window.initCalendar('leave', opDate); 
-            
-            // 시간 선택기 초기화
-            window.initTimePicker('otStart', '18:00'); 
-            window.initTimePicker('otEnd', '');
-            window.initTimePicker('earlyStart', '08:00'); 
-            window.initTimePicker('earlyEnd', '09:00');
-            window.initTimePicker('specialStart', '09:00');
-            window.initTimePicker('specialEnd', '18:00');
-            
-            // 날짜 선택
-            window.selectDate('ot', today); 
-            window.selectDate('early', today);
-            window.selectDate('special', today);
-            window.selectDate('leave', today); 
-            
-            // [수정됨] 필터 버튼 활성화 (휴가 탭 포함)
-            document.getElementById('otFilterToday').classList.add('active'); 
-            document.getElementById('earlyFilterToday').classList.add('active');
-            document.getElementById('specialFilterToday').classList.add('active');
-            
-            const leaveFilterBtn = document.getElementById('leaveFilterToday');
-            if(leaveFilterBtn) leaveFilterBtn.classList.add('active'); // ✅ 추가됨
-            
-            document.getElementById('otShiftAll').classList.add('active');
-            document.getElementById('earlyShiftAll').classList.add('active');
-            document.getElementById('specialShiftAll').classList.add('active');
-            
-            const leaveShiftBtn = document.getElementById('leaveShiftAll');
-            if(leaveShiftBtn) leaveShiftBtn.classList.add('active'); // ✅ 추가됨
-            
-            // 테마 설정
-            const savedTheme = localStorage.getItem('gwj2_theme') || 'light'; 
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            
-            // 팝업 초기화 등 나머지 코드...
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.searchable-select-wrapper') && 
-                    !e.target.closest('.custom-date-picker') && 
-                    !e.target.closest('.custom-time-picker')) {
-                    document.querySelectorAll('.searchable-select-dropdown, .calendar-dropdown, .time-dropdown').forEach(d => d.classList.remove('show'));
-                    document.querySelectorAll('.custom-date-input, .custom-time-input').forEach(i => i.classList.remove('active'));
-                }
+    window.initSelects();
+    const today = getLocalTodayDate();
+    const opDate = new Date(today); 
+    
+    // 달력 초기화
+    window.initCalendar('ot', opDate); 
+    window.initCalendar('early', opDate);
+    window.initCalendar('special', opDate);
+    window.initCalendar('leave', opDate); 
+    
+    // 시간 선택기 초기화
+    window.initTimePicker('otStart', '18:00'); 
+    window.initTimePicker('otEnd', '');
+    window.initTimePicker('earlyStart', '08:00'); 
+    window.initTimePicker('earlyEnd', '09:00');
+    window.initTimePicker('specialStart', '09:00');
+    window.initTimePicker('specialEnd', '18:00');
+    
+    // 날짜 선택
+    window.selectDate('ot', today); 
+    window.selectDate('early', today);
+    window.selectDate('special', today);
+    window.selectDate('leave', today); 
+    
+    // [수정됨] 필터 버튼 활성화 (휴가 탭 포함)
+    document.getElementById('otFilterToday').classList.add('active'); 
+    document.getElementById('earlyFilterToday').classList.add('active');
+    document.getElementById('specialFilterToday').classList.add('active');
+    
+    const leaveFilterBtn = document.getElementById('leaveFilterToday');
+    if(leaveFilterBtn) leaveFilterBtn.classList.add('active'); // ✅ 추가됨
+    
+    document.getElementById('otShiftAll').classList.add('active');
+    document.getElementById('earlyShiftAll').classList.add('active');
+    document.getElementById('specialShiftAll').classList.add('active');
+    
+    const leaveShiftBtn = document.getElementById('leaveShiftAll');
+    if(leaveShiftBtn) leaveShiftBtn.classList.add('active'); // ✅ 추가됨
+    
+    // 테마 설정
+    const savedTheme = localStorage.getItem('gwj2_theme') || 'light'; 
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    
+    // 팝업 초기화 등 나머지 코드...
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.searchable-select-wrapper') && 
+            !e.target.closest('.custom-date-picker') && 
+            !e.target.closest('.custom-time-picker')) {
+            document.querySelectorAll('.searchable-select-dropdown, .calendar-dropdown, .time-dropdown').forEach(d => d.classList.remove('show'));
+            document.querySelectorAll('.custom-date-input, .custom-time-input').forEach(i => i.classList.remove('active'));
+        }
+    });
+    
+    // 모바일 키보드 대응
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        // 입력 필드 포커스 시 자동 스크롤
+        document.querySelectorAll('input, textarea, select').forEach(input => {
+            input.addEventListener('focus', function() {
+                setTimeout(() => {
+                    this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
             });
-            
-            const popupDate = new Date(today);
-            window.initCalendar('editReq', popupDate);
-            window.initTimePicker('editReqStart', '09:00');
-            window.initTimePicker('editReqEnd', '18:00');
-        };
+        });
+
+        // 모바일에서 달력/시간 선택 시 네이티브 피커 사용 옵션
+        const isMobileDevice = window.innerWidth <= 768;
+        if (isMobileDevice) {
+            // 모바일 전용 빠른 입력 힌트 표시
+            document.querySelectorAll('.time-preset-btn').forEach(btn => {
+                btn.style.fontSize = '1rem';
+                btn.style.padding = '14px 24px';
+            });
+        }
+    }
+    
+    const popupDate = new Date(today);
+    window.initCalendar('editReq', popupDate);
+    window.initTimePicker('editReqStart', '09:00');
+    window.initTimePicker('editReqEnd', '18:00');
+    
+    // 신청 버튼 햅틱
+    document.querySelectorAll('.submit-btn').forEach(btn => {
+        btn.addEventListener('click', () => hapticFeedback('medium'));
+    });
+
+    // 삭제 버튼 햅틱
+    document.querySelectorAll('.btn-del').forEach(btn => {
+        btn.addEventListener('click', () => hapticFeedback('heavy'));
+    });
+
+    // 탭 전환 햅틱
+    document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.addEventListener('click', () => hapticFeedback('light'));
+    });
+    
+    // 타이머 업데이트 시작
+    updateResetTimer();
+    setInterval(updateResetTimer, 1000);
+};
     </script>
 	<div id="editRequestModal" class="modal-overlay" onclick="if(event.target === this) closeEditPopup()">
         <div class="modal-card" style="max-width: 480px; text-align: left; padding: 24px;">
