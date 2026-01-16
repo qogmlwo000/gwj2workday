@@ -508,6 +508,42 @@
         .sortable-th:hover { color: var(--primary); background: rgba(99, 102, 241, 0.1); }
         .sort-icon { margin-left: 6px; font-size: 0.8rem; color: var(--text-sub); opacity: 0.3; }
         .sortable-th.active .sort-icon { opacity: 1; color: var(--primary); }
+		
+		/* 휴직자 전용 스타일 */
+        .on-leave-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            display: inline-block;
+            background: rgba(107, 114, 128, 0.15);
+            color: #6B7280;
+            border: 1px solid #6B7280;
+        }
+
+        .member-card.on-leave {
+            opacity: 0.6;
+            filter: grayscale(0.5);
+            border: 2px dashed #9CA3AF !important;
+        }
+
+        .member-card.on-leave .card-badge {
+            background: #9CA3AF !important;
+            color: white !important;
+        }
+
+        .row-on-leave td {
+            background: rgba(107, 114, 128, 0.08) !important;
+            color: #6B7280 !important;
+            opacity: 0.7;
+        }
+
+        .leave-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
     </style>
 </head>
 
@@ -1644,8 +1680,9 @@
                                 <th width="10%" class="sortable-th" onclick="sortTeam('role')">직책 <i id="sort-icon-role" class="fa-solid fa-sort sort-icon"></i></th>
                                 <th width="10%" class="sortable-th" onclick="sortTeam('shift')">근무조 <i id="sort-icon-shift" class="fa-solid fa-sort sort-icon"></i></th>
                                 <th width="15%" class="sortable-th" onclick="sortTeam('code')">쿠코드 <i id="sort-icon-code" class="fa-solid fa-sort sort-icon"></i></th>
-                                <th width="25%">휴무일 설정</th>
-                                <th width="10%">관리</th>
+                                <th width="20%">휴무일 설정</th>
+                                <th width="8%" style="text-align:center;">휴직</th>
+                                <th width="7%">관리</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -2592,9 +2629,10 @@
             const tbody = document.getElementById('weeklyTbody');
             const widgets = document.getElementById('weeklyWidgets');
             let data = window.members.map(m => { 
-                const base=40; 
-                const approved=window.calcTotalApprovedTime(m.name); 
-                return { name:m.name, role:m.role, total:base+approved }; 
+                // 휴직자는 0시간 처리
+                const base = m.onLeave ? 0 : 40;
+                const approved = m.onLeave ? 0 : window.calcTotalApprovedTime(m.name);
+                return { name: m.name, role: m.role, total: base + approved, onLeave: m.onLeave }; 
             });
             data.sort((a,b)=>b.total-a.total);
             window.allWeeklyData = data;
@@ -2619,17 +2657,27 @@
                 const remain = 52 - d.total;
                 const percent = Math.min((d.total/52)*100, 100);
                 let rowClass='', status='안전', barColor='var(--success)';
-                if(d.total >= 52) { status='초과'; rowClass='row-danger'; barColor='var(--danger)'; cntDanger++; }
-                else if(d.total >= 45) { status='주의'; rowClass='row-warning'; barColor='var(--warning)'; cntWarning++; }
-                else { cntSafe++; }
+                
+                if(d.onLeave) {
+                    status='휴직'; 
+                    rowClass='row-on-leave'; 
+                    barColor='#9CA3AF';
+                } else {
+                    if(d.total >= 52) { status='초과'; rowClass='row-danger'; barColor='var(--danger)'; cntDanger++; }
+                    else if(d.total >= 45) { status='주의'; rowClass='row-warning'; barColor='var(--warning)'; cntWarning++; }
+                    else { cntSafe++; }
+                }
                 tbody.innerHTML += `
                     <tr class="${rowClass}">
                         <td style="text-align:center; font-weight:bold; color:var(--text-sub)">${idx+1}</td>
-                        <td><div style="font-weight:700">${d.name}</div><div style="font-size:0.75rem; color:var(--text-sub)">${d.role}</div></td>
+                        <td>
+                            <div style="font-weight:700">${d.name} ${d.onLeave ? '<span class="on-leave-badge">휴직</span>' : ''}</div>
+                            <div style="font-size:0.75rem; color:var(--text-sub)">${d.role}</div>
+                        </td>
                         <td><div style="display:flex; justify-content:space-between; font-size:0.75rem;"><span>${Math.round(percent)}%</span></div><div class="tbl-gauge"><div class="tbl-fill" style="width:${percent}%; background:${barColor}"></div></div></td>
                         <td style="text-align:right; font-weight:800; color:${barColor}; font-size:1.1rem;">${d.total.toFixed(1)} h</td>
                         <td style="text-align:center"><span class="status-badge" style="border:1px solid ${barColor}; color:${barColor}">${status}</span></td>
-                        <td style="text-align:right; color:var(--text-sub)">${remain.toFixed(1)} h</td>
+                        <td style="text-align:right; color:var(--text-sub)">${d.onLeave ? '-' : remain.toFixed(1) + ' h'}</td>
                     </tr>`;
             });
             widgets.innerHTML = `
@@ -2656,11 +2704,18 @@
         window.renderDashboard = function() {
             window.allDashData = window.members.map(m => {
                 const isMgr = m.role.includes('Manager');
-                const total = 40 + window.calcTotalApprovedTime(m.name);
+                
+                // 휴직자는 0시간으로 처리
+                const total = m.onLeave ? 0 : (40 + window.calcTotalApprovedTime(m.name));
                 const remain = 52 - total;
                 const percent = Math.min((total/52)*100, 100);
+                
                 let statusClass='safe';
-                if(total>=52) statusClass='danger'; else if(total>=45) statusClass='warning';
+                if(!m.onLeave) {
+                    if(total>=52) statusClass='danger'; 
+                    else if(total>=45) statusClass='warning';
+                }
+                
                 return { ...m, isMgr, total, remain, percent, statusClass };
             });
             window.applyDashFilters();
@@ -2682,17 +2737,16 @@
             });
 
             filteredData.forEach(d => {
-                // 매니저/캡틴에 따라 카드 스타일 결정
                 const cardClass = d.isMgr ? 'manager-card' : 'captain-card';
-                // 해당 멤버의 shift 값 확인 (없으면 기본 day)
                 const memShift = d.shift || 'day';
+                const leaveClass = d.onLeave ? 'on-leave' : '';
 
                 const card = document.createElement('div');
-                card.className = `member-card ${d.statusClass} ${cardClass}`;
+                card.className = `member-card ${d.statusClass} ${cardClass} ${leaveClass}`;
                 card.innerHTML = `
                     <div class="card-top">
                         <div class="card-info">
-                            <div>${d.name}</div>
+                            <div>${d.name} ${d.onLeave ? '<span class="on-leave-badge">휴직</span>' : ''}</div>
                             <div>${d.role}</div>
                         </div>
                         <div class="card-badge">${d.total.toFixed(1)}h</div>
@@ -2700,7 +2754,7 @@
                     <div class="progress-container">
                         <div class="progress-labels">
                             <span>Limit: 52h</span>
-                            <span class="progress-val">잔여: ${d.remain.toFixed(1)}h</span>
+                            <span class="progress-val">${d.onLeave ? '휴직 중' : '잔여: ' + d.remain.toFixed(1) + 'h'}</span>
                         </div>
                         <div class="progress-track">
                             <div class="progress-fill" style="width:${d.percent}%"></div>
@@ -3521,6 +3575,19 @@
                 alert("Error: " + e.message);
             }
         };
+		
+		window.toggleLeaveStatus = async function(memberIndex, isOnLeave) {
+            const member = window.members[memberIndex];
+            member.onLeave = isOnLeave;
+            
+            try {
+                await updateDoc(docRef, { members: window.members });
+                showToast(`${member.name}의 휴직 상태가 ${isOnLeave ? '설정' : '해제'}되었습니다`, 'success');
+                refreshUI();
+            } catch(e) {
+                alert("Error: " + e.message);
+            }
+        };
 
         //  멤버 추가 함수
         window.addNewMember = async function() {
@@ -3666,14 +3733,21 @@
                 `;
 
                 // 테이블 행 추가
+                const isOnLeave = m.onLeave ? true : false;
+                const rowStyle = isOnLeave ? 'opacity:0.6; background:rgba(107,114,128,0.05);' : '';
+                
                 tbody.innerHTML += `
-                    <tr>
+                    <tr style="${rowStyle}">
                         <td style="font-weight:700;">${m.name}</td>
                         <td>${nick}</td>
                         <td><span class="status-badge" style="border:1px solid var(--border); color:var(--text-sub); width:auto; padding:2px 8px;">${rank}</span></td>
                         <td>${shiftSelectHTML}</td>
                         <td style="font-family:monospace; color:var(--text-sub);">${m.code}</td>
                         <td><div style="display:flex; gap:4px; flex-wrap:wrap;">${daysOffHTML}</div></td>
+                        <td style="text-align:center; vertical-align:middle;">
+                            <input type="checkbox" class="leave-checkbox" ${isOnLeave ? 'checked' : ''} 
+                                   onchange="toggleLeaveStatus(${index}, this.checked)">
+                        </td>
                         <td>
                             <button class="btn btn-del" onclick="deleteMember(${index})" style="padding:6px 10px;">
                                 <i class="fa-solid fa-trash"></i>
