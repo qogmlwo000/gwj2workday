@@ -1944,11 +1944,15 @@
                 </div>
 
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <h3 style="margin:0;">팀 멤버 데이터 (Firebase Sync)</h3>
-                    <div class="action-buttons">
-                        <button class="btn btn-excel" onclick="exportToExcel('team')"><i class="fa-solid fa-file-excel"></i> 엑셀 다운로드</button>
-                    </div>
-                </div>
+    <h3 style="margin:0;">팀 멤버 데이터 (Firebase Sync)</h3>
+    <div class="action-buttons">
+        <!-- ✅ 새로 추가: Shift 일괄 저장 버튼 -->
+        <button class="btn" onclick="syncAllShiftsToFirebase()" style="background:var(--primary); color:white;">
+            <i class="fa-solid fa-sync"></i> Shift 일괄 저장
+        </button>
+        <button class="btn btn-excel" onclick="exportToExcel('team')"><i class="fa-solid fa-file-excel"></i> 엑셀 다운로드</button>
+    </div>
+</div>
                 
                 <div style="overflow-x:auto;">
                     <table class="weekly-table" id="teamTable">
@@ -2024,30 +2028,49 @@
 
         // --- Global State ---
         const defaultMembers = [
-            {name:'김국천',role:'Van (Manager)',code:'E4992491'},
-            {name:'윤영민',role:'Anton (Manager)',code:'Z7386388'},{name:'정정욱',role:'Giselle (Manager)',code:'Z5406388'},
-            {name:'오치형',role:'Justin (Manager)',code:'B3706369'},{name:'서재현',role:'Aaron (T/C)',code:'S4461023'},
-            {name:'박준혁',role:'Ralph (T/C)',code:'X4033164'},{name:'손민주',role:'Sally (T/C)',code:'D5012685'},
-            {name:'문대환',role:'Hwan (T/C)',code:'N2086791'},{name:'이승연',role:'Steve (T/C)',code:'W9345496'},
-            {name:'조영호',role:'Zeta (T/C)',code:'X9075186'},{name:'배희재',role:'Bennett (T/C)',code:'H4633331'},
-            {name:'한아름',role:'Lumi (T/C)',code:'G4094768'},{name:'장시원',role:'Eric (T/C)',code:'R9635160'},
-            {name:'박찬영',role:'Bron (T/C)',code:'R2637601'},{name:'김정원',role:'Garden (T/C)',code:'T9383022'},
-            {name:'박슬기',role:'Winter (T/C)',code:'U7306474'},{name:'양동인',role:'David (T/C)',code:'P9738071'},
-            {name:'조영권',role:'Owen (T/C)',code:'T9060243'},{name:'이계환',role:'Liam (T/C)',code:'V6568216'},
-            {name:'최지호',role:'Damian (T/C)',code:'X7694762'},{name:'손기훈',role:'Leif (T/C)',code:'P1637348'},
-            {name:'진성광',role:'Jin (T/C)',code:'A1943868'},{name:'허원빈',role:'Jonny (T/C)',code:'V4296863'},
-            {name:'김용운',role:'Ford (T/C)',code:'G9236102'},{name:'박준영',role:'Xenon (T/C)',code:'L5291847'},
-            {name:'신건호',role:'Colin (T/C)',code:'D9063832'},{name:'장한별',role:'Siwoo (T/C)',code:'R8788212'},
-            {name:'박상영',role:'Sangyeong (T/C)',code:'S1827358'},{name:'백석',role:'Stone (T/C)',code:'M9279634'},
-            {name:'장전희',role:'Daniel (T/C)',code:'H3088014'},{name:'강동희',role:'Leto (T/C)',code:'J7268590'},
-            {name:'송해지',role:'Wendy (T/C)',code:'G2791563'},{name:'길다빈',role:'Benny (T/C)',code:'Y5651563'},
-            {name:'이시원',role:'Freesia (T/C)',code:'N2607464'},{name:'한혜주',role:'Lily (T/C)',code:'H3614867'},
-            {name:'이윤성',role:'Loosie (T/C)',code:'Q2813675'},{name:'오재영',role:'Healer (T/C)',code:'U2554263'},
-            {name:'박창수',role:'Tani (T/C)',code:'G2345755'},{name:'정의헌',role:'Covy (T/C)',code:'A3511520'},
-            {name:'김승범',role:'Kohav (T/C)',code:'T3138750'}
+            {name:'김국천',role:'Van (Manager)',code:'E4992491', shift:'swing', daysOff:[]},
+    {name:'윤영민',role:'Anton (Manager)',code:'Z7386388', shift:'swing', daysOff:[]},
+    {name:'정정욱',role:'Giselle (Manager)',code:'Z5406388', shift:'day', daysOff:[]},
+    {name:'오치형',role:'Justin (Manager)',code:'B3706369', shift:'day', daysOff:[]},
+    {name:'서재현',role:'Aaron (T/C)',code:'S4461023', shift:'swing', daysOff:[]},
+    {name:'박준혁',role:'Ralph (T/C)',code:'X4033164', shift:'day', daysOff:[]},
+    {name:'손민주',role:'Sally (T/C)',code:'D5012685', shift:'day', daysOff:[]},
+    {name:'문대환',role:'Hwan (T/C)',code:'N2086791', shift:'day', daysOff:[]},
+    {name:'이승연',role:'Steve (T/C)',code:'W9345496', shift:'day', daysOff:[]},
+    {name:'조영호',role:'Zeta (T/C)',code:'X9075186', shift:'day', daysOff:[]},
+    {name:'배희재',role:'Bennett (T/C)',code:'H4633331', shift:'day', daysOff:[]},
+    {name:'한아름',role:'Lumi (T/C)',code:'G4094768', shift:'day', daysOff:[]},
+    {name:'장시원',role:'Eric (T/C)',code:'R9635160', shift:'day', daysOff:[]},
+    {name:'박찬영',role:'Bron (T/C)',code:'R2637601', shift:'day', daysOff:[]},
+    {name:'김정원',role:'Garden (T/C)',code:'T9383022', shift:'day', daysOff:[]},
+    {name:'박슬기',role:'Winter (T/C)',code:'U7306474', shift:'day', daysOff:[]},
+    {name:'양동인',role:'David (T/C)',code:'P9738071', shift:'day', daysOff:[]},
+    {name:'조영권',role:'Owen (T/C)',code:'T9060243', shift:'day', daysOff:[]},
+    {name:'이계환',role:'Liam (T/C)',code:'V6568216', shift:'swing', daysOff:[]},
+    {name:'최지호',role:'Damian (T/C)',code:'X7694762', shift:'swing', daysOff:[]},
+    {name:'손기훈',role:'Leif (T/C)',code:'P1637348', shift:'swing', daysOff:[]},
+    {name:'진성광',role:'Jin (T/C)',code:'A1943868', shift:'swing', daysOff:[]},
+    {name:'허원빈',role:'Jonny (T/C)',code:'V4296863', shift:'swing', daysOff:[]},
+    {name:'김용운',role:'Ford (T/C)',code:'G9236102', shift:'swing', daysOff:[]},
+    {name:'박준영',role:'Xenon (T/C)',code:'L5291847', shift:'swing', daysOff:[]},
+    {name:'신건호',role:'Colin (T/C)',code:'D9063832', shift:'swing', daysOff:[]},
+    {name:'장한별',role:'Siwoo (T/C)',code:'R8788212', shift:'swing', daysOff:[]},
+    {name:'박상영',role:'Sangyeong (T/C)',code:'S1827358', shift:'swing', daysOff:[]},
+    {name:'백석',role:'Stone (T/C)',code:'M9279634', shift:'swing', daysOff:[]},
+    {name:'장전희',role:'Daniel (T/C)',code:'H3088014', shift:'swing', daysOff:[]},
+    {name:'강동희',role:'Leto (T/C)',code:'J7268590', shift:'swing', daysOff:[]},
+    {name:'송해지',role:'Wendy (T/C)',code:'G2791563', shift:'swing', daysOff:[]},
+    {name:'길다빈',role:'Benny (T/C)',code:'Y5651563', shift:'swing', daysOff:[]},
+    {name:'이시원',role:'Freesia (T/C)',code:'N2607464', shift:'swing', daysOff:[]},
+    {name:'한혜주',role:'Lily (T/C)',code:'H3614867', shift:'day', daysOff:[]},
+    {name:'이윤성',role:'Loosie (T/C)',code:'Q2813675', shift:'day', daysOff:[]},
+    {name:'오재영',role:'Healer (T/C)',code:'U2554263', shift:'day', daysOff:[]},
+    {name:'박창수',role:'Tani (T/C)',code:'G2345755', shift:'swing', daysOff:[]},
+    {name:'정의헌',role:'Covy (T/C)',code:'A3511520', shift:'swing', daysOff:[]},
+    {name:'김승범',role:'Kohav (T/C)',code:'T3138750', shift:'swing', daysOff:[]}
         ];
 
-        window.members = defaultMembers;
+        //window.members = defaultMembers;
         window.requests = { overtime: [], early: [], special: [], leave: [] };
         window.activeFilters = { danger: false, warning: false, safe: false };
         window.dashActiveFilters = { danger: false, warning: false, safe: false };
@@ -2111,24 +2134,49 @@
 
         // --- Firebase Listener ---
         onSnapshot(docRef, (docSnap) => {
-            updateConnectionStatus('connected');
-            
-            if (docSnap.exists()) {
-                const data = docSnap.data();
+    updateConnectionStatus('connected');
+    
+    if (docSnap.exists()) {
+        const data = docSnap.data();
 
-                window.requests = data.requests || { overtime: [], early: [], special: [], leave: [] };
-                
-                if (!window.requests.leave) window.requests.leave = [];
+        // ✅ requests 안전하게 로드
+        window.requests = {
+            overtime: data.requests?.overtime || [],
+            early: data.requests?.early || [],
+            special: data.requests?.special || [],
+            leave: data.requests?.leave || []
+        };
 
-                if (data.members) window.members = data.members;
-                refreshUI();
-            } else {
-                setDoc(docRef, { requests: { overtime: [], early: [], special: [] }, members: defaultMembers });
-            }
-        }, (error) => {
-            console.error("Firebase Error:", error);
-            updateConnectionStatus('disconnected');
-        });
+        // ✅ members 안전하게 로드
+        if (data.members && Array.isArray(data.members) && data.members.length > 0) {
+            window.members = data.members;
+        } else {
+            window.members = defaultMembers;
+        }
+        
+        initSelects();
+        refreshUI();
+        
+    } else {
+        // ⚠️ 문서가 없을 때 - 이 경우가 위험!
+        console.error("❌❌❌ Firebase 문서가 없습니다! 초기화 전 확인 필요!");
+        
+        // ✅ 자동 초기화 대신 사용자에게 확인 요청
+        if (confirm("⚠️ Firebase 데이터가 없습니다.\n새로 초기화하시겠습니까?\n\n(취소 시 데이터 로드를 중단합니다)")) {
+            window.members = defaultMembers;
+            setDoc(docRef, { 
+                requests: { overtime: [], early: [], special: [], leave: [] }, 
+                members: defaultMembers 
+            });
+            initSelects();
+        } else {
+            alert("데이터 로드가 중단되었습니다. 관리자에게 문의하세요.");
+        }
+    }
+}, (error) => {
+    console.error("Firebase Error:", error);
+    updateConnectionStatus('disconnected');
+});
 
         function refreshUI() {
             renderDashboard();
@@ -2423,44 +2471,55 @@
         // ========================================
 
         window.initSelects = function() {
-            renderSearchableDropdown('ot');
-            renderSearchableDropdown('early');
-            renderSearchableDropdown('special');
-			renderSearchableDropdown('leave');
-        };
+    // ✅ members가 없으면 초기화하지 않음
+    if (!window.members || !Array.isArray(window.members)) {
+        console.warn("⚠️ members 데이터가 아직 로드되지 않았습니다.");
+        return;
+    }
+    
+    renderSearchableDropdown('ot');
+    renderSearchableDropdown('early');
+    renderSearchableDropdown('special');
+    renderSearchableDropdown('leave');
+};
 
         window.renderSearchableDropdown = function(type) {
-            const dropdown = document.getElementById(`${type}SelectDropdown`);
-            if (!dropdown) return;
-            
-            dropdown.innerHTML = '';
-            
-            window.members.forEach((m, index) => {
-                const option = document.createElement('div');
-                option.className = 'searchable-select-option';
-                option.setAttribute('data-index', index);
-                option.setAttribute('data-name', m.name.toLowerCase());
-                option.setAttribute('data-role', m.role.toLowerCase());
-                
-                option.innerHTML = `
-                    <div>
-                        <span class="option-name">${m.name}</span>
-                        <span class="option-role">${m.role}</span>
-                    </div>
-                    <span style="color:var(--text-sub); font-size:0.85rem;">${m.code}</span>
-                `;
-                
-                // index 대신 고유값인 m.code를 전달합니다.
-                option.onclick = (e) => {
-                    if(e) { e.stopPropagation(); e.preventDefault(); }
-                    selectSearchableOption(type, m.code, m.name, m.role);
-                };
-
-                dropdown.appendChild(option);
-            });
-            
-            console.log(`✅ Rendered ${window.members.length} options for ${type}`);
+    const dropdown = document.getElementById(`${type}SelectDropdown`);
+    if (!dropdown) return;
+    
+    // ✅ members 체크 추가
+    if (!window.members || !Array.isArray(window.members)) {
+        console.warn(`⚠️ ${type}: members 데이터가 없습니다.`);
+        return;
+    }
+    
+    dropdown.innerHTML = '';
+    
+    window.members.forEach((m, index) => {
+        const option = document.createElement('div');
+        option.className = 'searchable-select-option';
+        option.setAttribute('data-index', index);
+        option.setAttribute('data-name', m.name.toLowerCase());
+        option.setAttribute('data-role', m.role.toLowerCase());
+        
+        option.innerHTML = `
+            <div>
+                <span class="option-name">${m.name}</span>
+                <span class="option-role">${m.role}</span>
+            </div>
+            <span style="color:var(--text-sub); font-size:0.85rem;">${m.code}</span>
+        `;
+        
+        option.onclick = (e) => {
+            if(e) { e.stopPropagation(); e.preventDefault(); }
+            selectSearchableOption(type, m.code, m.name, m.role);
         };
+
+        dropdown.appendChild(option);
+    });
+    
+    console.log(`✅ Rendered ${window.members.length} options for ${type}`);
+};
 
         window.showSearchableDropdown = function(type) {
             document.querySelectorAll('.searchable-select-dropdown').forEach(d => {
@@ -3878,34 +3937,41 @@
 
         //  멤버 추가 함수
         window.addNewMember = async function() {
-            const name = document.getElementById('newMemName').value.trim();
-            const nick = document.getElementById('newMemNick').value.trim();
-            const roleSelect = document.getElementById('newMemRole').value;
-            const shiftSelect = document.getElementById('newMemShift').value; // 추가됨
-            const code = document.getElementById('newMemCode').value.trim();
+    const name = document.getElementById('newMemName').value.trim();
+    const nick = document.getElementById('newMemNick').value.trim();
+    const roleSelect = document.getElementById('newMemRole').value;
+    const shiftSelect = document.getElementById('newMemShift').value;
+    const code = document.getElementById('newMemCode').value.trim();
 
-            if(!name || !nick || !code) return alert("모든 정보를 입력해주세요.");
+    if(!name || !nick || !code) return alert("모든 정보를 입력해주세요.");
 
-            const fullRole = `${nick} (${roleSelect})`;
-            
-            // shift 속성 추가
-            const newMember = { name, role: fullRole, code, shift: shiftSelect, daysOff: [] };
-            
-            window.members.push(newMember);
+    const fullRole = `${nick} (${roleSelect})`;
+    
+    // ✅ 반드시 shift와 daysOff 포함
+    const newMember = { 
+        name, 
+        role: fullRole, 
+        code, 
+        shift: shiftSelect || 'day',  // 기본값 day
+        daysOff: [],
+        onLeave: false  // 휴직 상태 기본값
+    };
+    
+    window.members.push(newMember);
 
-            try {
-                await updateDoc(docRef, { members: window.members });
-                showToast(`${name}님이 추가되었습니다.`);
-                
-                document.getElementById('newMemName').value = '';
-                document.getElementById('newMemNick').value = '';
-                document.getElementById('newMemCode').value = '';
-                renderTeamTable(); 
-                initSelects(); 
-            } catch(e) {
-                alert("Error: " + e.message);
-            }
-        };
+    try {
+        await updateDoc(docRef, { members: window.members });
+        showToast(`${name}님이 추가되었습니다.`);
+        
+        document.getElementById('newMemName').value = '';
+        document.getElementById('newMemNick').value = '';
+        document.getElementById('newMemCode').value = '';
+        renderTeamTable(); 
+        initSelects(); 
+    } catch(e) {
+        alert("Error: " + e.message);
+    }
+};
 
         //  멤버 삭제 함수 (보안 모달 연동)
         window.deleteMember = function(index) {
@@ -4193,8 +4259,39 @@
             }
         }
 
+// ✅ 모든 멤버의 Shift를 Firebase에 일괄 저장하는 함수
+window.syncAllShiftsToFirebase = async function() {
+    if (!window.members || window.members.length === 0) {
+        alert("멤버 데이터가 없습니다.");
+        return;
+    }
+    
+    // shift 정보가 없는 멤버 확인
+    let needsUpdate = false;
+    window.members.forEach(m => {
+        if (!m.shift) {
+            m.shift = 'day'; // 기본값 설정
+            needsUpdate = true;
+        }
+        if (!m.daysOff) {
+            m.daysOff = [];
+            needsUpdate = true;
+        }
+    });
+    
+    try {
+        await updateDoc(docRef, { members: window.members });
+        showToast(`✅ 전체 멤버 Shift 정보가 저장되었습니다! (${window.members.length}명)`, 'success');
+        renderTeamTable();
+    } catch(e) {
+        alert("저장 중 오류: " + e.message);
+    }
+};
+
         window.onload = function() {
-    window.initSelects();
+    // ✅ initSelects는 Firebase 리스너에서 호출되므로 여기서는 제거
+    // window.initSelects(); // ← 이 줄 삭제 또는 주석 처리
+    
     const today = getLocalTodayDate();
     const opDate = new Date(today); 
     
