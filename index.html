@@ -2390,9 +2390,15 @@
         };
 
         window.resetData = function() {
-            pendingAction = { type: 'reset', target: null, index: null };
-            openSecurityModal("⚠️ 데이터 초기화", "모든 데이터를 삭제하려면 비밀번호를 입력하세요.<br><span style='color:var(--danger); font-size:0.8rem;'>(복구 불가능)</span><br><span style='color:#27D3F5; font-size:0.8rem; font-weight:600;'>비밀번호 : 1234</span>");
-        };
+    alert("⛔ 데이터 전체 초기화 기능은 보안상 비활성화되었습니다.\n\n필요시 Firebase Console에서 직접 수정하세요.");
+    return;
+    
+    // 아래 코드는 실행되지 않음
+    /*
+    pendingAction = { type: 'reset', target: null, index: null };
+    openSecurityModal("⚠️ 데이터 초기화", "모든 데이터를 삭제하려면 비밀번호를 입력하세요.<br><span style='color:var(--danger); font-size:0.8rem;'>(복구 불가능)</span><br><span style='color:#27D3F5; font-size:0.8rem; font-weight:600;'>비밀번호 : 1234</span>");
+    */
+};
 
         function openSecurityModal(title, desc) {
             const modal = document.getElementById('securityModal');
@@ -2412,53 +2418,54 @@
         };
 
         window.confirmSecurityAction = async function() {
-            const ADMIN_PW = "1234";
-            const inputPw = document.getElementById('modalPwInput').value;
-            const inputEl = document.getElementById('modalPwInput');
+    const ADMIN_PW = "1234";
+    const inputPw = document.getElementById('modalPwInput').value;
+    const inputEl = document.getElementById('modalPwInput');
 
-            if (inputPw === ADMIN_PW) {
-                const { type, target, index } = pendingAction;
+    if (inputPw === ADMIN_PW) {
+        const { type, target, index } = pendingAction;
 
-                try {
-                    // 1. 전체 초기화 (Reset)
-                    if (type === 'reset') {
-                        await setDoc(docRef, { requests: { overtime: [], early: [], special: [] }, members: defaultMembers });
-                        showToast("모든 데이터가 초기화되었습니다.");
-                        location.reload();
-                    } 
-                    // 2. 신청 내역 삭제 (Request Delete)
-                    else if (type === 'delete' && target) {
-                        const updatedRequests = { ...window.requests };
-                        updatedRequests[target].splice(index, 1);
-                        await updateDoc(docRef, { requests: updatedRequests });
-                        showToast("삭제되었습니다.");
-                    }
-                    // 3. [여기가 추가된 부분] 멤버 삭제 (Member Delete)
-                    else if (type === 'member_delete') {
-                        window.members.splice(index, 1); // 배열에서 해당 멤버 삭제
-                        await updateDoc(docRef, { members: window.members }); // Firebase 저장
-                        showToast("멤버가 삭제되었습니다.");
-                        renderTeamTable(); // 테이블 즉시 갱신
-                        initSelects();     // 검색창 드롭다운 목록 갱신
-                    }
-                    
-                    closeSecurityModal();
-
-                } catch (e) {
-                    alert("Error: " + e.message);
-                }
-
-            } else {
-                // 비밀번호 틀렸을 때
-                inputEl.style.borderColor = "var(--danger)";
-                setTimeout(() => { 
-                    alert("⛔ 비밀번호가 틀렸습니다."); 
-                    inputEl.value = '';
-                    inputEl.style.borderColor = "var(--border)";
-                    inputEl.focus();
-                }, 100);
+        try {
+            // ❌ 전체 초기화 기능 비활성화
+            if (type === 'reset') {
+                alert("⛔ 데이터 전체 초기화 기능은 보안상 비활성화되었습니다.\n\n개별 삭제만 가능합니다.");
+                closeSecurityModal();
+                return;
+            } 
+            
+            // 2. 신청 내역 삭제 (Request Delete)
+            else if (type === 'delete' && target) {
+                const updatedRequests = { ...window.requests };
+                updatedRequests[target].splice(index, 1);
+                await updateDoc(docRef, { requests: updatedRequests });
+                showToast("삭제되었습니다.");
             }
-        };
+            // 3. 멤버 삭제 (Member Delete)
+            else if (type === 'member_delete') {
+                window.members.splice(index, 1);
+                await updateDoc(docRef, { members: window.members });
+                showToast("멤버가 삭제되었습니다.");
+                renderTeamTable();
+                initSelects();
+            }
+            
+            closeSecurityModal();
+
+        } catch (e) {
+            alert("Error: " + e.message);
+        }
+
+    } else {
+        // 비밀번호 틀렸을 때
+        inputEl.style.borderColor = "var(--danger)";
+        setTimeout(() => { 
+            alert("⛔ 비밀번호가 틀렸습니다."); 
+            inputEl.value = '';
+            inputEl.style.borderColor = "var(--border)";
+            inputEl.focus();
+        }, 100);
+    }
+};
 
         window.toggleTheme = function() {
             const n = document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
