@@ -2132,50 +2132,66 @@
             return `${year}-${month}-${day}`;
         }
 
-        // --- Firebase Listener ---
-        onSnapshot(docRef, (docSnap) => {
+        // --- Firebase Listener --- (814번 줄 근처)
+onSnapshot(docRef, (docSnap) => {
     updateConnectionStatus('connected');
     
     if (docSnap.exists()) {
         const data = docSnap.data();
 
-        // ✅ requests 안전하게 로드
-        window.requests = {
-            overtime: data.requests?.overtime || [],
-            early: data.requests?.early || [],
-            special: data.requests?.special || [],
-            leave: data.requests?.leave || []
-        };
+        // ✅ requests 안전하게 로드 (기존 데이터 보존)
+        if (data.requests) {
+            window.requests = {
+                overtime: Array.isArray(data.requests.overtime) ? data.requests.overtime : (window.requests?.overtime || []),
+                early: Array.isArray(data.requests.early) ? data.requests.early : (window.requests?.early || []),
+                special: Array.isArray(data.requests.special) ? data.requests.special : (window.requests?.special || []),
+                leave: Array.isArray(data.requests.leave) ? data.requests.leave : (window.requests?.leave || [])
+            };
+        } else {
+            console.warn("⚠️ requests 필드가 없습니다. 기존 데이터 유지");
+            if (!window.requests) {
+                window.requests = { overtime: [], early: [], special: [], leave: [] };
+            }
+        }
 
-        // ✅ members 안전하게 로드
+        // ✅ members 안전하게 로드 (기존 데이터 보존)
         if (data.members && Array.isArray(data.members) && data.members.length > 0) {
             window.members = data.members;
         } else {
-            window.members = defaultMembers;
+            console.warn("⚠️ members 필드가 없거나 비어있습니다. 기존 데이터 유지");
+            if (!window.members || window.members.length === 0) {
+                window.members = defaultMembers;
+            }
         }
         
         initSelects();
         refreshUI();
         
     } else {
-        // ⚠️ 문서가 없을 때 - 이 경우가 위험!
-        console.error("❌❌❌ Firebase 문서가 없습니다! 초기화 전 확인 필요!");
+        // ⚠️ 문서가 없을 때 - 절대 자동 초기화 금지!
+        console.error("❌ Firebase 문서가 존재하지 않습니다!");
+        updateConnectionStatus('disconnected');
         
-        // ✅ 자동 초기화 대신 사용자에게 확인 요청
-        if (confirm("⚠️ Firebase 데이터가 없습니다.\n새로 초기화하시겠습니까?\n\n(취소 시 데이터 로드를 중단합니다)")) {
-            window.members = defaultMembers;
-            setDoc(docRef, { 
-                requests: { overtime: [], early: [], special: [], leave: [] }, 
-                members: defaultMembers 
-            });
-            initSelects();
-        } else {
-            alert("데이터 로드가 중단되었습니다. 관리자에게 문의하세요.");
-        }
+        // 🔒 자동 초기화 완전 차단
+        alert("⛔ Firebase 데이터를 찾을 수 없습니다.\n\n" +
+              "가능한 원인:\n" +
+              "1. 네트워크 연결 문제\n" +
+              "2. Firebase 권한 문제\n" +
+              "3. 문서가 삭제됨\n\n" +
+              "페이지를 새로고침하거나 관리자에게 문의하세요.");
+        
+        // 기존 메모리 데이터라도 유지
+        if (!window.members) window.members = defaultMembers;
+        if (!window.requests) window.requests = { overtime: [], early: [], special: [], leave: [] };
     }
 }, (error) => {
-    console.error("Firebase Error:", error);
+    console.error("❌ Firebase 리스너 오류:", error);
     updateConnectionStatus('disconnected');
+    
+    // 🔒 오류 시에도 초기화 금지
+    alert("⚠️ Firebase 연결 오류가 발생했습니다.\n\n" +
+          "오류: " + error.message + "\n\n" +
+          "페이지를 새로고침해주세요.");
 });
 
         function refreshUI() {
