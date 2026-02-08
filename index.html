@@ -2263,6 +2263,11 @@ onSnapshot(docRef, (docSnap) => {
 
                 const updatedRequests = { ...window.requests };
                 if (!updatedRequests.leave) updatedRequests.leave = [];
+
+                // 휴가 중복 체크: 같은 사람 + 같은 날짜
+                const leaveDup = updatedRequests.leave.some(r => r.code === m.code && r.date === date);
+                if (leaveDup) return alert("중복신청입니다.\n기존 신청건을 삭제 혹은 수정해주시기 바랍니다.");
+
                 updatedRequests.leave.push(reqData);
 
                 try {
@@ -2304,6 +2309,12 @@ onSnapshot(docRef, (docSnap) => {
             
             const updatedRequests = { ...window.requests };
             if (!updatedRequests[t]) updatedRequests[t] = [];
+
+            // 중복 체크: 같은 사람 + 같은 날짜 (수정 모드에서는 자기 자신 제외)
+            if (!window.editingState.isEditing) {
+                const isDup = updatedRequests[t].some(r => r.code === m.code && r.date === date);
+                if (isDup) return alert("중복신청입니다.\n기존 신청건을 삭제 혹은 수정해주시기 바랍니다.");
+            }
 
             if (window.editingState.isEditing && window.editingState.type === t) {
                 const targetIdx = updatedRequests[t].findIndex(r => r.id === window.editingState.id);
@@ -2787,7 +2798,7 @@ onSnapshot(docRef, (docSnap) => {
                 };
                 hourScroll.appendChild(option);
             }
-            [0, 15, 30, 45].forEach(m => {
+            [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].forEach(m => {
                 const option = document.createElement('div');
                 option.className = 'time-option'; 
                 option.textContent = String(m).padStart(2, '0');
@@ -2930,7 +2941,7 @@ onSnapshot(docRef, (docSnap) => {
             let endHour = Math.floor(totalMinutes / 60) % 24;
             let endMinute = totalMinutes % 60;
             
-            endMinute = Math.round(endMinute / 15) * 15;
+            endMinute = Math.round(endMinute / 5) * 5;
             if (endMinute === 60) { endMinute = 0; endHour = (endHour + 1) % 24; }
             
             setTimeValue(`${t}End`, `${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}`);
@@ -2947,7 +2958,7 @@ onSnapshot(docRef, (docSnap) => {
             let startMinute = totalMinutes % 60;
             if (startHour < 0) startHour += 24;
             if (startMinute < 0) { startMinute += 60; startHour -= 1; if (startHour < 0) startHour += 24; }
-            startMinute = Math.round(startMinute / 15) * 15;
+            startMinute = Math.round(startMinute / 5) * 5;
             if (startMinute === 60) { startMinute = 0; startHour = (startHour + 1) % 24; }
             setTimeValue('earlyStart', `${String(startHour).padStart(2, '0')}:${String(startMinute).padStart(2, '0')}`);
             calcDiff('early');
