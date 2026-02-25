@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -828,14 +828,14 @@
                 <span class="sub">OB Workday</span>
             </div>
         </div>
-        <div class="nav-item active" onclick="switchTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> 대시보드</div>
-        <div class="nav-item" onclick="switchTab('calendar')"><i class="fa-solid fa-calendar-days"></i> 캘린더 뷰</div>
-        <div class="nav-item" onclick="switchTab('weekly')"><i class="fa-solid fa-chart-simple"></i> 주간 현황 (전체)</div>
-        <div class="nav-item" onclick="switchTab('overtime')"><i class="fa-solid fa-clock"></i> 연장 신청</div>
-        <div class="nav-item" onclick="switchTab('early')"><i class="fa-solid fa-sun"></i> 조출 신청</div>
-		<div class="nav-item" onclick="switchTab('leave')"><i class="fa-solid fa-plane-departure"></i> 휴가 신청</div>
-        <div class="nav-item" onclick="switchTab('special')"><i class="fa-solid fa-calendar-plus"></i> 특근 신청</div>
-		<div class="nav-item" onclick="switchTab('team')"><i class="fa-solid fa-users-gear"></i> 팀 설정</div>
+        <div class="nav-item active" onclick="switchTab('dashboard', event)"><i class="fa-solid fa-chart-pie"></i> 대시보드</div>
+        <div class="nav-item" onclick="switchTab('calendar', event)"><i class="fa-solid fa-calendar-days"></i> 캘린더 뷰</div>
+        <div class="nav-item" onclick="switchTab('weekly', event)"><i class="fa-solid fa-chart-simple"></i> 주간 현황 (전체)</div>
+        <div class="nav-item" onclick="switchTab('overtime', event)"><i class="fa-solid fa-clock"></i> 연장 신청</div>
+        <div class="nav-item" onclick="switchTab('early', event)"><i class="fa-solid fa-sun"></i> 조출 신청</div>
+		<div class="nav-item" onclick="switchTab('leave', event)"><i class="fa-solid fa-plane-departure"></i> 휴가 신청</div>
+        <div class="nav-item" onclick="switchTab('special', event)"><i class="fa-solid fa-calendar-plus"></i> 특근 신청</div>
+		<div class="nav-item" onclick="switchTab('team', event)"><i class="fa-solid fa-users-gear"></i> 팀 설정</div>
     </nav>
 
     <main id="mainArea">
@@ -996,18 +996,18 @@
                                 <div class="searchable-select-wrapper">
                                     <i class="fa-solid fa-users" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--primary); z-index:1; pointer-events:none;"></i>
                                     
-                                    <input type="text" id="otShiftDisplay" class="searchable-select-input" placeholder="선택하세요" readonly onclick="toggleShiftDropdown('ot')" style="cursor:pointer; caret-color: transparent;">
+                                    <input type="text" id="otShiftDisplay" class="searchable-select-input" placeholder="선택하세요" readonly onclick="toggleShiftDropdown('ot', event)" style="cursor:pointer; caret-color: transparent;">
                                     
                                     <input type="hidden" id="otShift">
                                     
                                     <i class="fa-solid fa-chevron-down" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--text-sub); pointer-events:none; font-size:0.8rem;"></i>
 
                                     <div class="searchable-select-dropdown" id="otShiftDropdown">
-                                        <div class="searchable-select-option" onclick="selectShift('ot', 'day', 'DAY조 (09:00 ~ 18:00)')">
+                                        <div class="searchable-select-option" onclick="selectShift('ot', 'day', 'DAY조 (09:00 ~ 18:00)', event)">
                                             <span class="option-name">☀️ DAY조</span>
                                             <span class="option-role">09:00 ~ 18:00</span>
                                         </div>
-                                        <div class="searchable-select-option" onclick="selectShift('ot', 'swing', 'SWING조 (19:00 ~ 04:00)')">
+                                        <div class="searchable-select-option" onclick="selectShift('ot', 'swing', 'SWING조 (19:00 ~ 04:00)', event)">
                                             <span class="option-name">🌙 SWING조</span>
                                             <span class="option-role">19:00 ~ 04:00</span>
                                         </div>
@@ -1020,7 +1020,7 @@
                                 <div class="custom-date-picker">
                                     <div class="modern-input-wrapper input-with-icon">
                                         <i class="fa-solid fa-calendar-day"></i>
-                                        <div class="custom-date-input" onclick="toggleCalendar('ot')">
+                                        <div class="custom-date-input" onclick="toggleCalendar('ot', event)">
                                             <span class="date-display placeholder" id="otDateDisplay">날짜 선택</span>
                                             <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
                                         </div>
@@ -1043,7 +1043,7 @@
                                     <div class="custom-time-picker">
                                         <div class="modern-input-wrapper input-with-icon">
                                             <i class="fa-solid fa-play"></i>
-                                            <div class="custom-time-input" onclick="toggleTimePicker('otStart')">
+                                            <div class="custom-time-input" onclick="toggleTimePicker('otStart', event)">
                                                 <span class="time-display" id="otStartDisplay">18:00</span>
                                                 <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
                                             </div>
@@ -1064,7 +1064,7 @@
                                     <div class="custom-time-picker">
                                         <div class="modern-input-wrapper input-with-icon">
                                             <i class="fa-solid fa-stop"></i>
-                                            <div class="custom-time-input" onclick="toggleTimePicker('otEnd')">
+                                            <div class="custom-time-input" onclick="toggleTimePicker('otEnd', event)">
                                                 <span class="time-display placeholder" id="otEndDisplay">시간 선택</span>
                                                 <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
                                             </div>
@@ -1261,16 +1261,16 @@
                                 <label><i class="fa-solid fa-business-time"></i> 근무 조</label>
                                 <div class="searchable-select-wrapper">
                                     <i class="fa-solid fa-users" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--primary); z-index:1; pointer-events:none;"></i>
-                                    <input type="text" id="earlyShiftDisplay" class="searchable-select-input" placeholder="선택하세요" readonly onclick="toggleShiftDropdown('early')" style="cursor:pointer; caret-color: transparent;">
+                                    <input type="text" id="earlyShiftDisplay" class="searchable-select-input" placeholder="선택하세요" readonly onclick="toggleShiftDropdown('early', event)" style="cursor:pointer; caret-color: transparent;">
                                     <input type="hidden" id="earlyShift">
                                     <i class="fa-solid fa-chevron-down" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--text-sub); pointer-events:none; font-size:0.8rem;"></i>
 
                                     <div class="searchable-select-dropdown" id="earlyShiftDropdown">
-                                        <div class="searchable-select-option" onclick="selectShift('early', 'day', 'DAY조 (09:00 ~ 18:00)')">
+                                        <div class="searchable-select-option" onclick="selectShift('early', 'day', 'DAY조 (09:00 ~ 18:00)', event)">
                                             <span class="option-name">☀️ DAY조</span>
                                             <span class="option-role">09:00 ~ 18:00</span>
                                         </div>
-                                        <div class="searchable-select-option" onclick="selectShift('early', 'swing', 'SWING조 (19:00 ~ 04:00)')">
+                                        <div class="searchable-select-option" onclick="selectShift('early', 'swing', 'SWING조 (19:00 ~ 04:00)', event)">
                                             <span class="option-name">🌙 SWING조</span>
                                             <span class="option-role">19:00 ~ 04:00</span>
                                         </div>
@@ -1283,7 +1283,7 @@
                                 <div class="custom-date-picker">
                                     <div class="modern-input-wrapper input-with-icon">
                                         <i class="fa-solid fa-calendar-day"></i>
-                                        <div class="custom-date-input" onclick="toggleCalendar('early')">
+                                        <div class="custom-date-input" onclick="toggleCalendar('early', event)">
                                             <span class="date-display placeholder" id="earlyDateDisplay">날짜 선택</span>
                                             <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
                                         </div>
@@ -1306,7 +1306,7 @@
                                     <div class="custom-time-picker">
                                         <div class="modern-input-wrapper input-with-icon">
                                             <i class="fa-solid fa-play"></i>
-                                            <div class="custom-time-input" onclick="toggleTimePicker('earlyStart')">
+                                            <div class="custom-time-input" onclick="toggleTimePicker('earlyStart', event)">
                                                 <span class="time-display" id="earlyStartDisplay">08:00</span>
                                                 <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
                                             </div>
@@ -1327,7 +1327,7 @@
                                     <div class="custom-time-picker">
                                         <div class="modern-input-wrapper input-with-icon">
                                             <i class="fa-solid fa-stop"></i>
-                                            <div class="custom-time-input" onclick="toggleTimePicker('earlyEnd')">
+                                            <div class="custom-time-input" onclick="toggleTimePicker('earlyEnd', event)">
                                                 <span class="time-display" id="earlyEndDisplay">09:00</span>
                                                 <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
                                             </div>
@@ -1528,7 +1528,7 @@
                                 <div class="custom-date-picker">
                                     <div class="modern-input-wrapper input-with-icon">
                                         <i class="fa-solid fa-calendar-day"></i>
-                                        <div class="custom-date-input" onclick="toggleCalendar('leave')">
+                                        <div class="custom-date-input" onclick="toggleCalendar('leave', event)">
                                             <span class="date-display placeholder" id="leaveDateDisplay">날짜 선택</span>
                                             <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
                                         </div>
@@ -1699,14 +1699,14 @@
                                 <label><i class="fa-solid fa-business-time"></i> 근무 조</label>
                                 <div class="searchable-select-wrapper">
                                     <i class="fa-solid fa-users" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--primary); z-index:1; pointer-events:none;"></i>
-                                    <input type="text" id="specialShiftDisplay" class="searchable-select-input" placeholder="선택하세요" readonly onclick="toggleShiftDropdown('special')" style="cursor:pointer; caret-color: transparent;">
+                                    <input type="text" id="specialShiftDisplay" class="searchable-select-input" placeholder="선택하세요" readonly onclick="toggleShiftDropdown('special', event)" style="cursor:pointer; caret-color: transparent;">
                                     <input type="hidden" id="specialShift">
                                     <i class="fa-solid fa-chevron-down" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--text-sub); pointer-events:none; font-size:0.8rem;"></i>
                                     <div class="searchable-select-dropdown" id="specialShiftDropdown">
-                                        <div class="searchable-select-option" onclick="selectShift('special', 'day', 'DAY조 (09:00 ~ 18:00)')">
+                                        <div class="searchable-select-option" onclick="selectShift('special', 'day', 'DAY조 (09:00 ~ 18:00)', event)">
                                             <span class="option-name">☀️ DAY조</span><span class="option-role">09:00 ~ 18:00</span>
                                         </div>
-                                        <div class="searchable-select-option" onclick="selectShift('special', 'swing', 'SWING조 (19:00 ~ 04:00)')">
+                                        <div class="searchable-select-option" onclick="selectShift('special', 'swing', 'SWING조 (19:00 ~ 04:00)', event)">
                                             <span class="option-name">🌙 SWING조</span><span class="option-role">19:00 ~ 04:00</span>
                                         </div>
                                     </div>
@@ -1718,7 +1718,7 @@
                                 <div class="custom-date-picker">
                                     <div class="modern-input-wrapper input-with-icon">
                                         <i class="fa-solid fa-calendar-day"></i>
-                                        <div class="custom-date-input" onclick="toggleCalendar('special')">
+                                        <div class="custom-date-input" onclick="toggleCalendar('special', event)">
                                             <span class="date-display placeholder" id="specialDateDisplay">날짜 선택</span>
                                             <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
                                         </div>
@@ -1741,7 +1741,7 @@
                                     <div class="custom-time-picker">
                                         <div class="modern-input-wrapper input-with-icon">
                                             <i class="fa-solid fa-play"></i>
-                                            <div class="custom-time-input" onclick="toggleTimePicker('specialStart')">
+                                            <div class="custom-time-input" onclick="toggleTimePicker('specialStart', event)">
                                                 <span class="time-display" id="specialStartDisplay">09:00</span>
                                                 <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
                                             </div>
@@ -1762,7 +1762,7 @@
                                     <div class="custom-time-picker">
                                         <div class="modern-input-wrapper input-with-icon">
                                             <i class="fa-solid fa-stop"></i>
-                                            <div class="custom-time-input" onclick="toggleTimePicker('specialEnd')">
+                                            <div class="custom-time-input" onclick="toggleTimePicker('specialEnd', event)">
                                                 <span class="time-display" id="specialEndDisplay">18:00</span>
                                                 <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
                                             </div>
@@ -1988,7 +1988,7 @@
             <p id="modalDesc" style="margin:0; color:var(--text-sub); font-size:0.9rem;">관리자 비밀번호를 입력하세요.</p>
             
             <div class="modal-input-box">
-                <input type="password" id="modalPwInput" placeholder="●●●●" maxlength="4" onkeypress="if(event.key==='Enter') confirmSecurityAction()">
+                <input type="password" id="modalPwInput" placeholder="●●●●●●" maxlength="6" onkeypress="if(event.key==='Enter') confirmSecurityAction()">
             </div>
 
             <div class="modal-btns">
@@ -2000,7 +2000,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAkH7IODBuZOrJ2ZTd9PpbJF045hnmU98Q",
@@ -2130,6 +2130,53 @@
             const month = String(d.getMonth() + 1).padStart(2, '0');
             const day = String(d.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
+        }
+
+        function formatDateYMD(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function parseLocalDate(dateStr) {
+            const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr || '');
+            if (!m) return null;
+            const year = Number(m[1]);
+            const month = Number(m[2]) - 1;
+            const day = Number(m[3]);
+            return new Date(year, month, day);
+        }
+
+        function parseTimeToMinutes(timeStr) {
+            const m = /^(\d{2}):(\d{2})$/.exec(timeStr || '');
+            if (!m) return null;
+            const hour = Number(m[1]);
+            const minute = Number(m[2]);
+            if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+            return hour * 60 + minute;
+        }
+
+        function calcDurationHours(startTime, endTime) {
+            const startMinutes = parseTimeToMinutes(startTime);
+            const endMinutes = parseTimeToMinutes(endTime);
+            if (startMinutes === null || endMinutes === null) return 0;
+
+            let diffMinutes = endMinutes - startMinutes;
+            if (diffMinutes < 0) diffMinutes += 24 * 60;
+            let hours = diffMinutes / 60;
+
+            if (hours >= 9) hours -= 1;
+            return hours;
+        }
+
+        function escapeHTML(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
         // --- Firebase Listener --- (814번 줄 근처)
@@ -2410,10 +2457,72 @@ onSnapshot(docRef, (docSnap) => {
 
         // --- 보안 모달 로직 ---
         let pendingAction = { type: null, target: null, index: null };
+        const ADMIN_PIN_KEY = 'gwj2_admin_pin_hash_v1';
+        const ADMIN_PIN_SALT = 'gwj2_admin_salt_v1';
+
+        function normalizePin(pin) {
+            return (pin || '').trim();
+        }
+
+        function isValidPin(pin) {
+            return /^\d{6}$/.test(pin);
+        }
+
+        async function hashAdminPin(pin) {
+            if (!window.crypto || !window.crypto.subtle) {
+                throw new Error('현재 브라우저에서 보안 PIN 기능을 지원하지 않습니다.');
+            }
+            const encoder = new TextEncoder();
+            const payload = encoder.encode(`${ADMIN_PIN_SALT}:${normalizePin(pin)}`);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', payload);
+            return Array.from(new Uint8Array(hashBuffer))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+        }
+
+        async function ensureAdminPinConfigured() {
+            if (localStorage.getItem(ADMIN_PIN_KEY)) return true;
+
+            const firstInput = prompt('관리자 PIN(6자리 숫자)을 설정하세요.');
+            if (firstInput === null) return false;
+            const firstPin = normalizePin(firstInput);
+            if (!isValidPin(firstPin)) {
+                alert('관리자 PIN은 6자리 숫자여야 합니다.');
+                return false;
+            }
+
+            const secondInput = prompt('관리자 PIN을 다시 입력하세요.');
+            if (secondInput === null) return false;
+            const secondPin = normalizePin(secondInput);
+            if (firstPin !== secondPin) {
+                alert('PIN이 일치하지 않습니다.');
+                return false;
+            }
+
+            try {
+                localStorage.setItem(ADMIN_PIN_KEY, await hashAdminPin(firstPin));
+                showToast('관리자 PIN이 설정되었습니다.');
+                return true;
+            } catch (e) {
+                alert(e.message || '관리자 PIN 설정 중 오류가 발생했습니다.');
+                return false;
+            }
+        }
+
+        async function verifyAdminPin(pin) {
+            const storedHash = localStorage.getItem(ADMIN_PIN_KEY);
+            if (!storedHash) return false;
+            try {
+                return (await hashAdminPin(pin)) === storedHash;
+            } catch (e) {
+                alert(e.message || '관리자 PIN 검증 중 오류가 발생했습니다.');
+                return false;
+            }
+        }
 
         window.deleteRequest = function(t, i) {
             pendingAction = { type: 'delete', target: t, index: i };
-            openSecurityModal("🗑️ 삭제 확인", "해당 내역을 삭제하려면 비밀번호를 입력하세요.<br><span style='color:#ef4444; font-size:0.8rem; font-weight:600;'>(주의: 삭제 후 복구 불가)</span><br><span style='color:#27D3F5; font-size:0.8rem; font-weight:600;'>비밀번호 : 1234</span>");
+            openSecurityModal("🗑️ 삭제 확인", "해당 내역을 삭제하려면 관리자 PIN을 입력하세요.<br><span style='color:#ef4444; font-size:0.8rem; font-weight:600;'>(주의: 삭제 후 복구 불가)</span>");
         };
 
         window.resetData = function() {
@@ -2423,7 +2532,7 @@ onSnapshot(docRef, (docSnap) => {
     // 아래 코드는 실행되지 않음
     /*
     pendingAction = { type: 'reset', target: null, index: null };
-    openSecurityModal("⚠️ 데이터 초기화", "모든 데이터를 삭제하려면 비밀번호를 입력하세요.<br><span style='color:var(--danger); font-size:0.8rem;'>(복구 불가능)</span><br><span style='color:#27D3F5; font-size:0.8rem; font-weight:600;'>비밀번호 : 1234</span>");
+    openSecurityModal("⚠️ 데이터 초기화", "모든 데이터를 삭제하려면 관리자 PIN을 입력하세요.<br><span style='color:var(--danger); font-size:0.8rem;'>(복구 불가능)</span>");
     */
 };
 
@@ -2439,17 +2548,22 @@ onSnapshot(docRef, (docSnap) => {
             setTimeout(() => input.focus(), 100);
         }
 
-        window.closeSecurityModal = function() {
+window.closeSecurityModal = function() {
             document.getElementById('securityModal').classList.remove('open');
             pendingAction = { type: null, target: null, index: null };
         };
 
         window.confirmSecurityAction = async function() {
-    const ADMIN_PW = "1234";
-    const inputPw = document.getElementById('modalPwInput').value;
+    const inputPw = normalizePin(document.getElementById('modalPwInput').value);
     const inputEl = document.getElementById('modalPwInput');
+    
+    if (!(await ensureAdminPinConfigured())) {
+        inputEl.value = '';
+        inputEl.focus();
+        return;
+    }
 
-    if (inputPw === ADMIN_PW) {
+    if (await verifyAdminPin(inputPw)) {
         const { type, target, index } = pendingAction;
 
         try {
@@ -2486,7 +2600,7 @@ onSnapshot(docRef, (docSnap) => {
         // 비밀번호 틀렸을 때
         inputEl.style.borderColor = "var(--danger)";
         setTimeout(() => { 
-            alert("⛔ 비밀번호가 틀렸습니다."); 
+            alert("⛔ 관리자 PIN이 올바르지 않습니다."); 
             inputEl.value = '';
             inputEl.style.borderColor = "var(--border)";
             inputEl.focus();
@@ -2533,20 +2647,24 @@ onSnapshot(docRef, (docSnap) => {
         const option = document.createElement('div');
         option.className = 'searchable-select-option';
         option.setAttribute('data-index', index);
-        option.setAttribute('data-name', m.name.toLowerCase());
-        option.setAttribute('data-role', m.role.toLowerCase());
+        option.setAttribute('data-name', String(m.name || '').toLowerCase());
+        option.setAttribute('data-role', String(m.role || '').toLowerCase());
+        
+        const safeName = escapeHTML(m.name);
+        const safeRole = escapeHTML(m.role);
+        const safeCode = escapeHTML(m.code);
         
         option.innerHTML = `
             <div>
-                <span class="option-name">${m.name}</span>
-                <span class="option-role">${m.role}</span>
+                <span class="option-name">${safeName}</span>
+                <span class="option-role">${safeRole}</span>
             </div>
-            <span style="color:var(--text-sub); font-size:0.85rem;">${m.code}</span>
+            <span style="color:var(--text-sub); font-size:0.85rem;">${safeCode}</span>
         `;
         
         option.onclick = (e) => {
             if(e) { e.stopPropagation(); e.preventDefault(); }
-            selectSearchableOption(type, m.code, m.name, m.role);
+            selectSearchableOption(type, m.code, m.name, m.role, e);
         };
 
         dropdown.appendChild(option);
@@ -2607,11 +2725,11 @@ onSnapshot(docRef, (docSnap) => {
             dropdown.classList.add('show');
         };
 
-        window.selectSearchableOption = function(type, code, name, role) {
+        window.selectSearchableOption = function(type, code, name, role, evt) {
     // 이벤트 전파 차단
-    if (event) {
-        event.stopPropagation();
-        event.preventDefault();
+    if (evt) {
+        evt.stopPropagation();
+        evt.preventDefault();
     }
     
     // 1. 멤버 찾기
@@ -2634,10 +2752,16 @@ onSnapshot(docRef, (docSnap) => {
     const selectedOption = document.querySelector(`#${type}SelectDropdown .searchable-select-option[data-index="${realIndex}"]`);
     if (selectedOption) selectedOption.classList.add('selected');
     
-    // 3. 근무조(Shift) 자동 선택 로직
+    const member = window.members[realIndex];
+
+    // 3. 기본 근무시간(Base) 자동 입력
+    const baseHours = window.calcBaseHours(member);
+    const baseInput = document.getElementById(`${type}Base`);
+    if(baseInput) baseInput.value = baseHours;
+
+    // 4. 근무조(Shift) 자동 선택 로직
     // 🚨 휴가(leave) 탭에는 Shift 입력창이 없으므로, 휴가가 아닐 때만 실행해야 합니다.
     if (type !== 'leave') {
-        const member = window.members[realIndex];
         const memShift = member.shift || 'day'; 
         
         let shiftText = '';
@@ -2646,14 +2770,9 @@ onSnapshot(docRef, (docSnap) => {
         
         // 근무조 변경 함수 호출
         selectShift(type, memShift, shiftText);
-        
-        // 기본 근무시간(Base) 자동 입력 (휴가 탭 제외)
-        const baseHours = window.calcBaseHours(member);
-        const baseInput = document.getElementById(`${type}Base`);
-        if(baseInput) baseInput.value = baseHours;
     }
 
-    // 4. 분석 패널(근무시간 현황) 업데이트
+    // 5. 분석 패널(근무시간 현황) 업데이트
     updateAnalysis(type);
 };
 
@@ -2680,9 +2799,10 @@ onSnapshot(docRef, (docSnap) => {
             }
         });
 
-        window.switchTab = function(t) {
+        window.switchTab = function(t, evt) {
             document.querySelectorAll('.nav-item,.tab-content').forEach(e=>e.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            const targetNav = evt?.currentTarget || document.querySelector(`.nav-item[onclick*="switchTab('${t}'"]`);
+            if (targetNav) targetNav.classList.add('active');
             document.getElementById(`tab-${t}`).classList.add('active');
             
             const titles = {
@@ -2711,8 +2831,8 @@ onSnapshot(docRef, (docSnap) => {
             window.renderCalendar(type);
         };
 
-        window.toggleCalendar = function(type) {
-            event.stopPropagation();
+        window.toggleCalendar = function(type, evt) {
+            if (evt) evt.stopPropagation();
             const calendar = document.getElementById(`${type}Calendar`);
             const input = document.querySelector(`#${type}Calendar`).previousElementSibling.querySelector('.custom-date-input');
             document.querySelectorAll('.calendar-dropdown, .time-dropdown').forEach(d => { if(d.id !== `${type}Calendar`) d.classList.remove('show'); });
@@ -2738,7 +2858,8 @@ onSnapshot(docRef, (docSnap) => {
                 const btn = document.createElement('button');
                 btn.className = 'calendar-day other-month';
                 btn.textContent = daysInPrevMonth - i;
-                btn.onclick = () => { window.changeMonth(type, -1); setTimeout(() => window.selectDate(type, `${year}-${String(month).padStart(2,'0')}-${String(daysInPrevMonth-i).padStart(2,'0')}`), 100); };
+                const prevMonthDate = new Date(year, month - 1, daysInPrevMonth - i);
+                btn.onclick = () => { window.changeMonth(type, -1); setTimeout(() => window.selectDate(type, formatDateYMD(prevMonthDate)), 100); };
                 daysContainer.appendChild(btn);
             }
             
@@ -2761,7 +2882,8 @@ onSnapshot(docRef, (docSnap) => {
                 const btn = document.createElement('button');
                 btn.className = 'calendar-day other-month';
                 btn.textContent = i;
-                btn.onclick = () => { window.changeMonth(type, 1); setTimeout(() => window.selectDate(type, `${year}-${String(month + 2).padStart(2, '0')}-${String(i).padStart(2, '0')}`), 100); };
+                const nextMonthDate = new Date(year, month + 1, i);
+                btn.onclick = () => { window.changeMonth(type, 1); setTimeout(() => window.selectDate(type, formatDateYMD(nextMonthDate)), 100); };
                 daysContainer.appendChild(btn);
             }
         };
@@ -2776,7 +2898,8 @@ onSnapshot(docRef, (docSnap) => {
         window.selectDate = function(type, dateStr) {
             document.getElementById(`${type}Date`).value = dateStr;
             const display = document.getElementById(`${type}DateDisplay`);
-            const date = new Date(dateStr + 'T00:00:00');
+            const date = parseLocalDate(dateStr);
+            if (!date) return;
             display.textContent = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
             display.classList.remove('placeholder');
             document.getElementById(`${type}Calendar`).classList.remove('show');
@@ -2815,8 +2938,8 @@ onSnapshot(docRef, (docSnap) => {
             }
         };
 
-        window.toggleTimePicker = function(id) {
-            event.stopPropagation();
+        window.toggleTimePicker = function(id, evt) {
+            if (evt) evt.stopPropagation();
             const picker = document.getElementById(`${id}Picker`);
             const input = document.querySelector(`#${id}Picker`).previousElementSibling.querySelector('.custom-time-input');
             document.querySelectorAll('.calendar-dropdown, .time-dropdown').forEach(d => { if(d.id !== `${id}Picker`) d.classList.remove('show'); });
@@ -2849,8 +2972,8 @@ onSnapshot(docRef, (docSnap) => {
         };
 		
 		// [추가됨] 근무조 드롭다운 열기/닫기
-        window.toggleShiftDropdown = function(type) {
-            event.stopPropagation();
+        window.toggleShiftDropdown = function(type, evt) {
+            if (evt) evt.stopPropagation();
             // 다른 열린 창 닫기
             document.querySelectorAll('.searchable-select-dropdown').forEach(d => {
                 if(d.id !== `${type}ShiftDropdown`) d.classList.remove('show');
@@ -2862,8 +2985,8 @@ onSnapshot(docRef, (docSnap) => {
         };
 
         // [추가됨] 근무조 선택 시 처리
-        window.selectShift = function(type, value, text) {
-            event.stopPropagation();
+        window.selectShift = function(type, value, text, evt) {
+            if (evt) evt.stopPropagation();
             document.getElementById(`${type}Shift`).value = value;
             document.getElementById(`${type}ShiftDisplay`).value = text;
             document.getElementById(`${type}ShiftDropdown`).classList.remove('show');
@@ -2969,18 +3092,7 @@ onSnapshot(docRef, (docSnap) => {
             const e = document.getElementById(`${t}End`).value;
 
             if (s && e) {
-                const S = new Date(`2000-01-01 ${s}`);
-                const E = new Date(`2000-01-01 ${e}`);
-                
-                if (E < S) E.setDate(E.getDate() + 1);
-
-                let diffMs = E - S;
-                let hours = diffMs / (1000 * 60 * 60);
-
-                if (hours >= 9) {
-                    hours -= 1;
-                }
-
+                const hours = calcDurationHours(s, e);
                 document.getElementById(`${t}Diff`).innerText = hours.toFixed(1) + 'h';
             } else {
                 document.getElementById(`${t}Diff`).innerText = '0.0h';
@@ -3001,7 +3113,7 @@ onSnapshot(docRef, (docSnap) => {
             const widgets = document.getElementById('weeklyWidgets');
             let data = window.members.map(m => { 
                 // 휴직자는 0시간 처리
-                const base = m.onLeave ? 0 : 40;
+                const base = m.onLeave ? 0 : window.calcBaseHours(m);
                 const approved = m.onLeave ? 0 : window.calcTotalApprovedTime(m.name);
                 return { name: m.name, role: m.role, total: base + approved, onLeave: m.onLeave }; 
             });
@@ -3028,6 +3140,8 @@ onSnapshot(docRef, (docSnap) => {
                 const remain = 52 - d.total;
                 const percent = Math.min((d.total/52)*100, 100);
                 let rowClass='', status='안전', barColor='var(--success)';
+                const safeName = escapeHTML(d.name);
+                const safeRole = escapeHTML(d.role);
                 
                 if(d.onLeave) {
                     status='휴직'; 
@@ -3042,8 +3156,8 @@ onSnapshot(docRef, (docSnap) => {
                     <tr class="${rowClass}">
                         <td style="text-align:center; font-weight:bold; color:var(--text-sub)">${idx+1}</td>
                         <td>
-                            <div style="font-weight:700">${d.name} ${d.onLeave ? '<span class="on-leave-badge">휴직</span>' : ''}</div>
-                            <div style="font-size:0.75rem; color:var(--text-sub)">${d.role}</div>
+                            <div style="font-weight:700">${safeName} ${d.onLeave ? '<span class="on-leave-badge">휴직</span>' : ''}</div>
+                            <div style="font-size:0.75rem; color:var(--text-sub)">${safeRole}</div>
                         </td>
                         <td><div style="display:flex; justify-content:space-between; font-size:0.75rem;"><span>${Math.round(percent)}%</span></div><div class="tbl-gauge"><div class="tbl-fill" style="width:${percent}%; background:${barColor}"></div></div></td>
                         <td style="text-align:right; font-weight:800; color:${barColor}; font-size:1.1rem;">${d.total.toFixed(1)} h</td>
@@ -3077,7 +3191,7 @@ onSnapshot(docRef, (docSnap) => {
                 const isMgr = m.role.includes('Manager');
                 
                 // 휴직자는 0시간으로 처리
-                const total = m.onLeave ? 0 : (40 + window.calcTotalApprovedTime(m.name));
+                const total = m.onLeave ? 0 : (window.calcBaseHours(m) + window.calcTotalApprovedTime(m.name));
                 const remain = 52 - total;
                 const percent = Math.min((total/52)*100, 100);
                 
@@ -3111,14 +3225,16 @@ onSnapshot(docRef, (docSnap) => {
                 const cardClass = d.isMgr ? 'manager-card' : 'captain-card';
                 const memShift = d.shift || 'day';
                 const leaveClass = d.onLeave ? 'on-leave' : '';
+                const safeName = escapeHTML(d.name);
+                const safeRole = escapeHTML(d.role);
 
                 const card = document.createElement('div');
                 card.className = `member-card ${d.statusClass} ${cardClass} ${leaveClass}`;
                 card.innerHTML = `
                     <div class="card-top">
                         <div class="card-info">
-                            <div>${d.name} ${d.onLeave ? '<span class="on-leave-badge">휴직</span>' : ''}</div>
-                            <div>${d.role}</div>
+                            <div>${safeName} ${d.onLeave ? '<span class="on-leave-badge">휴직</span>' : ''}</div>
+                            <div>${safeRole}</div>
                         </div>
                         <div class="card-badge">${d.total.toFixed(1)}h</div>
                     </div>
@@ -3196,9 +3312,10 @@ onSnapshot(docRef, (docSnap) => {
             const allReqs = [...window.requests.overtime, ...window.requests.early, ...(window.requests.special || [])];
             allReqs.forEach(r => { 
                 if (r.name === name) { 
-                    const rd = new Date(r.date + 'T00:00:00'); 
+                    const rd = parseLocalDate(r.date);
+                    if (!rd) return;
                     if (rd >= weekStart && rd <= weekEnd) {
-                        t += parseFloat(r.time.replace('h','')) || 0; 
+                        t += parseFloat(String(r.time || '0').replace('h','')) || 0; 
                     }
                 } 
             });
@@ -3207,10 +3324,11 @@ onSnapshot(docRef, (docSnap) => {
             const leaveReqs = window.requests.leave || [];
             leaveReqs.forEach(r => {
                 if (r.name === name) {
-                    const rd = new Date(r.date + 'T00:00:00');
+                    const rd = parseLocalDate(r.date);
+                    if (!rd) return;
                     if (rd >= weekStart && rd <= weekEnd) {
                         // 저장된 값(val)이나 텍스트(time)를 보고 차감
-                        const deduc = r.val || parseFloat(r.time.replace('h','')) || 0;
+                        const deduc = r.val || parseFloat(String(r.time || '0').replace('h','')) || 0;
                         t -= deduc; 
                     }
                 }
@@ -3369,11 +3487,7 @@ onSnapshot(docRef, (docSnap) => {
             const e = document.getElementById('editReqEnd').value;
             
             if(s && e) {
-                const S = new Date(`2000-01-01 ${s}`);
-                const E = new Date(`2000-01-01 ${e}`);
-                if (E < S) E.setDate(E.getDate() + 1);
-                let diff = (E - S) / (1000 * 60 * 60);
-                if (diff >= 9) diff -= 1; // 휴게시간 공제 로직 유지
+                const diff = calcDurationHours(s, e);
                 document.getElementById('editReqDiff').innerText = diff.toFixed(1) + 'h';
             } else {
                 document.getElementById('editReqDiff').innerText = '0.0h';
@@ -3445,7 +3559,8 @@ onSnapshot(docRef, (docSnap) => {
                 const sun = new Date(d.setDate(diff)); sun.setHours(0, 0, 0, 0);
                 const sat = new Date(sun); sat.setDate(sun.getDate() + 6); sat.setHours(23, 59, 59, 999);
                 filteredRequests = filteredRequests.filter(r => {
-                    const rd = new Date(r.date + 'T00:00:00');
+                    const rd = parseLocalDate(r.date);
+                    if (!rd) return false;
                     return rd >= sun && rd <= sat;
                 });
             }
@@ -3473,6 +3588,16 @@ onSnapshot(docRef, (docSnap) => {
                 const base = window.calcBaseHours(member);
                 const total = base + window.calcTotalApprovedTime(r.name);
                 const percent = Math.min((total / 52) * 100, 100);
+                const safeName = escapeHTML(r.name);
+                const safeNick = escapeHTML(r.nick);
+                const safeRank = escapeHTML(r.rank);
+                const safeCode = escapeHTML(r.code);
+                const safeDate = escapeHTML((r.date || '').substring(5));
+                const safeReason = escapeHTML(r.reason);
+                const safeType = escapeHTML(r.type);
+                const safeTime = escapeHTML(r.time);
+                const safeStart = escapeHTML(r.start);
+                const safeEnd = escapeHTML(r.end);
                 
                 let statusColor = 'var(--success)';
                 if (total >= 52) statusColor = 'var(--danger)';
@@ -3499,12 +3624,12 @@ onSnapshot(docRef, (docSnap) => {
                 
                 if (type === 'leave') {
                     // 휴가인 경우: 구분(연차 등) + 차감시간
-                    typeColumnHtml = `<span style="font-size:0.85rem; font-weight:600; color:var(--text-main);">${r.type}</span>`;
-                    timeColumnHtml = `<span style="font-weight:bold; color:var(--success);">- ${r.time}</span>`;
+                    typeColumnHtml = `<span style="font-size:0.85rem; font-weight:600; color:var(--text-main);">${safeType}</span>`;
+                    timeColumnHtml = `<span style="font-weight:bold; color:var(--success);">- ${safeTime}</span>`;
                 } else {
                     // 일반 근무인 경우: 시작~종료 + 소요시간
-                    typeColumnHtml = `<span style="font-size:0.85rem; color:var(--text-sub);">${r.start} ~ ${r.end}</span>`;
-                    timeColumnHtml = `<span style="font-weight:bold; color:var(--primary);">${r.time}</span>`;
+                    typeColumnHtml = `<span style="font-size:0.85rem; color:var(--text-sub);">${safeStart} ~ ${safeEnd}</span>`;
+                    timeColumnHtml = `<span style="font-weight:bold; color:var(--primary);">${safeTime}</span>`;
                 }
 
                 // 4. 관리 버튼 (휴가는 수정 없이 삭제만)
@@ -3515,9 +3640,11 @@ onSnapshot(docRef, (docSnap) => {
                             <i class="fa-solid fa-trash"></i>
                         </button>`;
                 } else {
+                    const editId = Number(r.id);
+                    if (!Number.isFinite(editId)) return;
                     actionBtns = `
                         <div class="action-btn-group">
-                            <button class="btn btn-edit" onclick="openEditPopup('${requestKey}', ${r.id})"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-edit" onclick="openEditPopup('${requestKey}', ${editId})"><i class="fa-solid fa-pen"></i></button>
                             <button class="btn btn-del" onclick="deleteRequest('${requestKey}',${originalIndex})"><i class="fa-solid fa-trash"></i></button>
                         </div>`;
                 }
@@ -3525,12 +3652,12 @@ onSnapshot(docRef, (docSnap) => {
                 // 5. 최종 HTML 삽입
                 b.innerHTML += `
                     <tr>
-                        <td>${r.name}</td>
-                        <td>${r.nick}</td>
-                        <td>${r.rank}</td>
-                        <td>${r.code}</td>
+                        <td>${safeName}</td>
+                        <td>${safeNick}</td>
+                        <td>${safeRank}</td>
+                        <td>${safeCode}</td>
                         <td>${shiftBadge}</td>
-                        <td>${r.date.substring(5)}</td>
+                        <td>${safeDate}</td>
                         <td>${typeColumnHtml}</td>
                         <td>${timeColumnHtml}</td>
                         <td>
@@ -3539,7 +3666,7 @@ onSnapshot(docRef, (docSnap) => {
                                 <div style="width:${percent}%;height:100%;background:${statusColor};border-radius:4px;"></div>
                             </div>
                         </td>
-                        <td>${r.reason}</td>
+                        <td>${safeReason}</td>
                         <td style="text-align:center;">${actionBtns}</td>
                     </tr>
                 `;
@@ -3653,8 +3780,8 @@ onSnapshot(docRef, (docSnap) => {
                 ws_data.push(['순위', '이름', '닉네임/직책', '총 예상 시간', '상태', '잔여 시간']);
                 
                 let data = window.members.map(m => { 
-                    const base=40; 
-                    const approved=window.calcTotalApprovedTime(m.name); 
+                    const base = m.onLeave ? 0 : window.calcBaseHours(m); 
+                    const approved = m.onLeave ? 0 : window.calcTotalApprovedTime(m.name); 
                     return { name:m.name, role:m.role, total:base+approved }; 
                 });
                 data.sort((a,b)=>b.total-a.total);
@@ -3714,7 +3841,8 @@ onSnapshot(docRef, (docSnap) => {
                     const sun = new Date(d.setDate(diff)); sun.setHours(0, 0, 0, 0);
                     const sat = new Date(sun); sat.setDate(sun.getDate() + 6); sat.setHours(23, 59, 59, 999);
                     filteredRequests = filteredRequests.filter(r => {
-                        const rd = new Date(r.date + 'T00:00:00');
+                        const rd = parseLocalDate(r.date);
+                        if (!rd) return false;
                         return rd >= sun && rd <= sat;
                     });
                 }
@@ -3737,7 +3865,9 @@ onSnapshot(docRef, (docSnap) => {
                     ws_data.push(['이름', '닉네임', '직책', '쿠코드', 'SHIFT', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
                     
                     dayRequests.forEach(r => {
-                        const total = 40 + window.calcTotalApprovedTime(r.name);
+                        const member = window.members.find(m => m.name === r.name);
+                        const base = member ? window.calcBaseHours(member) : 40;
+                        const total = base + window.calcTotalApprovedTime(r.name);
                         let status = total >= 52 ? '초과' : (total >= 45 ? '주의' : '안전');
                         ws_data.push([r.name, r.nick, r.rank, r.code, r.shift||'Day조', r.date, r.start, r.end, r.time, total.toFixed(1)+'h', status, r.reason]);
                     });
@@ -3754,7 +3884,9 @@ onSnapshot(docRef, (docSnap) => {
                     ws_data.push(['이름', '닉네임', '직책', '쿠코드', 'SHIFT', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
                     
                     swingRequests.forEach(r => {
-                        const total = 40 + window.calcTotalApprovedTime(r.name);
+                        const member = window.members.find(m => m.name === r.name);
+                        const base = member ? window.calcBaseHours(member) : 40;
+                        const total = base + window.calcTotalApprovedTime(r.name);
                         let status = total >= 52 ? '초과' : (total >= 45 ? '주의' : '안전');
                         ws_data.push([r.name, r.nick, r.rank, r.code, r.shift||'Swing조', r.date, r.start, r.end, r.time, total.toFixed(1)+'h', status, r.reason]);
                     });
@@ -3893,13 +4025,15 @@ onSnapshot(docRef, (docSnap) => {
             const today = getLocalTodayDate();
 
             for(let i=firstDay-1; i>=0; i--) {
-                container.appendChild(createDay(daysInPrev-i, `${year}-${String(month).padStart(2,'0')}-${String(daysInPrev-i).padStart(2,'0')}`, true));
+                const prevDate = new Date(year, month - 1, daysInPrev - i);
+                container.appendChild(createDay(daysInPrev - i, formatDateYMD(prevDate), true));
             }
             for(let d=1; d<=daysInMonth; d++) {
                 container.appendChild(createDay(d, `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, false));
             }
             for(let i=1; i<=42-container.children.length; i++) {
-                container.appendChild(createDay(i, `${year}-${String(month+2).padStart(2,'0')}-${String(i).padStart(2,'0')}`, true));
+                const nextDate = new Date(year, month + 1, i);
+                container.appendChild(createDay(i, formatDateYMD(nextDate), true));
             }
 
             function createDay(n, date, other) {
@@ -3917,15 +4051,18 @@ onSnapshot(docRef, (docSnap) => {
 
                 allEvents.forEach(r => {
                     if(r.date === date) {
+                        const eventType = r.type === 'early' ? 'early' : (r.type === 'special' ? 'special' : 'overtime');
                         let icon = 'clock';
-                        if(r.type === 'early') icon = 'sun';
-                        if(r.type === 'special') icon = 'calendar-plus';
+                        if(eventType === 'early') icon = 'sun';
+                        if(eventType === 'special') icon = 'calendar-plus';
+                        const safeEventName = escapeHTML(r.name);
+                        const safeEventTime = escapeHTML(r.time);
 
                         evDiv.innerHTML += `
-                            <div class="calendar-event ${r.type}">
+                            <div class="calendar-event ${eventType}">
                                 <i class="fa-solid fa-${icon}"></i>
-                                <span class="calendar-event-name">${r.name}</span>
-                                <span class="calendar-event-time">${r.time}</span>
+                                <span class="calendar-event-name">${safeEventName}</span>
+                                <span class="calendar-event-time">${safeEventTime}</span>
                             </div>
                         `;
                     }
@@ -4011,7 +4148,7 @@ onSnapshot(docRef, (docSnap) => {
         window.deleteMember = function(index) {
             // 기존 pendingAction을 활용해 삭제 유형을 'member_delete'로 지정
             pendingAction = { type: 'member_delete', target: null, index: index };
-            openSecurityModal("🗑️ 멤버 삭제", "정말 삭제하시겠습니까?<br><span style='color:var(--danger)'>복구할 수 없습니다.</span><br><span style='color:#27D3F5; font-size:0.8rem; font-weight:600;'>비밀번호 : 1234</span>");
+            openSecurityModal("🗑️ 멤버 삭제", "정말 삭제하시겠습니까?<br><span style='color:var(--danger)'>복구할 수 없습니다.</span><br><span style='color:#27D3F5; font-size:0.8rem; font-weight:600;'>관리자 PIN 필요</span>");
         };
 		
 		//  정렬 상태 저장 변수
@@ -4102,6 +4239,9 @@ onSnapshot(docRef, (docSnap) => {
                 const nick = m.role.split(' ')[0];
                 const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
                 const currentShift = m.shift || 'day'; // 값이 없으면 기본 day
+                const safeName = escapeHTML(m.name);
+                const safeNick = escapeHTML(nick);
+                const safeCode = escapeHTML(m.code);
                 
                 if (!m.daysOff) m.daysOff = [];
                 
@@ -4125,11 +4265,11 @@ onSnapshot(docRef, (docSnap) => {
                 
                 tbody.innerHTML += `
                     <tr style="${rowStyle}">
-                        <td style="font-weight:700;">${m.name}</td>
-                        <td>${nick}</td>
+                        <td style="font-weight:700;">${safeName}</td>
+                        <td>${safeNick}</td>
                         <td><span class="status-badge" style="border:1px solid var(--border); color:var(--text-sub); width:auto; padding:2px 8px;">${rank}</span></td>
                         <td>${shiftSelectHTML}</td>
-                        <td style="font-family:monospace; color:var(--text-sub);">${m.code}</td>
+                        <td style="font-family:monospace; color:var(--text-sub);">${safeCode}</td>
                         <td><div style="display:flex; gap:4px; flex-wrap:wrap;">${daysOffHTML}</div></td>
                         <td style="text-align:center; vertical-align:middle;">
                             <input type="checkbox" class="leave-checkbox" ${isOnLeave ? 'checked' : ''} 
@@ -4162,7 +4302,12 @@ onSnapshot(docRef, (docSnap) => {
             const el = document.createElement('div');
             const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
             el.className = `toast ${type}`;
-            el.innerHTML = `<i class="fa-solid ${icon}"></i><span>${msg}</span>`;
+            const iconEl = document.createElement('i');
+            iconEl.className = `fa-solid ${icon}`;
+            const textEl = document.createElement('span');
+            textEl.textContent = String(msg ?? '');
+            el.appendChild(iconEl);
+            el.appendChild(textEl);
             container.appendChild(el);
             setTimeout(() => {
                 el.style.opacity = '0';
@@ -4268,10 +4413,6 @@ onSnapshot(docRef, (docSnap) => {
             }
         }
 
-        // 화면 크기 변경 감지
-        window.addEventListener('resize', adjustForScreenSize);
-        window.addEventListener('orientationchange', adjustForScreenSize);
-		
 		// 화면 크기 변경 감지
         window.addEventListener('resize', adjustForScreenSize);
         window.addEventListener('orientationchange', adjustForScreenSize);
@@ -4327,7 +4468,7 @@ window.syncAllShiftsToFirebase = async function() {
     // window.initSelects(); // ← 이 줄 삭제 또는 주석 처리
     
     const today = getLocalTodayDate();
-    const opDate = new Date(today); 
+    const opDate = parseLocalDate(today) || new Date(); 
     
     // 달력 초기화
     window.initCalendar('ot', opDate); 
@@ -4400,7 +4541,7 @@ window.syncAllShiftsToFirebase = async function() {
         }
     }
     
-    const popupDate = new Date(today);
+    const popupDate = parseLocalDate(today) || new Date();
     window.initCalendar('editReq', popupDate);
     window.initTimePicker('editReqStart', '09:00');
     window.initTimePicker('editReqEnd', '18:00');
@@ -4444,7 +4585,7 @@ window.syncAllShiftsToFirebase = async function() {
                     <div class="custom-date-picker">
                         <div class="modern-input-wrapper input-with-icon">
                             <i class="fa-solid fa-calendar-check"></i>
-                            <div class="custom-date-input" onclick="toggleCalendar('editReq')" style="height:50px;">
+                            <div class="custom-date-input" onclick="toggleCalendar('editReq', event)" style="height:50px;">
                                 <span class="date-display" id="editReqDateDisplay">날짜 선택</span>
                                 <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
                             </div>
@@ -4467,7 +4608,7 @@ window.syncAllShiftsToFirebase = async function() {
                         <div class="custom-time-picker">
                             <div class="modern-input-wrapper input-with-icon">
                                 <i class="fa-solid fa-play"></i>
-                                <div class="custom-time-input" onclick="toggleTimePicker('editReqStart')" style="height:50px;">
+                                <div class="custom-time-input" onclick="toggleTimePicker('editReqStart', event)" style="height:50px;">
                                     <span class="time-display" id="editReqStartDisplay">00:00</span>
                                     <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
                                 </div>
@@ -4489,7 +4630,7 @@ window.syncAllShiftsToFirebase = async function() {
                         <div class="custom-time-picker">
                             <div class="modern-input-wrapper input-with-icon">
                                 <i class="fa-solid fa-stop"></i>
-                                <div class="custom-time-input" onclick="toggleTimePicker('editReqEnd')" style="height:50px;">
+                                <div class="custom-time-input" onclick="toggleTimePicker('editReqEnd', event)" style="height:50px;">
                                     <span class="time-display" id="editReqEndDisplay">00:00</span>
                                     <i class="fa-solid fa-chevron-down" style="font-size:0.8rem;"></i>
                                 </div>
@@ -4534,3 +4675,4 @@ window.syncAllShiftsToFirebase = async function() {
     </div>
 </body>
 </html>
+
