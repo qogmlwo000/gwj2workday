@@ -125,15 +125,94 @@
         @keyframes pulse-green { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         @keyframes pulse-yellow { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
 
-        .reset-timer-container {
-            display: flex; align-items: center; gap: 10px; padding: 8px 16px; border-radius: 12px;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.05));
-            border: 1px solid rgba(99, 102, 241, 0.2); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
-        }
-        .reset-label { font-size: 0.75rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
-        .timer-digits { font-family: var(--font-main); font-size: 1.1rem; font-weight: 800; color: var(--primary); font-variant-numeric: tabular-nums; letter-spacing: 1px; text-shadow: 0 0 10px rgba(99, 102, 241, 0.4); }
-        .timer-icon { color: var(--primary); font-size: 0.9rem; animation: spin-slow 10s linear infinite; }
-        @keyframes spin-slow { 100% { transform: rotate(360deg); } }
+        /* 타이머 컨테이너 (Glassmorphism & 알약 디자인) */
+.reset-timer-container {
+    display: flex; align-items: center; gap: 12px; 
+    padding: 6px 8px 6px 16px; 
+    border-radius: 100px; 
+    background: var(--bg-glass);
+    border: 1px solid var(--border); 
+    box-shadow: var(--card-shadow);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.reset-timer-container:hover {
+    border-color: var(--primary);
+    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.15);
+    transform: translateY(-1px);
+}
+
+/* 타이머 헤더 (아이콘 및 라벨) */
+.timer-header { display: flex; align-items: center; gap: 8px; }
+.timer-icon { 
+    color: var(--primary); font-size: 1.1rem; 
+    animation: pulse-icon 2s infinite; 
+}
+@keyframes pulse-icon {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.15); opacity: 1; text-shadow: 0 0 8px rgba(99, 102, 241, 0.4); }
+}
+.reset-label { 
+    font-size: 0.75rem; font-weight: 700; color: var(--text-sub); 
+    letter-spacing: 0.5px; white-space: nowrap;
+}
+
+/* 구분선 */
+.timer-divider { width: 1px; height: 24px; background: var(--border); }
+
+/* 타이머 블록 그룹 */
+.timer-blocks { display: flex; gap: 8px; }
+.timer-block {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 12px 4px 4px;
+    border-radius: 50px;
+    background: var(--bg-nav);
+    border: 1px solid var(--border);
+    transition: 0.2s;
+}
+
+/* DAY / SWING 개별 스타일 */
+.timer-block.day-block { border-color: rgba(245, 158, 11, 0.2); background: rgba(245, 158, 11, 0.05); }
+.timer-block.swing-block { border-color: rgba(99, 102, 241, 0.2); background: rgba(99, 102, 241, 0.05); }
+
+.timer-block:hover { background: var(--bg-body); }
+
+/* 칩 (뱃지) 스타일 */
+.timer-chip {
+    display: flex; align-items: center; gap: 4px;
+    border-radius: 50px; padding: 4px 10px;
+    font-size: 0.65rem; font-weight: 800; letter-spacing: 0.5px;
+}
+.timer-chip.day { color: #f59e0b; background: rgba(245, 158, 11, 0.15); }
+.timer-chip.swing { color: #6366f1; background: rgba(99, 102, 241, 0.15); }
+
+/* 숫자 영역 (고정폭 폰트로 덜컹거림 방지) */
+.timer-digits {
+    font-family: var(--font-main); /* Noto Sans 폰트로 변경 */
+    font-variant-numeric: tabular-nums; /* 숫자가 바뀔 때 덜컹거림 방지 */
+    font-size: 0.85rem; font-weight: 800; 
+    letter-spacing: -0.5px;
+}
+.timer-block.day-block .timer-digits { color: #d97706; }
+.timer-block.swing-block .timer-digits { color: #4f46e5; }
+
+/* 다크모드 텍스트 색상 최적화 */
+[data-theme="dark"] .timer-block.day-block .timer-digits { color: #fbbf24; }
+[data-theme="dark"] .timer-block.swing-block .timer-digits { color: #818cf8; }
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+    .reset-timer-container {
+        flex-direction: column;
+        border-radius: 16px;
+        padding: 16px;
+        align-items: stretch;
+    }
+    .timer-header { justify-content: center; margin-bottom: 4px; }
+    .timer-divider { display: none; }
+    .timer-blocks { flex-direction: column; }
+    .timer-block { justify-content: space-between; padding: 6px 16px 6px 6px; }
+}
 
         .theme-toggle-container { display: flex; align-items: center; gap: 12px; }
         .theme-toggle {
@@ -841,7 +920,7 @@
     <main id="mainArea">
         <header>
     <h1 id="pageTitle">대시보드</h1>
-    <div style="display:flex; gap:15px; align-items:center;">
+    <div style="display:flex; gap:15px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
         <div id="connection-status" class="connection-badge status-loading">
             <span class="conn-dot"></span>
             <span id="conn-text">연결 중...</span>
@@ -849,13 +928,24 @@
 
         <!-- 🆕 여기에 타이머 추가 -->
         <div class="reset-timer-container">
-            <span class="reset-label">현재 시각</span>
-            <div class="timer-digits">
-                <span id="cd-days">일</span>
-                <span id="cd-hours">00</span>:<span id="cd-min">00</span>:<span id="cd-sec">00</span>
-            </div>
-            <i class="fa-solid fa-clock timer-icon"></i>
+    <div class="timer-header">
+        <i class="fa-solid fa-stopwatch timer-icon"></i>
+        <span class="reset-label">주 40시간 초기화까지</span>
+    </div>
+    
+    <div class="timer-divider"></div>
+    
+    <div class="timer-blocks">
+        <div class="timer-block day-block">
+            <span class="timer-chip day"><i class="fa-solid fa-sun"></i> DAY</span>
+            <span id="cd-day" class="timer-digits">0일 00:00:00</span>
         </div>
+        <div class="timer-block swing-block">
+            <span class="timer-chip swing"><i class="fa-solid fa-moon"></i> SWING</span>
+            <span id="cd-swing" class="timer-digits">0일 00:00:00</span>
+        </div>
+    </div>
+</div>
 
         <div class="theme-toggle-container">
             <div class="theme-toggle" onclick="toggleTheme()">
@@ -1962,8 +2052,7 @@
                                 <th width="15%" class="sortable-th" onclick="sortTeam('nick')">닉네임 <i id="sort-icon-nick" class="fa-solid fa-sort sort-icon"></i></th>
                                 <th width="10%" class="sortable-th" onclick="sortTeam('role')">직책 <i id="sort-icon-role" class="fa-solid fa-sort sort-icon"></i></th>
                                 <th width="10%" class="sortable-th" onclick="sortTeam('shift')">근무조 <i id="sort-icon-shift" class="fa-solid fa-sort sort-icon"></i></th>
-                                <th width="15%" class="sortable-th" onclick="sortTeam('code')">쿠코드 <i id="sort-icon-code" class="fa-solid fa-sort sort-icon"></i></th>
-                                <th width="20%">휴무일 설정</th>
+                                <th width="35%" class="sortable-th" onclick="sortTeam('code')">쿠코드 <i id="sort-icon-code" class="fa-solid fa-sort sort-icon"></i></th>
                                 <th width="8%" style="text-align:center;">휴직</th>
                                 <th width="7%">관리</th>
                             </tr>
@@ -2106,22 +2195,45 @@
         }
         
         // 🆕 Weekly Reset Timer Function
-        function updateResetTimer() {
+        function getKstNow() {
             const now = new Date();
-            const days = ['일', '월', '화', '수', '목', '금', '토'];
-            
-            // 라벨 변경 (주간 초기화 -> 현재 시각)
-            const label = document.querySelector('.reset-label');
-            if(label) label.textContent = "현재 시각";
-            
-            // 시계 표시 (요일 HH:MM:SS)
-            // HTML 구조상 cd-days 자리에 요일을 넣습니다.
-            const dayEl = document.getElementById('cd-days');
-            if(dayEl) dayEl.textContent = days[now.getDay()];
-            
-            document.getElementById('cd-hours').textContent = String(now.getHours()).padStart(2, '0');
-            document.getElementById('cd-min').textContent = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('cd-sec').textContent = String(now.getSeconds()).padStart(2, '0');
+            const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
+            return new Date(utcMs + (9 * 60 * 60000));
+        }
+
+        function getNextShiftResetDate(shiftType, now = getKstNow()) {
+            const resetHour = shiftType === 'swing' ? 9 : 0;
+            const target = new Date(now);
+            const daysUntilSunday = (7 - now.getDay()) % 7;
+            target.setDate(now.getDate() + daysUntilSunday);
+            target.setHours(resetHour, 0, 0, 0);
+
+            if (target <= now) {
+                target.setDate(target.getDate() + 7);
+            }
+
+            return target;
+        }
+
+        function formatCountdown(diffMs) {
+            const totalSec = Math.max(0, Math.floor(diffMs / 1000));
+            const days = Math.floor(totalSec / 86400);
+            const hours = Math.floor((totalSec % 86400) / 3600);
+            const minutes = Math.floor((totalSec % 3600) / 60);
+            const seconds = totalSec % 60;
+            return `${days}일 ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function updateResetTimer() {
+            const nowKst = getKstNow();
+            const dayResetAt = getNextShiftResetDate('day', nowKst);
+            const swingResetAt = getNextShiftResetDate('swing', nowKst);
+
+            const dayEl = document.getElementById('cd-day');
+            const swingEl = document.getElementById('cd-swing');
+
+            if (dayEl) dayEl.textContent = formatCountdown(dayResetAt - nowKst);
+            if (swingEl) swingEl.textContent = formatCountdown(swingResetAt - nowKst);
         }
 
         function getLocalTodayDate() {
@@ -2168,6 +2280,95 @@
 
             if (hours >= 9) hours -= 1;
             return hours;
+        }
+
+        function getShiftType(value) {
+            if (value === 'day' || value === 'swing') return value;
+            const raw = String(value || '').toLowerCase();
+            return raw.includes('swing') ? 'swing' : 'day';
+        }
+
+        function getWeekStartDay(member) {
+            const dayMap = { '일': 0, '월': 1, '화': 2, '수': 3, '목': 4, '금': 5, '토': 6 };
+            const offDays = (member?.daysOff || [])
+                .map(d => dayMap[d])
+                .filter(Number.isInteger);
+            let startDay = 0;
+
+            if (offDays.length > 0) {
+                for (let i = 0; i < 7; i++) {
+                    const nextDay = (i + 1) % 7;
+                    if (offDays.includes(i) && !offDays.includes(nextDay)) {
+                        startDay = nextDay;
+                        break;
+                    }
+                }
+            }
+
+            return startDay;
+        }
+
+        function getResetHourByShift(shiftType) {
+            return shiftType === 'swing' ? 9 : 0;
+        }
+
+        function getWeekRangeForMember(member, now = new Date()) {
+            const startDay = getWeekStartDay(member);
+            const shiftType = getShiftType(member?.shift);
+            const resetHour = getResetHourByShift(shiftType);
+
+            const weekStart = new Date(now);
+            const distance = (now.getDay() - startDay + 7) % 7;
+            weekStart.setDate(now.getDate() - distance);
+            weekStart.setHours(resetHour, 0, 0, 0);
+
+            if (now < weekStart) {
+                weekStart.setDate(weekStart.getDate() - 7);
+            }
+
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekStart.getDate() + 7);
+            weekEnd.setMilliseconds(weekEnd.getMilliseconds() - 1);
+
+            return { weekStart, weekEnd };
+        }
+
+        function getRequestDateTime(request, fallbackShiftType = 'day') {
+            const baseDate = parseLocalDate(request?.date);
+            if (!baseDate) return null;
+
+            let referenceTime = request?.start;
+            if (!referenceTime) {
+                const shiftType = getShiftType(request?.shiftType || fallbackShiftType || request?.shift);
+                referenceTime = shiftType === 'swing' ? '19:00' : '09:00';
+            }
+
+            const minutes = parseTimeToMinutes(referenceTime);
+            if (minutes === null) return baseDate;
+
+            const refDate = new Date(baseDate);
+            refDate.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0);
+            return refDate;
+        }
+
+        function findMemberByRequest(request) {
+            if (!request || !Array.isArray(window.members)) return null;
+            if (request.code) {
+                const byCode = window.members.find(m => m.code === request.code);
+                if (byCode) return byCode;
+            }
+            return window.members.find(m => m.name === request.name) || null;
+        }
+
+        function isRequestInCurrentWeek(request, now = new Date()) {
+            const member = findMemberByRequest(request) || {
+                shift: getShiftType(request?.shiftType || request?.shift),
+                daysOff: []
+            };
+            const { weekStart, weekEnd } = getWeekRangeForMember(member, now);
+            const reqDateTime = getRequestDateTime(request, member.shift);
+            if (!reqDateTime) return false;
+            return reqDateTime >= weekStart && reqDateTime <= weekEnd;
         }
 
         function escapeHTML(value) {
@@ -3275,36 +3476,11 @@ window.closeSecurityModal = function() {
         };
 
         window.calcTotalApprovedTime = function(name) {
-            // 1. 멤버 및 휴무일 기준 주간 범위 찾기
+            // 1. 멤버 기준 주간 범위 찾기
             const m = window.members.find(x => x.name === name);
             if(!m) return 0;
-
-            const dayMap = { '일':0, '월':1, '화':2, '수':3, '목':4, '금':5, '토':6 };
-            let offDays = (m.daysOff || []).map(d => dayMap[d]);
-            let startDay = 0; 
-
-            if (offDays.length > 0) {
-                for (let i = 0; i < 7; i++) {
-                    let nextDay = (i + 1) % 7;
-                    if (offDays.includes(i) && !offDays.includes(nextDay)) {
-                        startDay = nextDay;
-                        break;
-                    }
-                }
-            }
-
-            const d = new Date();
-            const currentDay = d.getDay();
-            let distance = currentDay - startDay;
-            if (distance < 0) distance += 7;
-            
-            const weekStart = new Date(d);
-            weekStart.setDate(d.getDate() - distance);
-            weekStart.setHours(0, 0, 0, 0);
-            
-            const weekEnd = new Date(weekStart);
-            weekEnd.setDate(weekStart.getDate() + 6);
-            weekEnd.setHours(23, 59, 59, 999);
+            const { weekStart, weekEnd } = getWeekRangeForMember(m, new Date());
+            const fallbackShift = getShiftType(m.shift);
             
             let t = 0;
             
@@ -3312,7 +3488,7 @@ window.closeSecurityModal = function() {
             const allReqs = [...window.requests.overtime, ...window.requests.early, ...(window.requests.special || [])];
             allReqs.forEach(r => { 
                 if (r.name === name) { 
-                    const rd = parseLocalDate(r.date);
+                    const rd = getRequestDateTime(r, fallbackShift);
                     if (!rd) return;
                     if (rd >= weekStart && rd <= weekEnd) {
                         t += parseFloat(String(r.time || '0').replace('h','')) || 0; 
@@ -3324,7 +3500,7 @@ window.closeSecurityModal = function() {
             const leaveReqs = window.requests.leave || [];
             leaveReqs.forEach(r => {
                 if (r.name === name) {
-                    const rd = parseLocalDate(r.date);
+                    const rd = getRequestDateTime(r, fallbackShift);
                     if (!rd) return;
                     if (rd >= weekStart && rd <= weekEnd) {
                         // 저장된 값(val)이나 텍스트(time)를 보고 차감
@@ -3553,16 +3729,8 @@ window.closeSecurityModal = function() {
                 const target = getShiftedDate(1);
                 filteredRequests = filteredRequests.filter(r => r.date === target);
             } else if (filter === 'week') {
-                const d = new Date();
-                const day = d.getDay();
-                const diff = d.getDate() - day;
-                const sun = new Date(d.setDate(diff)); sun.setHours(0, 0, 0, 0);
-                const sat = new Date(sun); sat.setDate(sun.getDate() + 6); sat.setHours(23, 59, 59, 999);
-                filteredRequests = filteredRequests.filter(r => {
-                    const rd = parseLocalDate(r.date);
-                    if (!rd) return false;
-                    return rd >= sun && rd <= sat;
-                });
+                const now = new Date();
+                filteredRequests = filteredRequests.filter(r => isRequestInCurrentWeek(r, now));
             }
 
             if (shiftFilter !== 'all') {
@@ -3835,16 +4003,8 @@ window.closeSecurityModal = function() {
                     const target = getShiftedDate(1);
                     filteredRequests = filteredRequests.filter(r => r.date === target);
                 } else if (filter === 'week') {
-                    const d = new Date();
-                    const day = d.getDay(); 
-                    const diff = d.getDate() - day;
-                    const sun = new Date(d.setDate(diff)); sun.setHours(0, 0, 0, 0);
-                    const sat = new Date(sun); sat.setDate(sun.getDate() + 6); sat.setHours(23, 59, 59, 999);
-                    filteredRequests = filteredRequests.filter(r => {
-                        const rd = parseLocalDate(r.date);
-                        if (!rd) return false;
-                        return rd >= sun && rd <= sat;
-                    });
+                    const now = new Date();
+                    filteredRequests = filteredRequests.filter(r => isRequestInCurrentWeek(r, now));
                 }
 
                 const shiftFilter = window.shiftFilters[type] || 'all';
@@ -4071,28 +4231,6 @@ window.closeSecurityModal = function() {
             }
         };
 
-        window.toggleDayOff = async function(memberIndex, day) {
-            const member = window.members[memberIndex];
-            
-            if (!member.daysOff) {
-                member.daysOff = [];
-            }
-            
-            const index = member.daysOff.indexOf(day);
-            if (index > -1) {
-                member.daysOff.splice(index, 1);
-            } else {
-                member.daysOff.push(day);
-            }
-            
-            try {
-                await updateDoc(docRef, { members: window.members });
-                showToast(`${member.name}의 휴무일이 업데이트되었습니다`, 'success');
-            } catch(e) {
-                alert("Error: " + e.message);
-            }
-        };
-		
 		window.toggleLeaveStatus = async function(memberIndex, isOnLeave) {
             const member = window.members[memberIndex];
             member.onLeave = isOnLeave;
@@ -4233,8 +4371,6 @@ window.closeSecurityModal = function() {
             const tbody = table.querySelector('tbody');
             tbody.innerHTML = '';
             
-            const daysOfWeek = ['월', '화', '수', '목', '금', '토', '일'];
-            
             window.members.forEach((m, index) => {
                 const nick = m.role.split(' ')[0];
                 const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
@@ -4242,14 +4378,6 @@ window.closeSecurityModal = function() {
                 const safeName = escapeHTML(m.name);
                 const safeNick = escapeHTML(nick);
                 const safeCode = escapeHTML(m.code);
-                
-                if (!m.daysOff) m.daysOff = [];
-                
-                // 휴무일 버튼 생성
-                const daysOffHTML = daysOfWeek.map(day => {
-                    const isSelected = m.daysOff.includes(day);
-                    return `<button class="filter-btn ${isSelected ? 'active' : ''}" onclick="toggleDayOff(${index}, '${day}')" style="padding:6px 10px; font-size:0.8rem; border-radius:6px; min-width:36px;">${day}</button>`;
-                }).join('');
                 
                 // 근무조 변경 셀렉트 박스 생성
                 const shiftSelectHTML = `
@@ -4270,7 +4398,6 @@ window.closeSecurityModal = function() {
                         <td><span class="status-badge" style="border:1px solid var(--border); color:var(--text-sub); width:auto; padding:2px 8px;">${rank}</span></td>
                         <td>${shiftSelectHTML}</td>
                         <td style="font-family:monospace; color:var(--text-sub);">${safeCode}</td>
-                        <td><div style="display:flex; gap:4px; flex-wrap:wrap;">${daysOffHTML}</div></td>
                         <td style="text-align:center; vertical-align:middle;">
                             <input type="checkbox" class="leave-checkbox" ${isOnLeave ? 'checked' : ''} 
                                    onchange="toggleLeaveStatus(${index}, this.checked)">
