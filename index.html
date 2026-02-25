@@ -50,7 +50,7 @@
         }
 
         * { box-sizing: border-box; outline: none; }
-        body { font-family: var(--font-main); background-color: var(--bg-body); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; transition: 0.3s; user-select: none; }
+        body { font-family: var(--font-main); background-color: var(--bg-body); color: var(--text-main); margin: 0; display: flex; min-height: 100vh; min-height: 100dvh; height: 100vh; height: 100dvh; overflow: hidden; transition: 0.3s; user-select: none; }
 
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg-body); }
@@ -106,7 +106,7 @@
         .nav-item i { font-size: 1.1rem; transition: transform 0.3s; }
         .nav-item:hover i { transform: scale(1.2); }
 
-        main { flex: 1; padding: 40px; overflow-y: auto; }
+        main { flex: 1; padding: 40px; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         
         .connection-badge {
@@ -433,15 +433,28 @@
         
         @media (max-width: 968px) {
             body { flex-direction: column; }
-            nav { width: 100%; flex-direction: row; padding: 16px; border-right: none; border-bottom: 1px solid var(--border); overflow-x: auto; }
+            nav { width: 100%; flex-direction: row; padding: calc(12px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) 12px calc(16px + env(safe-area-inset-left)); border-right: none; border-bottom: 1px solid var(--border); overflow-x: auto; }
             .logo { margin-bottom: 0; margin-right: 20px; padding: 12px; min-width: 150px; }
             .nav-item { white-space: nowrap; margin-bottom: 0; margin-right: 8px; }
-            main { padding: 20px; }
+            main { padding: 20px 16px calc(20px + env(safe-area-inset-bottom)) 16px; }
             .split-layout { grid-template-columns: 1fr; }
             .analysis-panel { position: static; }
         }
 		
 		@media (max-width: 768px) {
+            nav {
+                scrollbar-width: none;
+            }
+
+            nav::-webkit-scrollbar {
+                display: none;
+            }
+
+            .nav-item {
+                min-height: 44px;
+                flex-shrink: 0;
+            }
+
             /* 대시보드 카드 */
             .dash-grid {
                 grid-template-columns: 1fr;
@@ -480,11 +493,55 @@
             /* 테이블 */
             .weekly-table {
                 font-size: 0.85rem;
+                border-collapse: separate;
+                border-spacing: 0 10px;
             }
 
-            .weekly-table th,
-            .weekly-table td {
-                padding: 10px 8px;
+            .weekly-table thead {
+                display: none;
+            }
+
+            .weekly-table tbody {
+                display: block;
+            }
+
+            .weekly-table tbody tr {
+                display: block;
+                margin-bottom: 10px;
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                background: var(--bg-nav);
+                overflow: hidden;
+            }
+
+            .weekly-table tbody td {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                width: 100%;
+                padding: 12px 10px;
+                border-bottom: 1px dashed var(--border);
+                text-align: right !important;
+                word-break: break-word;
+            }
+
+            .weekly-table tbody td:last-child {
+                border-bottom: none;
+            }
+
+            .weekly-table tbody td::before {
+                content: attr(data-label);
+                flex: 0 0 92px;
+                color: var(--text-sub);
+                font-size: 0.75rem;
+                font-weight: 700;
+                text-align: left;
+                text-transform: none;
+            }
+
+            .weekly-table tbody td > * {
+                max-width: calc(100% - 96px);
             }
 
             /* 폼 레이아웃 */
@@ -564,6 +621,16 @@
             .action-buttons .btn {
                 flex: 1;
             }
+
+            .btn,
+            .filter-btn,
+            .submit-btn {
+                min-height: 44px;
+            }
+
+            .toast-container {
+                bottom: calc(16px + env(safe-area-inset-bottom));
+            }
         }
 
         /* 아주 작은 화면 (갤럭시 폴드 등) */
@@ -583,6 +650,37 @@
 
             .form-row {
                 grid-template-columns: 1fr;
+            }
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            .nav-item:hover {
+                background: transparent;
+                color: var(--text-sub);
+                transform: none;
+            }
+
+            .nav-item:hover::before {
+                height: 0;
+            }
+
+            .nav-item:hover i {
+                transform: none;
+            }
+
+            .widget-card:hover,
+            .btn:hover,
+            .submit-btn:hover,
+            .time-preset-btn:hover,
+            .time-confirm-btn:hover,
+            .member-card.manager-card:hover,
+            .member-card.captain-card:hover,
+            .calendar-view-day:hover,
+            .calendar-view-nav button:hover,
+            .calendar-view-today-btn:hover,
+            .calendar-event:hover {
+                transform: none;
+                box-shadow: none;
             }
         }
 
@@ -769,32 +867,6 @@
             accent-color: var(--primary);
         }
 		
-		/* 모바일 스와이프 효과 */
-        main {
-            touch-action: pan-y;
-            position: relative;
-        }
-
-        .swipe-indicator {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: 1000;
-            pointer-events: none;
-        }
-
-        .swipe-indicator.show {
-            opacity: 1;
-        }
-
         @media (max-width: 768px) {
             .nav-item {
                 font-size: 0.85rem;
@@ -2442,6 +2514,23 @@ onSnapshot(docRef, (docSnap) => {
           "페이지를 새로고침해주세요.");
 });
 
+        function applyResponsiveTableLabels() {
+            document.querySelectorAll('.weekly-table').forEach(table => {
+                const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.replace(/\s+/g, ' ').trim());
+                if (headers.length === 0) return;
+
+                table.querySelectorAll('tbody tr').forEach(row => {
+                    Array.from(row.children).forEach((cell, idx) => {
+                        if (!(cell instanceof HTMLElement)) return;
+                        const label = headers[idx] || `항목 ${idx + 1}`;
+                        cell.setAttribute('data-label', label);
+                    });
+                });
+            });
+        }
+
+        window.applyResponsiveTableLabels = applyResponsiveTableLabels;
+
         function refreshUI() {
             renderDashboard();
             renderRequestTable('overtime');
@@ -2460,6 +2549,7 @@ onSnapshot(docRef, (docSnap) => {
             if(document.getElementById('earlyAnalysis').style.display !== 'none') updateAnalysis('early');
             if(document.getElementById('specialAnalysis').style.display !== 'none') updateAnalysis('special');
             if(document.getElementById('leaveAnalysis') && document.getElementById('leaveAnalysis').style.display !== 'none') updateAnalysis('leave');
+            applyResponsiveTableLabels();
         }
 		
 		// --- Helper Functions ---
@@ -3025,6 +3115,7 @@ window.closeSecurityModal = function() {
             if(t==='early') renderRequestTable('early');
 			if(t==='leave') renderRequestTable('leave');
             if(t==='special') renderRequestTable('special');
+            applyResponsiveTableLabels();
         };
 		
 		window.initCalendar = function(type, date) {
@@ -3372,6 +3463,7 @@ window.closeSecurityModal = function() {
                 <div class="widget-card" style="border-color:var(--warning)"><div class="widget-icon" style="background:var(--warning)"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="widget-text"><div>주의 (45h+)</div><div>${cntWarning}</div></div></div>
                 <div class="widget-card"><div class="widget-icon" style="background:var(--success)"><i class="fa-solid fa-check"></i></div><div class="widget-text"><div>안전</div><div>${cntSafe}</div></div></div>
             `;
+            applyResponsiveTableLabels();
         };
 
         window.toggleFilter = function(type) {
@@ -3839,6 +3931,7 @@ window.closeSecurityModal = function() {
                     </tr>
                 `;
             });
+            applyResponsiveTableLabels();
         };
 
         window.setRequestDateFilter = function(type, filter) {
@@ -4412,6 +4505,7 @@ window.closeSecurityModal = function() {
             });
 
             updateSortIcons(); 
+            applyResponsiveTableLabels();
         };
 
         // 근무조 변경 즉시 저장 함수
@@ -4450,81 +4544,10 @@ window.closeSecurityModal = function() {
             updateAnalysis('leave');
         };
 		
-		// 스와이프 탭 전환 기능
-        let touchStartX = 0;
-        let touchEndX = 0;
-        let touchStartY = 0;
-        let touchEndY = 0;
-
-        function handleSwipe() {
-            const swipeThreshold = 50;
-            const horizontalSwipe = Math.abs(touchEndX - touchStartX);
-            const verticalSwipe = Math.abs(touchEndY - touchStartY);
-            
-            // 수평 스와이프가 수직보다 크면 탭 전환
-            if (horizontalSwipe > verticalSwipe && horizontalSwipe > swipeThreshold) {
-                const tabs = ['dashboard', 'calendar', 'weekly', 'overtime', 'early', 'leave', 'special', 'team'];
-                const activeTab = document.querySelector('.nav-item.active');
-                const activeIndex = Array.from(document.querySelectorAll('.nav-item')).indexOf(activeTab);
-                
-                let nextIndex;
-                if (touchEndX < touchStartX) {
-                    // 왼쪽으로 스와이프 - 다음 탭
-                    nextIndex = (activeIndex + 1) % tabs.length;
-                    showSwipeIndicator('◀ ' + getTabName(tabs[nextIndex]));
-                } else {
-                    // 오른쪽으로 스와이프 - 이전 탭
-                    nextIndex = (activeIndex - 1 + tabs.length) % tabs.length;
-                    showSwipeIndicator(getTabName(tabs[nextIndex]) + ' ▶');
-                }
-                
-                setTimeout(() => {
-                    document.querySelectorAll('.nav-item')[nextIndex].click();
-                }, 100);
-            }
-        }
-
-        function getTabName(tabId) {
-            const names = {
-                dashboard: '대시보드',
-                calendar: '캘린더',
-                weekly: '주간현황',
-                overtime: '연장',
-                early: '조출',
-                leave: '휴가',
-                special: '특근',
-                team: '팀설정'
-            };
-            return names[tabId] || tabId;
-        }
-
-        function showSwipeIndicator(text) {
-            let indicator = document.querySelector('.swipe-indicator');
-            if (!indicator) {
-                indicator = document.createElement('div');
-                indicator.className = 'swipe-indicator';
-                document.body.appendChild(indicator);
-            }
-            indicator.textContent = text;
-            indicator.classList.add('show');
-            setTimeout(() => indicator.classList.remove('show'), 800);
-        }
-
-        const mainArea = document.getElementById('mainArea');
-        mainArea.addEventListener('touchstart', e => {
-            touchStartX = e.changedTouches[0].screenX;
-            touchStartY = e.changedTouches[0].screenY;
-        }, { passive: true });
-
-        mainArea.addEventListener('touchend', e => {
-            touchEndX = e.changedTouches[0].screenX;
-            touchEndY = e.changedTouches[0].screenY;
-            handleSwipe();
-        }, { passive: true });
-
         // 반응형 동적 조정
         function adjustForScreenSize() {
             const width = window.innerWidth;
+            const widgets = document.getElementById('weeklyWidgets');
             
             if (width <= 768) {
                 // 모바일: 테이블을 카드 형태로 변환하는 옵션
@@ -4533,16 +4556,23 @@ window.closeSecurityModal = function() {
                 });
 
                 // 위젯 개수 조정
-                const widgets = document.getElementById('weeklyWidgets');
-                if (widgets && width <= 480) {
-                    widgets.style.gridTemplateColumns = '1fr';
+                if (widgets) {
+                    widgets.style.gridTemplateColumns = width <= 480 ? '1fr' : '';
                 }
+            } else {
+                document.querySelectorAll('.weekly-table').forEach(table => {
+                    table.style.fontSize = '';
+                });
+                if (widgets) widgets.style.gridTemplateColumns = '';
             }
+
+            applyResponsiveTableLabels();
         }
 
 		// 화면 크기 변경 감지
         window.addEventListener('resize', adjustForScreenSize);
         window.addEventListener('orientationchange', adjustForScreenSize);
+        adjustForScreenSize();
 
         // 햅틱 피드백 함수
         function hapticFeedback(type = 'light') {
