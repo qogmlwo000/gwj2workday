@@ -2161,7 +2161,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, updateDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAkH7IODBuZOrJ2ZTd9PpbJF045hnmU98Q",
@@ -2565,6 +2565,44 @@ onSnapshot(docRef, (docSnap) => {
         
         // 1. 현재 수정 중인 상태를 저장할 변수
         window.editingState = { isEditing: false, type: null, id: null };
+
+        function normalizeRequestsShape(raw) {
+            return {
+                overtime: Array.isArray(raw?.overtime) ? raw.overtime : [],
+                early: Array.isArray(raw?.early) ? raw.early : [],
+                special: Array.isArray(raw?.special) ? raw.special : [],
+                leave: Array.isArray(raw?.leave) ? raw.leave : []
+            };
+        }
+
+        function cloneRequests(requests) {
+            return {
+                overtime: [...requests.overtime],
+                early: [...requests.early],
+                special: [...requests.special],
+                leave: [...requests.leave]
+            };
+        }
+
+        async function mutateRequestsTransaction(mutator) {
+            let result = null;
+
+            await runTransaction(db, async (transaction) => {
+                const snap = await transaction.get(docRef);
+                if (!snap.exists()) {
+                    throw new Error("Firebase 문서를 찾을 수 없습니다.");
+                }
+
+                const serverRequests = normalizeRequestsShape(snap.data()?.requests);
+                const nextRequests = cloneRequests(serverRequests);
+                result = mutator(nextRequests, serverRequests);
+
+                if (result?.apply === false) return;
+                transaction.update(docRef, { requests: nextRequests });
+            });
+
+            return result;
+        }
 		
 		window.addRequest = async function(t) {
             // --- [휴가 신청 로직] ---
@@ -2598,18 +2636,21 @@ onSnapshot(docRef, (docSnap) => {
     val: parseFloat(deduc),
     reason: reason || '-'
 };
-
-                const updatedRequests = { ...window.requests };
-                if (!updatedRequests.leave) updatedRequests.leave = [];
-
-                // 휴가 중복 체크: 같은 사람 + 같은 날짜
-                const leaveDup = updatedRequests.leave.some(r => r.code === m.code && r.date === date);
-                if (leaveDup) return alert("중복신청입니다.\n기존 신청건을 삭제 혹은 수정해주시기 바랍니다.");
-
-                updatedRequests.leave.push(reqData);
-
                 try {
-                    await updateDoc(docRef, { requests: updatedRequests });
+                    const txResult = await mutateRequestsTransaction((requests) => {
+                        const leaveDup = requests.leave.some(r => r.code === m.code && r.date === date);
+                        if (leaveDup) {
+                            return { apply: false, reason: 'duplicate' };
+                        }
+
+                        requests.leave.push(reqData);
+                        return { apply: true, reason: 'created' };
+                    });
+
+                    if (txResult?.reason === 'duplicate') {
+                        return alert("중복신청입니다.\n기존 신청건을 삭제 혹은 수정해주시기 바랍니다.");
+                    }
+
                     showToast("휴가가 등록되었습니다! ✈️");
                     document.getElementById('leaveReason').value = '';
                 } catch(e) { alert("Error: " + e.message); }
@@ -2634,9 +2675,11 @@ onSnapshot(docRef, (docSnap) => {
             const nick = m.role.split(' ')[0];
             const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
             const shiftLabel = shiftValue === 'day' ? 'Day조' : shiftValue === 'swing' ? 'Swing조' : '';
+            const isEditing = window.editingState.isEditing && window.editingState.type === t;
+            const editingId = window.editingState.id;
 
             const reqData = {
-                id: window.editingState.isEditing ? window.editingState.id : Date.now(),
+                id: isEditing ? editingId : Date.now(),
                 name: m.name, nick: nick, rank: rank, code: m.code,
                 shift: shiftLabel, shiftType: shiftValue,
                 date: date, 
@@ -2644,29 +2687,46 @@ onSnapshot(docRef, (docSnap) => {
                 end: document.getElementById(`${p}End`).value, 
                 time: timeText, reason: reason
             };
-            
-            const updatedRequests = { ...window.requests };
-            if (!updatedRequests[t]) updatedRequests[t] = [];
 
-            // 중복 체크: 같은 사람 + 같은 날짜 (수정 모드에서는 자기 자신 제외)
-            if (!window.editingState.isEditing) {
-                const isDup = updatedRequests[t].some(r => r.code === m.code && r.date === date);
-                if (isDup) return alert("중복신청입니다.\n기존 신청건을 삭제 혹은 수정해주시기 바랍니다.");
-            }
-
-            if (window.editingState.isEditing && window.editingState.type === t) {
-                const targetIdx = updatedRequests[t].findIndex(r => r.id === window.editingState.id);
-                if (targetIdx !== -1) {
-                    updatedRequests[t][targetIdx] = reqData;
-                    showToast("수정되었습니다! 📝");
-                }
-            } else {
-                updatedRequests[t].push(reqData);
-                showToast("저장되었습니다! ✅");
-            }
-            
             try {
-                await updateDoc(docRef, { requests: updatedRequests });
+                const txResult = await mutateRequestsTransaction((requests) => {
+                    const list = requests[t];
+
+                    if (!isEditing) {
+                        const isDup = list.some(r => r.code === m.code && r.date === date);
+                        if (isDup) {
+                            return { apply: false, reason: 'duplicate' };
+                        }
+
+                        list.push(reqData);
+                        return { apply: true, reason: 'created' };
+                    }
+
+                    const targetIdx = list.findIndex(r => r.id === editingId);
+                    if (targetIdx === -1) {
+                        return { apply: false, reason: 'missing' };
+                    }
+
+                    const isDup = list.some((r, idx) => idx !== targetIdx && r.code === m.code && r.date === date);
+                    if (isDup) {
+                        return { apply: false, reason: 'duplicate' };
+                    }
+
+                    list[targetIdx] = reqData;
+                    return { apply: true, reason: 'updated' };
+                });
+
+                if (txResult?.reason === 'duplicate') {
+                    return alert("중복신청입니다.\n기존 신청건을 삭제 혹은 수정해주시기 바랍니다.");
+                }
+
+                if (txResult?.reason === 'missing') {
+                    alert("수정 대상 신청건을 찾지 못했습니다.\n목록을 새로 확인해주세요.");
+                    cancelEditMode(t);
+                    return;
+                }
+
+                showToast(txResult?.reason === 'updated' ? "수정되었습니다! 📝" : "저장되었습니다! ✅");
                 document.getElementById(`${p}Reason`).value = '';
                 cancelEditMode(t); 
             } catch(e) { alert("Error: " + e.message); }
@@ -2747,7 +2807,7 @@ onSnapshot(docRef, (docSnap) => {
         };
 
         // --- 보안 모달 로직 ---
-        let pendingAction = { type: null, target: null, index: null };
+        let pendingAction = { type: null, target: null, index: null, requestId: null };
         const ADMIN_PIN_KEY = 'gwj2_admin_pin_hash_v1';
         const ADMIN_PIN_SALT = 'gwj2_admin_salt_v1';
 
@@ -2811,8 +2871,8 @@ onSnapshot(docRef, (docSnap) => {
             }
         }
 
-        window.deleteRequest = function(t, i) {
-            pendingAction = { type: 'delete', target: t, index: i };
+        window.deleteRequest = function(t, requestId) {
+            pendingAction = { type: 'delete', target: t, index: null, requestId };
             openSecurityModal("🗑️ 삭제 확인", "해당 내역을 삭제하려면 관리자 PIN을 입력하세요.<br><span style='color:#ef4444; font-size:0.8rem; font-weight:600;'>(주의: 삭제 후 복구 불가)</span>");
         };
 
@@ -2841,7 +2901,7 @@ onSnapshot(docRef, (docSnap) => {
 
 window.closeSecurityModal = function() {
             document.getElementById('securityModal').classList.remove('open');
-            pendingAction = { type: null, target: null, index: null };
+            pendingAction = { type: null, target: null, index: null, requestId: null };
         };
 
         window.confirmSecurityAction = async function() {
@@ -2855,7 +2915,7 @@ window.closeSecurityModal = function() {
     }
 
     if (await verifyAdminPin(inputPw)) {
-        const { type, target, index } = pendingAction;
+        const { type, target, index, requestId } = pendingAction;
 
         try {
             // ❌ 전체 초기화 기능 비활성화
@@ -2867,9 +2927,23 @@ window.closeSecurityModal = function() {
             
             // 2. 신청 내역 삭제 (Request Delete)
             else if (type === 'delete' && target) {
-                const updatedRequests = { ...window.requests };
-                updatedRequests[target].splice(index, 1);
-                await updateDoc(docRef, { requests: updatedRequests });
+                const txResult = await mutateRequestsTransaction((requests) => {
+                    const list = requests[target];
+                    const deleteIdx = list.findIndex(r => String(r.id) === String(requestId));
+                    if (deleteIdx === -1) {
+                        return { apply: false, reason: 'missing' };
+                    }
+
+                    list.splice(deleteIdx, 1);
+                    return { apply: true, reason: 'deleted' };
+                });
+
+                if (txResult?.reason === 'missing') {
+                    alert("삭제 대상 신청건을 찾지 못했습니다.\n목록을 새로 확인해주세요.");
+                    closeSecurityModal();
+                    return;
+                }
+
                 showToast("삭제되었습니다.");
             }
             // 3. 멤버 삭제 (Member Delete)
@@ -3773,24 +3847,36 @@ window.closeSecurityModal = function() {
             const reason = document.getElementById('editReqReason').value;
 
             if(!date || !start || !end || !reason) return alert("모든 내용을 입력해주세요.");
+            if (!Number.isFinite(id)) return alert("수정할 신청 ID가 올바르지 않습니다.");
 
-            const updatedRequests = { ...window.requests };
-            const targetIdx = updatedRequests[type].findIndex(r => r.id === id);
-            
-            if (targetIdx !== -1) {
-                // 기존 데이터에 새로운 값만 덮어쓰기 (이름, 직책 등은 유지)
-                updatedRequests[type][targetIdx] = { 
-                    ...updatedRequests[type][targetIdx], 
-                    date, start, end, time, reason 
-                };
-                
-                try {
-                    await updateDoc(docRef, { requests: updatedRequests });
-                    showToast("수정되었습니다! 📝");
+            try {
+                const txResult = await mutateRequestsTransaction((requests) => {
+                    const list = requests[type];
+                    const targetIdx = list.findIndex(r => r.id === id);
+
+                    if (targetIdx === -1) {
+                        return { apply: false, reason: 'missing' };
+                    }
+
+                    // 기존 데이터에 새로운 값만 덮어쓰기 (이름, 직책 등은 유지)
+                    list[targetIdx] = {
+                        ...list[targetIdx],
+                        date, start, end, time, reason
+                    };
+
+                    return { apply: true, reason: 'updated' };
+                });
+
+                if (txResult?.reason === 'missing') {
+                    alert("수정 대상 신청건을 찾지 못했습니다.\n목록을 새로 확인해주세요.");
                     closeEditPopup();
-                } catch(e) {
-                    alert("Error: " + e.message);
+                    return;
                 }
+
+                showToast("수정되었습니다! 📝");
+                closeEditPopup();
+            } catch(e) {
+                alert("Error: " + e.message);
             }
         };
 		
@@ -3858,6 +3944,8 @@ window.closeSecurityModal = function() {
                 const safeTime = escapeHTML(r.time);
                 const safeStart = escapeHTML(r.start);
                 const safeEnd = escapeHTML(r.end);
+                const deleteId = Number(r.id);
+                const hasValidId = Number.isFinite(deleteId);
                 
                 let statusColor = 'var(--success)';
                 if (total >= 52) statusColor = 'var(--danger)';
@@ -3876,8 +3964,6 @@ window.closeSecurityModal = function() {
                         ${shiftLabel}
                     </span>`;
 
-                const originalIndex = window.requests[requestKey].findIndex(req => req.id === r.id);
-
                 // 3. 시간/구분 컬럼 처리
                 let timeColumnHtml = '';
                 let typeColumnHtml = '';
@@ -3894,18 +3980,19 @@ window.closeSecurityModal = function() {
 
                 // 4. 관리 버튼 (휴가는 수정 없이 삭제만)
                 let actionBtns = '';
-                if (type === 'leave') {
+                if (!hasValidId) {
+                    actionBtns = `<span style="font-size:0.8rem; color:var(--text-sub);">-</span>`;
+                } else if (type === 'leave') {
                     actionBtns = `
-                        <button class="btn btn-del" onclick="deleteRequest('${requestKey}',${originalIndex})">
+                        <button class="btn btn-del" onclick="deleteRequest('${requestKey}', ${deleteId})">
                             <i class="fa-solid fa-trash"></i>
                         </button>`;
                 } else {
-                    const editId = Number(r.id);
-                    if (!Number.isFinite(editId)) return;
+                    const editId = deleteId;
                     actionBtns = `
                         <div class="action-btn-group">
                             <button class="btn btn-edit" onclick="openEditPopup('${requestKey}', ${editId})"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn btn-del" onclick="deleteRequest('${requestKey}',${originalIndex})"><i class="fa-solid fa-trash"></i></button>
+                            <button class="btn btn-del" onclick="deleteRequest('${requestKey}', ${deleteId})"><i class="fa-solid fa-trash"></i></button>
                         </div>`;
                 }
 
@@ -4378,7 +4465,7 @@ window.closeSecurityModal = function() {
         //  멤버 삭제 함수 (보안 모달 연동)
         window.deleteMember = function(index) {
             // 기존 pendingAction을 활용해 삭제 유형을 'member_delete'로 지정
-            pendingAction = { type: 'member_delete', target: null, index: index };
+            pendingAction = { type: 'member_delete', target: null, index: index, requestId: null };
             openSecurityModal("🗑️ 멤버 삭제", "정말 삭제하시겠습니까?<br><span style='color:var(--danger)'>복구할 수 없습니다.</span><br><span style='color:#27D3F5; font-size:0.8rem; font-weight:600;'>관리자 PIN 필요</span>");
         };
 		
