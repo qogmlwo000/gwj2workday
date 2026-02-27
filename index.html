@@ -2161,7 +2161,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, updateDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAkH7IODBuZOrJ2ZTd9PpbJF045hnmU98Q",
@@ -2426,7 +2426,7 @@
         function findMemberByRequest(request) {
             if (!request || !Array.isArray(window.members)) return null;
             if (request.code) {
-                const byCode = window.members.find(m => m.code === request.code);
+                const byCode = window.members.find(m => isSameCode(m.code, request.code));
                 if (byCode) return byCode;
             }
             return window.members.find(m => m.name === request.name) || null;
@@ -2475,10 +2475,10 @@ onSnapshot(docRef, (docSnap) => {
         }
 
         // ✅ members 안전하게 로드 (기존 데이터 보존)
-        if (data.members && Array.isArray(data.members) && data.members.length > 0) {
+        if (Array.isArray(data.members)) {
             window.members = data.members;
         } else {
-            console.warn("⚠️ members 필드가 없거나 비어있습니다. 기존 데이터 유지");
+            console.warn("⚠️ members 필드가 유효하지 않습니다. 기존 데이터 유지");
             if (!window.members || window.members.length === 0) {
                 window.members = defaultMembers;
             }
@@ -2603,19 +2603,71 @@ onSnapshot(docRef, (docSnap) => {
 
             return result;
         }
+
+        function normalizeMembersShape(raw) {
+            return Array.isArray(raw) ? raw : [];
+        }
+
+        function cloneMembers(members) {
+            return members.map(m => ({ ...m }));
+        }
+
+        function normalizeCode(code) {
+            return String(code || '').trim().toUpperCase();
+        }
+
+        function isSameCode(a, b) {
+            const left = normalizeCode(a);
+            const right = normalizeCode(b);
+            return left !== '' && left === right;
+        }
+
+        async function mutateMembersTransaction(mutator) {
+            let result = null;
+
+            await runTransaction(db, async (transaction) => {
+                const snap = await transaction.get(docRef);
+                if (!snap.exists()) {
+                    throw new Error("Firebase 문서를 찾을 수 없습니다.");
+                }
+
+                const serverMembers = normalizeMembersShape(snap.data()?.members);
+                const nextMembers = cloneMembers(serverMembers);
+                result = mutator(nextMembers, serverMembers);
+
+                if (result?.apply === false) return;
+                transaction.update(docRef, { members: nextMembers });
+            });
+
+            return result;
+        }
+
+        function findMemberByCode(code) {
+            if (!Array.isArray(window.members)) return null;
+            return window.members.find(m => isSameCode(m.code, code)) || null;
+        }
+
+        function generateRequestId(existingList) {
+            let id = Date.now();
+            while ((existingList || []).some(r => String(r.id) === String(id))) {
+                id += 1;
+            }
+            return id;
+        }
 		
-		window.addRequest = async function(t) {
+        window.addRequest = async function(t) {
             // --- [휴가 신청 로직] ---
             if (t === 'leave') {
-                const idx = document.getElementById('leaveSelect').value;
+                const selectedCode = document.getElementById('leaveSelect').value;
                 const date = document.getElementById('leaveDate').value;
                 const typeVal = document.getElementById('leaveType').value;
                 const reason = document.getElementById('leaveReason').value;
 
-                if(idx === "") return alert("관리자를 선택하세요!");
+                if(selectedCode === "") return alert("관리자를 선택하세요!");
                 if(!date) return alert("날짜를 선택하세요!");
 
-                const m = window.members[idx];
+                const m = findMemberByCode(selectedCode);
+                if (!m) return alert("선택한 관리자 정보를 찾을 수 없습니다. 다시 선택해주세요.");
                 const nick = m.role.split(' ')[0];
                 const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
                 
@@ -2624,18 +2676,6 @@ onSnapshot(docRef, (docSnap) => {
                 let deduc = '8.0h';
                 if(typeVal === '4_am') { typeText = '오전반차 (4h)'; deduc = '4.0h'; }
                 if(typeVal === '4_pm') { typeText = '오후반차 (4h)'; deduc = '4.0h'; }
-
-                const reqData = {
-    id: Date.now(),
-    name: m.name, nick, rank, code: m.code,
-    shift: (m.shift === 'day') ? 'Day조' : 'Swing조',  // ✅ 문자열 형식 통일
-    shiftType: m.shift || 'day',  // ✅ 필터링용 추가
-    date: date,
-    type: typeText, 
-    time: deduc,    
-    val: parseFloat(deduc),
-    reason: reason || '-'
-};
                 try {
                     const txResult = await mutateRequestsTransaction((requests) => {
                         const leaveDup = requests.leave.some(r => r.code === m.code && r.date === date);
@@ -2643,6 +2683,17 @@ onSnapshot(docRef, (docSnap) => {
                             return { apply: false, reason: 'duplicate' };
                         }
 
+                        const reqData = {
+                            id: generateRequestId(requests.leave),
+                            name: m.name, nick, rank, code: m.code,
+                            shift: (m.shift === 'day') ? 'Day조' : 'Swing조',
+                            shiftType: m.shift || 'day',
+                            date: date,
+                            type: typeText,
+                            time: deduc,
+                            val: parseFloat(deduc),
+                            reason: reason || '-'
+                        };
                         requests.leave.push(reqData);
                         return { apply: true, reason: 'created' };
                     });
@@ -2660,33 +2711,24 @@ onSnapshot(docRef, (docSnap) => {
             // --- [기존 연장/조출/특근 로직] ---
             const p = t === 'overtime' ? 'ot' : t === 'early' ? 'early' : 'special';
             
-            const idx = document.getElementById(`${p}Select`).value;
+            const selectedCode = document.getElementById(`${p}Select`).value;
             const date = document.getElementById(`${p}Date`).value;
             const timeText = document.getElementById(`${p}Diff`).innerText || '0.0h';
             const reason = document.getElementById(`${p}Reason`).value;
             const shiftValue = document.getElementById(`${p}Shift`).value;
             
-            if(idx === "") return alert("관리자를 선택하세요!");
+            if(selectedCode === "") return alert("관리자를 선택하세요!");
             if(!date) return alert("날짜를 선택하세요!");
             if(parseFloat(timeText.replace('h','')) <= 0) return alert("시간을 입력하세요!");
             if(!reason.trim()) return alert("사유를 입력하세요!");
 
-            const m = window.members[idx];
+            const m = findMemberByCode(selectedCode);
+            if (!m) return alert("선택한 관리자 정보를 찾을 수 없습니다. 다시 선택해주세요.");
             const nick = m.role.split(' ')[0];
             const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
             const shiftLabel = shiftValue === 'day' ? 'Day조' : shiftValue === 'swing' ? 'Swing조' : '';
             const isEditing = window.editingState.isEditing && window.editingState.type === t;
             const editingId = window.editingState.id;
-
-            const reqData = {
-                id: isEditing ? editingId : Date.now(),
-                name: m.name, nick: nick, rank: rank, code: m.code,
-                shift: shiftLabel, shiftType: shiftValue,
-                date: date, 
-                start: document.getElementById(`${p}Start`).value,
-                end: document.getElementById(`${p}End`).value, 
-                time: timeText, reason: reason
-            };
 
             try {
                 const txResult = await mutateRequestsTransaction((requests) => {
@@ -2698,11 +2740,20 @@ onSnapshot(docRef, (docSnap) => {
                             return { apply: false, reason: 'duplicate' };
                         }
 
+                        const reqData = {
+                            id: generateRequestId(list),
+                            name: m.name, nick: nick, rank: rank, code: m.code,
+                            shift: shiftLabel, shiftType: shiftValue,
+                            date: date,
+                            start: document.getElementById(`${p}Start`).value,
+                            end: document.getElementById(`${p}End`).value,
+                            time: timeText, reason: reason
+                        };
                         list.push(reqData);
                         return { apply: true, reason: 'created' };
                     }
 
-                    const targetIdx = list.findIndex(r => r.id === editingId);
+                    const targetIdx = list.findIndex(r => String(r.id) === String(editingId));
                     if (targetIdx === -1) {
                         return { apply: false, reason: 'missing' };
                     }
@@ -2712,7 +2763,16 @@ onSnapshot(docRef, (docSnap) => {
                         return { apply: false, reason: 'duplicate' };
                     }
 
-                    list[targetIdx] = reqData;
+                    list[targetIdx] = {
+                        ...list[targetIdx],
+                        id: editingId,
+                        name: m.name, nick: nick, rank: rank, code: m.code,
+                        shift: shiftLabel, shiftType: shiftValue,
+                        date: date,
+                        start: document.getElementById(`${p}Start`).value,
+                        end: document.getElementById(`${p}End`).value,
+                        time: timeText, reason: reason
+                    };
                     return { apply: true, reason: 'updated' };
                 });
 
@@ -2734,7 +2794,7 @@ onSnapshot(docRef, (docSnap) => {
 
         // 3. 수정 버튼 클릭 시 폼에 데이터 채우기 (새로 추가)
         window.editRequest = function(type, id) {
-            const req = window.requests[type].find(r => r.id === id);
+            const req = window.requests[type].find(r => String(r.id) === String(id));
             if(!req) return;
 
             const p = type === 'overtime' ? 'ot' : type === 'early' ? 'early' : 'special';
@@ -2743,13 +2803,18 @@ onSnapshot(docRef, (docSnap) => {
             window.editingState = { isEditing: true, type: type, id: id };
 
             // 관리자 선택 복원
-            const memIdx = window.members.findIndex(m => m.code === req.code);
-            if(memIdx !== -1) {
-                document.getElementById(`${p}Select`).value = memIdx;
-                document.getElementById(`${p}SelectInput`).value = `${req.name} (${window.members[memIdx].role})`;
+            const selectedMember = findMemberByCode(req.code);
+            if(selectedMember) {
+                document.getElementById(`${p}Select`).value = selectedMember.code;
+                document.getElementById(`${p}SelectInput`).value = `${req.name} (${selectedMember.role})`;
+                document.getElementById(`${p}ClearBtn`).style.display = 'block';
                 document.getElementById(`${p}Placeholder`).style.display = 'none';
                 document.getElementById(`${p}Analysis`).style.display = 'block';
                 updateAnalysis(p);
+            } else {
+                document.getElementById(`${p}Select`).value = req.code || '';
+                document.getElementById(`${p}SelectInput`).value = req.name || '';
+                document.getElementById(`${p}ClearBtn`).style.display = 'block';
             }
 
             // 근무조 복원
@@ -2807,7 +2872,7 @@ onSnapshot(docRef, (docSnap) => {
         };
 
         // --- 보안 모달 로직 ---
-        let pendingAction = { type: null, target: null, index: null, requestId: null };
+        let pendingAction = { type: null, target: null, requestId: null, memberCode: null };
         const ADMIN_PIN_KEY = 'gwj2_admin_pin_hash_v1';
         const ADMIN_PIN_SALT = 'gwj2_admin_salt_v1';
 
@@ -2872,7 +2937,7 @@ onSnapshot(docRef, (docSnap) => {
         }
 
         window.deleteRequest = function(t, requestId) {
-            pendingAction = { type: 'delete', target: t, index: null, requestId };
+            pendingAction = { type: 'delete', target: t, requestId, memberCode: null };
             openSecurityModal("🗑️ 삭제 확인", "해당 내역을 삭제하려면 관리자 PIN을 입력하세요.<br><span style='color:#ef4444; font-size:0.8rem; font-weight:600;'>(주의: 삭제 후 복구 불가)</span>");
         };
 
@@ -2882,7 +2947,7 @@ onSnapshot(docRef, (docSnap) => {
     
     // 아래 코드는 실행되지 않음
     /*
-    pendingAction = { type: 'reset', target: null, index: null };
+    pendingAction = { type: 'reset', target: null, requestId: null, memberCode: null };
     openSecurityModal("⚠️ 데이터 초기화", "모든 데이터를 삭제하려면 관리자 PIN을 입력하세요.<br><span style='color:var(--danger); font-size:0.8rem;'>(복구 불가능)</span>");
     */
 };
@@ -2901,7 +2966,7 @@ onSnapshot(docRef, (docSnap) => {
 
 window.closeSecurityModal = function() {
             document.getElementById('securityModal').classList.remove('open');
-            pendingAction = { type: null, target: null, index: null, requestId: null };
+            pendingAction = { type: null, target: null, requestId: null, memberCode: null };
         };
 
         window.confirmSecurityAction = async function() {
@@ -2915,7 +2980,7 @@ window.closeSecurityModal = function() {
     }
 
     if (await verifyAdminPin(inputPw)) {
-        const { type, target, index, requestId } = pendingAction;
+        const { type, target, requestId, memberCode } = pendingAction;
 
         try {
             // ❌ 전체 초기화 기능 비활성화
@@ -2948,8 +3013,23 @@ window.closeSecurityModal = function() {
             }
             // 3. 멤버 삭제 (Member Delete)
             else if (type === 'member_delete') {
-                window.members.splice(index, 1);
-                await updateDoc(docRef, { members: window.members });
+                const txResult = await mutateMembersTransaction((members) => {
+                    const targetIdx = members.findIndex(m => isSameCode(m.code, memberCode));
+                    if (targetIdx === -1) {
+                        return { apply: false, reason: 'missing' };
+                    }
+                    members.splice(targetIdx, 1);
+                    return { apply: true, reason: 'deleted' };
+                });
+
+                if (txResult?.reason === 'missing') {
+                    alert("삭제 대상 멤버를 찾지 못했습니다.\n목록을 새로 확인해주세요.");
+                    closeSecurityModal();
+                    return;
+                }
+
+                const localIdx = window.members.findIndex(m => isSameCode(m.code, memberCode));
+                if (localIdx !== -1) window.members.splice(localIdx, 1);
                 showToast("멤버가 삭제되었습니다.");
                 renderTeamTable();
                 initSelects();
@@ -3008,10 +3088,10 @@ window.closeSecurityModal = function() {
     
     dropdown.innerHTML = '';
     
-    window.members.forEach((m, index) => {
+    window.members.forEach((m) => {
         const option = document.createElement('div');
         option.className = 'searchable-select-option';
-        option.setAttribute('data-index', index);
+        option.setAttribute('data-code', String(m.code || ''));
         option.setAttribute('data-name', String(m.name || '').toLowerCase());
         option.setAttribute('data-role', String(m.role || '').toLowerCase());
         
@@ -3098,14 +3178,14 @@ window.closeSecurityModal = function() {
     }
     
     // 1. 멤버 찾기
-    const realIndex = window.members.findIndex(m => m.code === code);
-    if (realIndex === -1) {
+    const member = findMemberByCode(code);
+    if (!member) {
         alert("멤버 데이터를 찾을 수 없습니다.");
         return;
     }
     
     // 2. 관리자 입력창 UI 업데이트
-    document.getElementById(`${type}Select`).value = realIndex;
+    document.getElementById(`${type}Select`).value = String(member.code || '');
     document.getElementById(`${type}SelectInput`).value = `${name} (${role})`;
     document.getElementById(`${type}SelectDropdown`).classList.remove('show');
     document.getElementById(`${type}ClearBtn`).style.display = 'block';
@@ -3114,10 +3194,9 @@ window.closeSecurityModal = function() {
     document.querySelectorAll(`#${type}SelectDropdown .searchable-select-option`).forEach(opt => {
         opt.classList.remove('selected');
     });
-    const selectedOption = document.querySelector(`#${type}SelectDropdown .searchable-select-option[data-index="${realIndex}"]`);
+    const selectedOption = Array.from(document.querySelectorAll(`#${type}SelectDropdown .searchable-select-option`))
+        .find(opt => String(opt.getAttribute('data-code')) === String(member.code));
     if (selectedOption) selectedOption.classList.add('selected');
-    
-    const member = window.members[realIndex];
 
     // 3. 기본 근무시간(Base) 자동 입력
     const baseHours = window.calcBaseHours(member);
@@ -3474,13 +3553,13 @@ window.closeSecurityModal = function() {
             return workDays * 8;
         };
 		
-		window.renderWeeklyTable = function() {
+        window.renderWeeklyTable = function() {
             const tbody = document.getElementById('weeklyTbody');
             const widgets = document.getElementById('weeklyWidgets');
             let data = window.members.map(m => { 
                 // 휴직자는 0시간 처리
                 const base = m.onLeave ? 0 : window.calcBaseHours(m);
-                const approved = m.onLeave ? 0 : window.calcTotalApprovedTime(m.name);
+                const approved = m.onLeave ? 0 : window.calcTotalApprovedTime(m.code);
                 return { name: m.name, role: m.role, total: base + approved, onLeave: m.onLeave }; 
             });
             data.sort((a,b)=>b.total-a.total);
@@ -3558,7 +3637,7 @@ window.closeSecurityModal = function() {
                 const isMgr = m.role.includes('Manager');
                 
                 // 휴직자는 0시간으로 처리
-                const total = m.onLeave ? 0 : (window.calcBaseHours(m) + window.calcTotalApprovedTime(m.name));
+                const total = m.onLeave ? 0 : (window.calcBaseHours(m) + window.calcTotalApprovedTime(m.code));
                 const remain = 52 - total;
                 const percent = Math.min((total/52)*100, 100);
                 
@@ -3641,10 +3720,12 @@ window.closeSecurityModal = function() {
             window.applyDashFilters();
         };
 
-        window.calcTotalApprovedTime = function(name) {
+        window.calcTotalApprovedTime = function(memberKey) {
             // 1. 멤버 기준 주간 범위 찾기
-            const m = window.members.find(x => x.name === name);
+            const m = window.members.find(x => isSameCode(x.code, memberKey))
+                || window.members.find(x => x.name === memberKey);
             if(!m) return 0;
+            const targetCode = normalizeCode(m.code);
             const { weekStart, weekEnd } = getWeekRangeForMember(m, new Date());
             const fallbackShift = getShiftType(m.shift);
             
@@ -3653,7 +3734,8 @@ window.closeSecurityModal = function() {
             // 2. 근무 시간 더하기 (+)
             const allReqs = [...window.requests.overtime, ...window.requests.early, ...(window.requests.special || [])];
             allReqs.forEach(r => { 
-                if (r.name === name) { 
+                const sameMember = isSameCode(r.code, targetCode) || (!r.code && r.name === m.name);
+                if (sameMember) { 
                     const rd = getRequestDateTime(r, fallbackShift);
                     if (!rd) return;
                     if (rd >= weekStart && rd <= weekEnd) {
@@ -3665,7 +3747,8 @@ window.closeSecurityModal = function() {
             // 3. 휴가 시간 빼기 (-)
             const leaveReqs = window.requests.leave || [];
             leaveReqs.forEach(r => {
-                if (r.name === name) {
+                const sameMember = isSameCode(r.code, targetCode) || (!r.code && r.name === m.name);
+                if (sameMember) {
                     const rd = getRequestDateTime(r, fallbackShift);
                     if (!rd) return;
                     if (rd >= weekStart && rd <= weekEnd) {
@@ -3683,12 +3766,12 @@ window.closeSecurityModal = function() {
             const idxElement = document.getElementById(`${type}Select`);
             if (!idxElement) return; 
             
-            const idx = idxElement.value;
+            const selectedCode = idxElement.value;
             const panel = document.getElementById(`${type}Analysis`);
             const ph = document.getElementById(`${type}Placeholder`);
             
             // 선택된 멤버가 없으면 패널 숨김
-            if (idx === "") { 
+            if (selectedCode === "") { 
                 if(panel) panel.style.display='none'; 
                 if(ph) ph.style.display='block'; 
                 return; 
@@ -3697,7 +3780,12 @@ window.closeSecurityModal = function() {
             if(panel) panel.style.display='block'; 
             if(ph) ph.style.display='none';
             
-            const m = window.members[idx];
+            const m = findMemberByCode(selectedCode);
+            if (!m) {
+                if(panel) panel.style.display='none';
+                if(ph) ph.style.display='block';
+                return;
+            }
             
             // 이름과 직책 업데이트
             const nameEl = document.getElementById(`${type}AnaName`);
@@ -3725,7 +3813,7 @@ window.closeSecurityModal = function() {
                 
                 // 현재까지 확정된 시간 합계 (기본 + 추가 - 기사용휴가)
                 // filteredRequests가 아니라 전역 함수를 사용해야 합니다.
-                const currentTotal = base + window.calcTotalApprovedTime(m.name);
+                const currentTotal = base + window.calcTotalApprovedTime(m.code);
                 
                 // UI 업데이트
                 const currEl = document.getElementById('leaveCurrent');
@@ -3754,7 +3842,7 @@ window.closeSecurityModal = function() {
             let approved = 0;
             const inputDate = document.getElementById(`${type}Date`).value;
             if (inputDate) {
-                 approved = window.calcTotalApprovedTime(m.name); 
+                 approved = window.calcTotalApprovedTime(m.code); 
             }
             
             // UI 업데이트
@@ -3796,7 +3884,7 @@ window.closeSecurityModal = function() {
 		
 		// [수정됨] 팝업 열기 (커스텀 피커 데이터 연결)
         window.openEditPopup = function(type, id) {
-            const req = window.requests[type].find(r => r.id === id);
+            const req = window.requests[type].find(r => String(r.id) === String(id));
             if(!req) return;
 
             // 기본 데이터
@@ -3838,7 +3926,7 @@ window.closeSecurityModal = function() {
 
         // 수정사항 저장하기
         window.saveEditPopup = async function() {
-            const id = parseInt(document.getElementById('editReqId').value);
+            const id = document.getElementById('editReqId').value;
             const type = document.getElementById('editReqType').value;
             const date = document.getElementById('editReqDate').value;
             const start = document.getElementById('editReqStart').value;
@@ -3847,12 +3935,12 @@ window.closeSecurityModal = function() {
             const reason = document.getElementById('editReqReason').value;
 
             if(!date || !start || !end || !reason) return alert("모든 내용을 입력해주세요.");
-            if (!Number.isFinite(id)) return alert("수정할 신청 ID가 올바르지 않습니다.");
+            if (!String(id || '').trim()) return alert("수정할 신청 ID가 올바르지 않습니다.");
 
             try {
                 const txResult = await mutateRequestsTransaction((requests) => {
                     const list = requests[type];
-                    const targetIdx = list.findIndex(r => r.id === id);
+                    const targetIdx = list.findIndex(r => String(r.id) === String(id));
 
                     if (targetIdx === -1) {
                         return { apply: false, reason: 'missing' };
@@ -3930,9 +4018,10 @@ window.closeSecurityModal = function() {
             // --- 행 그리기 (디자인 통일) ---
             filteredRequests.forEach((r, i) => {
                 // 1. 주간 근무 시간 계산
-                const member = window.members.find(m => m.name === r.name);
+                const member = window.members.find(m => isSameCode(m.code, r.code))
+                    || window.members.find(m => m.name === r.name);
                 const base = window.calcBaseHours(member);
-                const total = base + window.calcTotalApprovedTime(r.name);
+                const total = base + window.calcTotalApprovedTime(r.code || r.name);
                 const percent = Math.min((total / 52) * 100, 100);
                 const safeName = escapeHTML(r.name);
                 const safeNick = escapeHTML(r.nick);
@@ -3944,8 +4033,11 @@ window.closeSecurityModal = function() {
                 const safeTime = escapeHTML(r.time);
                 const safeStart = escapeHTML(r.start);
                 const safeEnd = escapeHTML(r.end);
-                const deleteId = Number(r.id);
-                const hasValidId = Number.isFinite(deleteId);
+                const requestId = r.id;
+                const hasValidId = String(requestId ?? '').trim() !== '';
+                const requestIdArg = `'${String(requestId ?? '')
+                    .replace(/\\/g, '\\\\')
+                    .replace(/'/g, "\\'")}'`;
                 
                 let statusColor = 'var(--success)';
                 if (total >= 52) statusColor = 'var(--danger)';
@@ -3984,15 +4076,15 @@ window.closeSecurityModal = function() {
                     actionBtns = `<span style="font-size:0.8rem; color:var(--text-sub);">-</span>`;
                 } else if (type === 'leave') {
                     actionBtns = `
-                        <button class="btn btn-del" onclick="deleteRequest('${requestKey}', ${deleteId})">
+                        <button class="btn btn-del" onclick="deleteRequest('${requestKey}', ${requestIdArg})">
                             <i class="fa-solid fa-trash"></i>
                         </button>`;
                 } else {
-                    const editId = deleteId;
+                    const editIdArg = requestIdArg;
                     actionBtns = `
                         <div class="action-btn-group">
-                            <button class="btn btn-edit" onclick="openEditPopup('${requestKey}', ${editId})"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn btn-del" onclick="deleteRequest('${requestKey}', ${deleteId})"><i class="fa-solid fa-trash"></i></button>
+                            <button class="btn btn-edit" onclick="openEditPopup('${requestKey}', ${editIdArg})"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-del" onclick="deleteRequest('${requestKey}', ${requestIdArg})"><i class="fa-solid fa-trash"></i></button>
                         </div>`;
                 }
 
@@ -4129,7 +4221,7 @@ window.closeSecurityModal = function() {
                 
                 let data = window.members.map(m => { 
                     const base = m.onLeave ? 0 : window.calcBaseHours(m); 
-                    const approved = m.onLeave ? 0 : window.calcTotalApprovedTime(m.name); 
+                    const approved = m.onLeave ? 0 : window.calcTotalApprovedTime(m.code); 
                     return { name:m.name, role:m.role, total:base+approved }; 
                 });
                 data.sort((a,b)=>b.total-a.total);
@@ -4205,9 +4297,10 @@ window.closeSecurityModal = function() {
                     ws_data.push(['이름', '닉네임', '직책', '쿠코드', 'SHIFT', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
                     
                     dayRequests.forEach(r => {
-                        const member = window.members.find(m => m.name === r.name);
+                        const member = window.members.find(m => isSameCode(m.code, r.code))
+                            || window.members.find(m => m.name === r.name);
                         const base = member ? window.calcBaseHours(member) : 40;
-                        const total = base + window.calcTotalApprovedTime(r.name);
+                        const total = base + window.calcTotalApprovedTime(r.code || r.name);
                         let status = total >= 52 ? '초과' : (total >= 45 ? '주의' : '안전');
                         ws_data.push([r.name, r.nick, r.rank, r.code, r.shift||'Day조', r.date, r.start, r.end, r.time, total.toFixed(1)+'h', status, r.reason]);
                     });
@@ -4224,9 +4317,10 @@ window.closeSecurityModal = function() {
                     ws_data.push(['이름', '닉네임', '직책', '쿠코드', 'SHIFT', '일자', '시작', '종료', '필요시간', '주간시간', '상태', '사유']);
                     
                     swingRequests.forEach(r => {
-                        const member = window.members.find(m => m.name === r.name);
+                        const member = window.members.find(m => isSameCode(m.code, r.code))
+                            || window.members.find(m => m.name === r.name);
                         const base = member ? window.calcBaseHours(member) : 40;
-                        const total = base + window.calcTotalApprovedTime(r.name);
+                        const total = base + window.calcTotalApprovedTime(r.code || r.name);
                         let status = total >= 52 ? '초과' : (total >= 45 ? '주의' : '안전');
                         ws_data.push([r.name, r.nick, r.rank, r.code, r.shift||'Swing조', r.date, r.start, r.end, r.time, total.toFixed(1)+'h', status, r.reason]);
                     });
@@ -4411,13 +4505,25 @@ window.closeSecurityModal = function() {
             }
         };
 
-		window.toggleLeaveStatus = async function(memberIndex, isOnLeave) {
-            const member = window.members[memberIndex];
-            member.onLeave = isOnLeave;
-            
+		window.toggleLeaveStatus = async function(memberCode, isOnLeave) {
             try {
-                await updateDoc(docRef, { members: window.members });
-                showToast(`${member.name}의 휴직 상태가 ${isOnLeave ? '설정' : '해제'}되었습니다`, 'success');
+                const txResult = await mutateMembersTransaction((members) => {
+                    const target = members.find(m => isSameCode(m.code, memberCode));
+                    if (!target) {
+                        return { apply: false, reason: 'missing' };
+                    }
+                    target.onLeave = isOnLeave;
+                    return { apply: true, reason: 'updated', name: target.name };
+                });
+
+                if (txResult?.reason === 'missing') {
+                    alert("멤버 데이터를 찾을 수 없습니다. 목록을 새로고침 후 다시 시도해주세요.");
+                    return;
+                }
+
+                const localMember = findMemberByCode(memberCode);
+                if (localMember) localMember.onLeave = isOnLeave;
+                showToast(`${txResult?.name || '선택 멤버'}의 휴직 상태가 ${isOnLeave ? '설정' : '해제'}되었습니다`, 'success');
                 refreshUI();
             } catch(e) {
                 alert("Error: " + e.message);
@@ -4430,7 +4536,7 @@ window.closeSecurityModal = function() {
     const nick = document.getElementById('newMemNick').value.trim();
     const roleSelect = document.getElementById('newMemRole').value;
     const shiftSelect = document.getElementById('newMemShift').value;
-    const code = document.getElementById('newMemCode').value.trim();
+    const code = document.getElementById('newMemCode').value.trim().toUpperCase();
 
     if(!name || !nick || !code) return alert("모든 정보를 입력해주세요.");
 
@@ -4445,11 +4551,26 @@ window.closeSecurityModal = function() {
         daysOff: [],
         onLeave: false  // 휴직 상태 기본값
     };
-    
-    window.members.push(newMember);
 
     try {
-        await updateDoc(docRef, { members: window.members });
+        const txResult = await mutateMembersTransaction((members) => {
+            const hasDupCode = members.some(m => isSameCode(m.code, code));
+            if (hasDupCode) {
+                return { apply: false, reason: 'duplicate_code' };
+            }
+
+            members.push(newMember);
+            return { apply: true, reason: 'created' };
+        });
+
+        if (txResult?.reason === 'duplicate_code') {
+            alert("이미 사용 중인 쿠코드입니다. 다른 코드를 입력해주세요.");
+            return;
+        }
+
+        if (!findMemberByCode(code)) {
+            window.members.push(newMember);
+        }
         showToast(`${name}님이 추가되었습니다.`);
         
         document.getElementById('newMemName').value = '';
@@ -4463,9 +4584,9 @@ window.closeSecurityModal = function() {
 };
 
         //  멤버 삭제 함수 (보안 모달 연동)
-        window.deleteMember = function(index) {
+        window.deleteMember = function(memberCode) {
             // 기존 pendingAction을 활용해 삭제 유형을 'member_delete'로 지정
-            pendingAction = { type: 'member_delete', target: null, index: index, requestId: null };
+            pendingAction = { type: 'member_delete', target: null, requestId: null, memberCode };
             openSecurityModal("🗑️ 멤버 삭제", "정말 삭제하시겠습니까?<br><span style='color:var(--danger)'>복구할 수 없습니다.</span><br><span style='color:#27D3F5; font-size:0.8rem; font-weight:600;'>관리자 PIN 필요</span>");
         };
 		
@@ -4558,10 +4679,13 @@ window.closeSecurityModal = function() {
                 const safeName = escapeHTML(m.name);
                 const safeNick = escapeHTML(nick);
                 const safeCode = escapeHTML(m.code);
+                const memberCodeArg = `'${String(m.code || '')
+                    .replace(/\\/g, '\\\\')
+                    .replace(/'/g, "\\'")}'`;
                 
                 // 근무조 변경 셀렉트 박스 생성
                 const shiftSelectHTML = `
-                    <select onchange="updateMemberShift(${index}, this.value)" style="background:var(--bg-body); color:var(--text-main); border:1px solid var(--border); padding:4px; border-radius:6px; font-family:inherit;">
+                    <select onchange="updateMemberShift(${memberCodeArg}, this.value)" style="background:var(--bg-body); color:var(--text-main); border:1px solid var(--border); padding:4px; border-radius:6px; font-family:inherit;">
                         <option value="day" ${currentShift==='day'?'selected':''}>Day</option>
                         <option value="swing" ${currentShift==='swing'?'selected':''}>Swing</option>
                     </select>
@@ -4580,10 +4704,10 @@ window.closeSecurityModal = function() {
                         <td style="font-family:monospace; color:var(--text-sub);">${safeCode}</td>
                         <td style="text-align:center; vertical-align:middle;">
                             <input type="checkbox" class="leave-checkbox" ${isOnLeave ? 'checked' : ''} 
-                                   onchange="toggleLeaveStatus(${index}, this.checked)">
+                                   onchange="toggleLeaveStatus(${memberCodeArg}, this.checked)">
                         </td>
                         <td>
-                            <button class="btn btn-del" onclick="deleteMember(${index})" style="padding:6px 10px;">
+                            <button class="btn btn-del" onclick="deleteMember(${memberCodeArg})" style="padding:6px 10px;">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </td>
@@ -4596,10 +4720,24 @@ window.closeSecurityModal = function() {
         };
 
         // 근무조 변경 즉시 저장 함수
-        window.updateMemberShift = async function(index, newShift) {
-            window.members[index].shift = newShift;
+        window.updateMemberShift = async function(memberCode, newShift) {
             try {
-                await updateDoc(docRef, { members: window.members });
+                const txResult = await mutateMembersTransaction((members) => {
+                    const target = members.find(m => isSameCode(m.code, memberCode));
+                    if (!target) {
+                        return { apply: false, reason: 'missing' };
+                    }
+                    target.shift = newShift;
+                    return { apply: true, reason: 'updated' };
+                });
+
+                if (txResult?.reason === 'missing') {
+                    alert("멤버 데이터를 찾을 수 없습니다. 목록을 새로고침 후 다시 시도해주세요.");
+                    return;
+                }
+
+                const localMember = findMemberByCode(memberCode);
+                if (localMember) localMember.shift = newShift;
                 showToast("근무조가 변경되었습니다.");
                 refreshUI(); // 대시보드 등 즉시 반영
             } catch(e) { console.error(e); }
@@ -4684,23 +4822,38 @@ window.syncAllShiftsToFirebase = async function() {
         alert("멤버 데이터가 없습니다.");
         return;
     }
-    
-    // shift 정보가 없는 멤버 확인
-    let needsUpdate = false;
-    window.members.forEach(m => {
-        if (!m.shift) {
-            m.shift = 'day'; // 기본값 설정
-            needsUpdate = true;
-        }
-        if (!m.daysOff) {
-            m.daysOff = [];
-            needsUpdate = true;
-        }
-    });
-    
+
     try {
-        await updateDoc(docRef, { members: window.members });
-        showToast(`✅ 전체 멤버 Shift 정보가 저장되었습니다! (${window.members.length}명)`, 'success');
+        const txResult = await mutateMembersTransaction((members) => {
+            let changed = false;
+
+            members.forEach(m => {
+                if (!m.shift) {
+                    m.shift = 'day';
+                    changed = true;
+                }
+                if (!Array.isArray(m.daysOff)) {
+                    m.daysOff = [];
+                    changed = true;
+                }
+            });
+
+            if (!changed) {
+                return { apply: false, reason: 'no_change', count: members.length };
+            }
+            return { apply: true, reason: 'updated', count: members.length };
+        });
+
+        if (txResult?.reason === 'no_change') {
+            showToast(`이미 모든 멤버 Shift 정보가 정상이었습니다. (${txResult.count}명)`, 'success');
+            return;
+        }
+
+        window.members.forEach(m => {
+            if (!m.shift) m.shift = 'day';
+            if (!Array.isArray(m.daysOff)) m.daysOff = [];
+        });
+        showToast(`✅ 전체 멤버 Shift 정보가 저장되었습니다! (${txResult?.count ?? window.members.length}명)`, 'success');
         renderTeamTable();
     } catch(e) {
         alert("저장 중 오류: " + e.message);
