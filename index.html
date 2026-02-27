@@ -2274,7 +2274,7 @@
         }
 
         function getNextShiftResetDate(shiftType, now = getKstNow()) {
-            const resetHour = shiftType === 'swing' ? 9 : 0;
+            const resetHour = 0;
             const target = new Date(now);
             const daysUntilSunday = (7 - now.getDay()) % 7;
             target.setDate(now.getDate() + daysUntilSunday);
@@ -2381,7 +2381,8 @@
         }
 
         function getResetHourByShift(shiftType) {
-            return shiftType === 'swing' ? 9 : 0;
+            // 주차 경계는 회사 기준(일요일 00:00)으로 통일한다.
+            return 0;
         }
 
         function getWeekRangeForMember(member, now = new Date()) {
@@ -2409,9 +2410,9 @@
             const baseDate = parseLocalDate(request?.date);
             if (!baseDate) return null;
 
+            const shiftType = getShiftType(request?.shiftType || request?.shift || fallbackShiftType);
             let referenceTime = request?.start;
             if (!referenceTime) {
-                const shiftType = getShiftType(request?.shiftType || fallbackShiftType || request?.shift);
                 referenceTime = shiftType === 'swing' ? '19:00' : '09:00';
             }
 
@@ -2420,6 +2421,13 @@
 
             const refDate = new Date(baseDate);
             refDate.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0);
+
+            // Swing 야간(00:00~08:59)은 전일 근무로 귀속하여
+            // 토요일 19:00~일요일 04:00 케이스가 토요일 주차에 포함되도록 한다.
+            if (shiftType === 'swing' && minutes < 9 * 60) {
+                refDate.setDate(refDate.getDate() - 1);
+            }
+
             return refDate;
         }
 
