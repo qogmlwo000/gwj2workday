@@ -3728,13 +3728,15 @@ window.closeSecurityModal = function() {
             window.applyDashFilters();
         };
 
-        window.calcTotalApprovedTime = function(memberKey) {
+        window.calcTotalApprovedTime = function(memberKey, referenceDate = new Date()) {
             // 1. 멤버 기준 주간 범위 찾기
             const m = window.members.find(x => isSameCode(x.code, memberKey))
                 || window.members.find(x => x.name === memberKey);
             if(!m) return 0;
+            const refDate = referenceDate instanceof Date ? referenceDate : new Date(referenceDate);
+            if (Number.isNaN(refDate.getTime())) return 0;
             const targetCode = normalizeCode(m.code);
-            const { weekStart, weekEnd } = getWeekRangeForMember(m, new Date());
+            const { weekStart, weekEnd } = getWeekRangeForMember(m, refDate);
             const fallbackShift = getShiftType(m.shift);
             
             let t = 0;
@@ -3769,6 +3771,11 @@ window.closeSecurityModal = function() {
 
             return t;
         };
+
+        function getRequestReferenceDateTime(request, member) {
+            const fallbackShift = getShiftType(member?.shift || request?.shiftType || request?.shift);
+            return getRequestDateTime(request, fallbackShift) || new Date();
+        }
 
         window.updateAnalysis = function(type) {
             const idxElement = document.getElementById(`${type}Select`);
@@ -3821,7 +3828,11 @@ window.closeSecurityModal = function() {
                 
                 // 현재까지 확정된 시간 합계 (기본 + 추가 - 기사용휴가)
                 // filteredRequests가 아니라 전역 함수를 사용해야 합니다.
-                const currentTotal = base + window.calcTotalApprovedTime(m.code);
+                const leaveDate = document.getElementById('leaveDate')?.value;
+                const leaveRefDate = leaveDate
+                    ? getRequestReferenceDateTime({ date: leaveDate, shiftType: m.shift }, m)
+                    : new Date();
+                const currentTotal = base + window.calcTotalApprovedTime(m.code, leaveRefDate);
                 
                 // UI 업데이트
                 const currEl = document.getElementById('leaveCurrent');
@@ -3850,7 +3861,14 @@ window.closeSecurityModal = function() {
             let approved = 0;
             const inputDate = document.getElementById(`${type}Date`).value;
             if (inputDate) {
-                 approved = window.calcTotalApprovedTime(m.code); 
+                const shiftValue = document.getElementById(`${type}Shift`)?.value || m.shift;
+                const startValue = document.getElementById(`${type}Start`)?.value || '';
+                const refDate = getRequestReferenceDateTime({
+                    date: inputDate,
+                    start: startValue,
+                    shiftType: shiftValue
+                }, m);
+                approved = window.calcTotalApprovedTime(m.code, refDate); 
             }
             
             // UI 업데이트
@@ -4029,7 +4047,8 @@ window.closeSecurityModal = function() {
                 const member = window.members.find(m => isSameCode(m.code, r.code))
                     || window.members.find(m => m.name === r.name);
                 const base = window.calcBaseHours(member);
-                const total = base + window.calcTotalApprovedTime(r.code || r.name);
+                const refDate = getRequestReferenceDateTime(r, member);
+                const total = base + window.calcTotalApprovedTime(r.code || r.name, refDate);
                 const percent = Math.min((total / 52) * 100, 100);
                 const safeName = escapeHTML(r.name);
                 const safeNick = escapeHTML(r.nick);
@@ -4308,7 +4327,8 @@ window.closeSecurityModal = function() {
                         const member = window.members.find(m => isSameCode(m.code, r.code))
                             || window.members.find(m => m.name === r.name);
                         const base = member ? window.calcBaseHours(member) : 40;
-                        const total = base + window.calcTotalApprovedTime(r.code || r.name);
+                        const refDate = getRequestReferenceDateTime(r, member);
+                        const total = base + window.calcTotalApprovedTime(r.code || r.name, refDate);
                         let status = total >= 52 ? '초과' : (total >= 45 ? '주의' : '안전');
                         ws_data.push([r.name, r.nick, r.rank, r.code, r.shift||'Day조', r.date, r.start, r.end, r.time, total.toFixed(1)+'h', status, r.reason]);
                     });
@@ -4328,7 +4348,8 @@ window.closeSecurityModal = function() {
                         const member = window.members.find(m => isSameCode(m.code, r.code))
                             || window.members.find(m => m.name === r.name);
                         const base = member ? window.calcBaseHours(member) : 40;
-                        const total = base + window.calcTotalApprovedTime(r.code || r.name);
+                        const refDate = getRequestReferenceDateTime(r, member);
+                        const total = base + window.calcTotalApprovedTime(r.code || r.name, refDate);
                         let status = total >= 52 ? '초과' : (total >= 45 ? '주의' : '안전');
                         ws_data.push([r.name, r.nick, r.rank, r.code, r.shift||'Swing조', r.date, r.start, r.end, r.time, total.toFixed(1)+'h', status, r.reason]);
                     });
