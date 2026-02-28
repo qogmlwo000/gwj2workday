@@ -1247,6 +1247,7 @@
                             <div style="margin-top:-8px;">
                                 <div style="font-size:0.8rem; color:var(--text-sub); margin-bottom:8px; font-weight:600;">⚡ 빠른 시간 설정</div>
                                 <div class="time-presets">
+                                    <button class="time-preset-btn" onclick="setQuickTime('ot',0.3333333333)">+ 20분</button>
                                     <button class="time-preset-btn" onclick="setQuickTime('ot',0.5)">+ 30분</button>
                                     <button class="time-preset-btn" onclick="setQuickTime('ot',1.0)">+ 1시간</button>
                                     <button class="time-preset-btn" onclick="setQuickTime('ot',1.5)">+ 1.5시간</button>
@@ -1510,6 +1511,7 @@
                             <div style="margin-top:-8px;">
                                 <div style="font-size:0.8rem; color:var(--text-sub); margin-bottom:8px; font-weight:600;">⚡ 빠른 시간 설정</div>
                                 <div class="time-presets">
+                                    <button class="time-preset-btn" onclick="setQuickTimeEarly(0.3333333333)">- 20분 전</button>
                                     <button class="time-preset-btn" onclick="setQuickTimeEarly(0.5)">- 30분 전</button>
                                     <button class="time-preset-btn" onclick="setQuickTimeEarly(1.0)">- 1시간 전</button>
                                     <button class="time-preset-btn" onclick="setQuickTimeEarly(1.5)">- 1.5시간 전</button>
@@ -1525,6 +1527,7 @@
                             <div class="modern-input-group reason-input">
                                 <label><i class="fa-solid fa-comment"></i> 신청 사유</label>
                                 <div class="reason-tags">
+                                    <button class="reason-tag" onclick="setReason('early', '픽 사전 준비 20분 조출')">픽 사전 준비 20분 조출</button>
                                     <button class="reason-tag" onclick="setReason('early', '팩 메인 전산 셋팅')">팩 메인 전산 셋팅</button>
                                     <button class="reason-tag" onclick="setReason('early', '픽 메인 전산 셋팅')">픽 메인 전산 셋팅</button>
                                     <button class="reason-tag" onclick="setReason('early', '단기직 분배 (공정타각)')">단기직 분배 (공정타각)</button>
