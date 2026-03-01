@@ -2402,6 +2402,7 @@
             // 시간/근무조에 따른 날짜 이동(전일/익일 보정)은 적용하지 않는다.
             const refDate = new Date(baseDate);
             refDate.setHours(12, 0, 0, 0);
+
             return refDate;
         }
 
