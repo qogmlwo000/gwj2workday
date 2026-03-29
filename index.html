@@ -783,6 +783,27 @@
             margin-top: 4px; padding-top: 12px; border-top: 1px solid var(--border);
         }
 
+        #requestDeleteModal .modal-icon-circle {
+            background: rgba(245, 158, 11, 0.12);
+            color: #f59e0b;
+        }
+
+        #requestDeleteModal .modal-warning-note {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.16);
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+
+        #requestDeleteModal .btn-confirm {
+            background: linear-gradient(180deg, #fb7185, #ef4444);
+            box-shadow: 0 16px 34px rgba(239, 68, 68, 0.24);
+        }
+
+        #requestDeleteModal .btn-confirm:hover {
+            background: linear-gradient(180deg, #f43f5e, #dc2626);
+        }
+
         .modal-btns { display: flex; gap: 12px; margin-top: 25px; }
         .modal-btn { flex: 1; padding: 14px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 1rem; }
         .btn-cancel { background: var(--border); color: var(--text-sub); }
@@ -1706,14 +1727,14 @@
                 <span class="sub">OB Workday</span>
             </div>
         </div>
-        <div class="nav-item active" onclick="switchTab('dashboard', event)"><i class="fa-solid fa-chart-pie"></i> 대시보드</div>
-        <div class="nav-item" onclick="switchTab('calendar', event)"><i class="fa-solid fa-calendar-days"></i> 캘린더 뷰</div>
-        <div class="nav-item" onclick="switchTab('weekly', event)"><i class="fa-solid fa-chart-simple"></i> 주간 현황 (전체)</div>
-        <div class="nav-item" onclick="switchTab('overtime', event)"><i class="fa-solid fa-clock"></i> 연장 신청</div>
-        <div class="nav-item" onclick="switchTab('early', event)"><i class="fa-solid fa-sun"></i> 조출 신청</div>
-		<div class="nav-item" onclick="switchTab('leave', event)"><i class="fa-solid fa-plane-departure"></i> 휴가 신청</div>
-        <div class="nav-item" onclick="switchTab('special', event)"><i class="fa-solid fa-calendar-plus"></i> 특근 신청</div>
-		<div class="nav-item" onclick="switchTab('team', event)"><i class="fa-solid fa-users-gear"></i> 팀 설정</div>
+        <div class="nav-item active" onclick="switchTab('dashboard', event)">-<i class="fa-solid fa-chart-pie"></i> 대시보드</div>
+        <div class="nav-item" onclick="switchTab('calendar', event)">-<i class="fa-solid fa-calendar-days"></i> 캘린더 뷰</div>
+        <div class="nav-item" onclick="switchTab('weekly', event)">-<i class="fa-solid fa-chart-simple"></i> 주간 현황 (전체)</div>
+        <div class="nav-item" onclick="switchTab('overtime', event)">-<i class="fa-solid fa-clock"></i> 연장 신청</div>
+        <div class="nav-item" onclick="switchTab('early', event)">-<i class="fa-solid fa-sun"></i> 조출 신청</div>
+		<div class="nav-item" onclick="switchTab('leave', event)">-<i class="fa-solid fa-plane-departure"></i> 휴가 신청</div>
+        <div class="nav-item" onclick="switchTab('special', event)">-<i class="fa-solid fa-calendar-plus"></i> 특근 신청</div>
+		<div class="nav-item" onclick="switchTab('team', event)">-<i class="fa-solid fa-users-gear"></i> 팀 설정</div>
     </nav>
 
     <main id="mainArea">
@@ -2896,9 +2917,9 @@
             <div class="modal-icon-circle">
                 <i class="fa-solid fa-trash-can"></i>
             </div>
-            <h3 id="requestDeleteTitle" style="margin:0 0 8px 0; font-size:1.4rem;">신청 내역 삭제</h3>
+            <h3 id="requestDeleteTitle" style="margin:0 0 8px 0; font-size:1.4rem;">신청 내역을 삭제할까요?</h3>
             <p id="requestDeleteDesc" style="margin:0; color:var(--text-sub); font-size:0.95rem; line-height:1.5;">
-                선택한 신청 내역을 삭제하시겠습니까?
+                실수 방지를 위해 아래 내용을 한 번 더 확인해주세요.
             </p>
             <div id="requestDeleteSummary" class="delete-request-summary">
                 <div class="delete-request-summary-row">
@@ -2925,9 +2946,9 @@
             <div class="modal-warning-note">삭제 후에는 복구할 수 없습니다.</div>
 
             <div class="modal-btns">
-                <button class="modal-btn btn-cancel" onclick="closeRequestDeleteModal()">취소</button>
+                <button class="modal-btn btn-cancel" onclick="closeRequestDeleteModal()">취소하고 유지</button>
                 <button class="modal-btn btn-confirm" id="requestDeleteConfirmBtn" onclick="confirmRequestDelete()">
-                    <i class="fa-solid fa-trash"></i> 삭제하기
+                    <i class="fa-solid fa-trash"></i> 네, 삭제할게요
                 </button>
             </div>
         </div>
@@ -3798,7 +3819,7 @@ onSnapshot(docRef, (docSnap) => {
             const request = requests.find(r => String(r.id) === String(requestId)) || null;
 
             pendingRequestDelete = { target, requestId };
-            title.textContent = `${labelMap[target] || '신청'} 삭제 확인`;
+            title.textContent = `${labelMap[target] || '신청'} 내역을 삭제할까요?`;
 
             if (request) {
                 const shiftType = getShiftType(request.shiftType || request.shift);
@@ -3810,14 +3831,14 @@ onSnapshot(docRef, (docSnap) => {
                     : `${start} ~ ${end}`;
                 const reason = String(request.reason || '').trim() || '사유 없음';
 
-                desc.textContent = `${request.name || '선택한 신청자'}님의 ${labelMap[target] || '신청'} 내역을 삭제하려고 합니다. 아래 정보를 다시 확인해주세요.`;
+                desc.textContent = `${request.name || '선택한 신청자'}님의 ${labelMap[target] || '신청'} 내역입니다. 맞는 내용인지 한 번 더 확인한 뒤 삭제를 진행해주세요.`;
                 document.getElementById('requestDeleteName').textContent = request.name || '-';
                 document.getElementById('requestDeleteDate').textContent = formatDeleteRequestDate(request.date);
                 document.getElementById('requestDeleteShift').textContent = shiftLabel;
                 document.getElementById('requestDeleteTime').textContent = timeLabel;
                 document.getElementById('requestDeleteReason').textContent = reason;
             } else {
-                desc.textContent = `선택한 ${labelMap[target] || '신청'} 내역을 삭제하시겠습니까?`;
+                desc.textContent = `선택한 ${labelMap[target] || '신청'} 내역이 맞는지 확인한 뒤 삭제를 진행해주세요.`;
                 resetRequestDeleteSummary();
             }
 
@@ -3832,7 +3853,7 @@ onSnapshot(docRef, (docSnap) => {
             const confirmBtn = document.getElementById('requestDeleteConfirmBtn');
             if (confirmBtn) {
                 confirmBtn.disabled = false;
-                confirmBtn.innerHTML = '<i class="fa-solid fa-trash"></i> 삭제하기';
+                confirmBtn.innerHTML = '<i class="fa-solid fa-trash"></i> 네, 삭제할게요';
             }
         };
 
@@ -3846,7 +3867,7 @@ onSnapshot(docRef, (docSnap) => {
             const confirmBtn = document.getElementById('requestDeleteConfirmBtn');
             if (confirmBtn) {
                 confirmBtn.disabled = true;
-                confirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 삭제 중';
+                confirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 삭제하는 중';
             }
 
             try {
@@ -3855,7 +3876,7 @@ onSnapshot(docRef, (docSnap) => {
             } catch (e) {
                 if (confirmBtn) {
                     confirmBtn.disabled = false;
-                    confirmBtn.innerHTML = '<i class="fa-solid fa-trash"></i> 삭제하기';
+                    confirmBtn.innerHTML = '<i class="fa-solid fa-trash"></i> 네, 삭제할게요';
                 }
                 alert("Error: " + e.message);
             }
