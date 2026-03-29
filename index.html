@@ -122,6 +122,22 @@
         .status-loading .conn-dot { background: var(--warning); animation: pulse-yellow 1s infinite; }
         .status-loading { border-color: rgba(245, 158, 11, 0.3); color: var(--warning); }
 
+        .connection-notice {
+            display: none; align-items: flex-start; gap: 10px; margin-bottom: 18px;
+            padding: 14px 16px; border-radius: 14px; border: 1px solid var(--border);
+            background: var(--bg-nav); box-shadow: var(--card-shadow);
+        }
+        .connection-notice.show { display: flex; }
+        .connection-notice.error {
+            border-color: rgba(239, 68, 68, 0.25);
+            background: rgba(239, 68, 68, 0.08);
+            color: var(--danger);
+        }
+        .connection-notice i { margin-top: 2px; }
+        .connection-notice-text {
+            flex: 1; font-size: 0.92rem; line-height: 1.5; white-space: pre-line;
+        }
+
         @keyframes pulse-green { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         @keyframes pulse-yellow { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
 
@@ -1031,6 +1047,8 @@
         <div style="font-size:0.9rem; color:var(--text-sub);">V 1.5 - Bennett</div>
     </div>
 </header>
+
+        <div id="connectionNotice" class="connection-notice" role="status" aria-live="polite"></div>
 
         <div id="tab-dashboard" class="tab-content active">
             <div class="search-filter-bar">
@@ -2240,9 +2258,9 @@
         window.dashActiveFilters = { danger: false, warning: false, safe: false };
         window.allWeeklyData = [];
         window.allDashData = [];
-        window.requestDateFilters = { overtime: 'today', early: 'today', special: 'today' };
-        window.shiftFilters = { overtime: 'all', early: 'all', special: 'all' };
-        window.customDateFilters = { overtime: null, early: null, special: null };
+        window.requestDateFilters = { overtime: 'today', early: 'today', special: 'today', leave: 'today' };
+        window.shiftFilters = { overtime: 'all', early: 'all', special: 'all', leave: 'all' };
+        window.customDateFilters = { overtime: null, early: null, special: null, leave: null };
         window.calendarStates = {
             ot: { year: new Date().getFullYear(), month: new Date().getMonth() },
             early: { year: new Date().getFullYear(), month: new Date().getMonth() },
@@ -2266,6 +2284,48 @@
             } else {
                 container.classList.add('status-loading');
                 text.textContent = '연결 중...';
+            }
+        }
+
+        function clearConnectionNotice() {
+            const notice = document.getElementById('connectionNotice');
+            if (!notice) return;
+            notice.className = 'connection-notice';
+            notice.innerHTML = '';
+            delete notice.dataset.message;
+            delete notice.dataset.type;
+        }
+
+        function setConnectionNotice(message, type = 'error') {
+            const notice = document.getElementById('connectionNotice');
+            if (!notice) return;
+
+            const nextMessage = String(message || '').trim();
+            if (!nextMessage) {
+                clearConnectionNotice();
+                return;
+            }
+
+            const prevMessage = notice.dataset.message || '';
+            const prevType = notice.dataset.type || '';
+
+            notice.dataset.message = nextMessage;
+            notice.dataset.type = type;
+            notice.className = `connection-notice show ${type}`;
+            notice.innerHTML = '';
+
+            const icon = document.createElement('i');
+            icon.className = 'fa-solid fa-triangle-exclamation';
+
+            const text = document.createElement('div');
+            text.className = 'connection-notice-text';
+            text.textContent = nextMessage;
+
+            notice.appendChild(icon);
+            notice.appendChild(text);
+
+            if ((prevMessage !== nextMessage || prevType !== type) && typeof window.showToast === 'function') {
+                window.showToast('Firebase 연결 상태를 확인해주세요.', 'error');
             }
         }
         
@@ -2438,6 +2498,7 @@
         // --- Firebase Listener --- (814번 줄 근처)
 onSnapshot(docRef, (docSnap) => {
     updateConnectionStatus('connected');
+    clearConnectionNotice();
     
     if (docSnap.exists()) {
         const data = docSnap.data();
@@ -2474,27 +2535,27 @@ onSnapshot(docRef, (docSnap) => {
         // ⚠️ 문서가 없을 때 - 절대 자동 초기화 금지!
         console.error("❌ Firebase 문서가 존재하지 않습니다!");
         updateConnectionStatus('disconnected');
-        
-        // 🔒 자동 초기화 완전 차단
-        alert("⛔ Firebase 데이터를 찾을 수 없습니다.\n\n" +
-              "가능한 원인:\n" +
-              "1. 네트워크 연결 문제\n" +
-              "2. Firebase 권한 문제\n" +
-              "3. 문서가 삭제됨\n\n" +
-              "페이지를 새로고침하거나 관리자에게 문의하세요.");
+        setConnectionNotice(
+            "Firebase 데이터를 찾을 수 없습니다.\n\n가능한 원인:\n1. 네트워크 연결 문제\n2. Firebase 권한 문제\n3. 문서가 삭제됨\n\n기존 화면 데이터는 유지하며, 페이지를 새로고침하거나 관리자에게 문의해주세요."
+        );
         
         // 기존 메모리 데이터라도 유지
         if (!window.members) window.members = defaultMembers;
         if (!window.requests) window.requests = { overtime: [], early: [], special: [], leave: [] };
+        initSelects();
+        refreshUI();
     }
 }, (error) => {
     console.error("❌ Firebase 리스너 오류:", error);
     updateConnectionStatus('disconnected');
-    
-    // 🔒 오류 시에도 초기화 금지
-    alert("⚠️ Firebase 연결 오류가 발생했습니다.\n\n" +
-          "오류: " + error.message + "\n\n" +
-          "페이지를 새로고침해주세요.");
+    setConnectionNotice(
+        `Firebase 연결 오류가 발생했습니다.\n\n오류: ${error.message}\n\n기존 화면 데이터는 유지합니다. 네트워크 상태를 확인한 뒤 새로고침해주세요.`
+    );
+
+    if (!window.members) window.members = defaultMembers;
+    if (!window.requests) window.requests = { overtime: [], early: [], special: [], leave: [] };
+    initSelects();
+    refreshUI();
 });
 
         function applyResponsiveTableLabels() {
@@ -3356,7 +3417,9 @@ window.closeSecurityModal = function() {
             display.classList.remove('placeholder');
             document.getElementById(`${type}Calendar`).classList.remove('show');
             document.querySelector(`#${type}Calendar`).previousElementSibling.querySelector('.custom-date-input').classList.remove('active');
-            updateAnalysis(type === 'ot' ? 'ot' : type === 'early' ? 'early' : 'special');
+            const analysisTypeMap = { ot: 'ot', early: 'early', special: 'special', leave: 'leave' };
+            const analysisType = analysisTypeMap[type];
+            if (analysisType) updateAnalysis(analysisType);
         };
 
         window.initTimePicker = function(id, defaultValue) {
@@ -3956,34 +4019,62 @@ window.closeSecurityModal = function() {
             const date = document.getElementById('editReqDate').value;
             const start = document.getElementById('editReqStart').value;
             const end = document.getElementById('editReqEnd').value;
-            const time = document.getElementById('editReqDiff').innerText;
-            const reason = document.getElementById('editReqReason').value;
+            const reason = document.getElementById('editReqReason').value.trim();
 
             if(!date || !start || !end || !reason) return alert("모든 내용을 입력해주세요.");
             if (!String(id || '').trim()) return alert("수정할 신청 ID가 올바르지 않습니다.");
 
+            const diffHours = calcDurationHours(start, end);
+            if (!Number.isFinite(diffHours) || diffHours <= 0) {
+                return alert("시간을 올바르게 입력해주세요.");
+            }
+
+            const time = `${diffHours.toFixed(1)}h`;
+
             try {
                 const txResult = await mutateRequestsTransaction((requests) => {
-                    const list = requests[type];
+                    const list = Array.isArray(requests[type]) ? requests[type] : null;
+                    if (!list) {
+                        return { apply: false, reason: 'invalid_type' };
+                    }
+
                     const targetIdx = list.findIndex(r => String(r.id) === String(id));
 
                     if (targetIdx === -1) {
                         return { apply: false, reason: 'missing' };
                     }
 
+                    const currentRequest = list[targetIdx];
+                    const isDup = list.some((r, idx) =>
+                        idx !== targetIdx &&
+                        r.code === currentRequest.code &&
+                        r.date === date
+                    );
+                    if (isDup) {
+                        return { apply: false, reason: 'duplicate' };
+                    }
+
                     // 기존 데이터에 새로운 값만 덮어쓰기 (이름, 직책 등은 유지)
                     list[targetIdx] = {
-                        ...list[targetIdx],
+                        ...currentRequest,
                         date, start, end, time, reason
                     };
 
                     return { apply: true, reason: 'updated' };
                 });
 
+                if (txResult?.reason === 'duplicate') {
+                    return alert("중복신청입니다.\n기존 신청건을 삭제 혹은 수정해주시기 바랍니다.");
+                }
+
                 if (txResult?.reason === 'missing') {
                     alert("수정 대상 신청건을 찾지 못했습니다.\n목록을 새로 확인해주세요.");
                     closeEditPopup();
                     return;
+                }
+
+                if (txResult?.reason === 'invalid_type') {
+                    return alert("수정할 신청 유형이 올바르지 않습니다.");
                 }
 
                 showToast("수정되었습니다! 📝");
@@ -4139,6 +4230,29 @@ window.closeSecurityModal = function() {
             applyResponsiveTableLabels();
         };
 
+        function getRequestTablePrefix(type) {
+            return type === 'leave' ? 'leave' : (type === 'overtime' ? 'ot' : (type === 'early' ? 'early' : 'special'));
+        }
+
+        function getRequestDateFilterElements(type) {
+            const tbodyId = getRequestTablePrefix(type);
+            const todayBtn = document.getElementById(`${tbodyId}FilterToday`);
+            const container = todayBtn ? todayBtn.parentElement : null;
+            const buttons = container ? Array.from(container.querySelectorAll('.filter-btn')) : [];
+            return {
+                tbodyId,
+                container,
+                buttons,
+                customBtn: buttons[5] || null
+            };
+        }
+
+        function resetCustomDateFilterButton(type) {
+            const { customBtn } = getRequestDateFilterElements(type);
+            if (!customBtn) return;
+            customBtn.innerHTML = '<i class="fa-solid fa-calendar-alt"></i> 날짜 선택';
+        }
+
         window.setRequestDateFilter = function(type, filter) {
             window.requestDateFilters[type] = filter;
             
@@ -4146,30 +4260,22 @@ window.closeSecurityModal = function() {
                 window.customDateFilters[type] = null;
             }
             
-            //  type이 'leave'이면 id prefix도 'leave'로 설정
-            const tbodyId = type === 'leave' ? 'leave' : (type === 'overtime' ? 'ot' : (type === 'early' ? 'early' : 'special'));
-            
-            // 버튼 컨테이너 찾기
-            const todayBtn = document.getElementById(`${tbodyId}FilterToday`);
-            if(!todayBtn) return; // 안전장치
+            const { buttons } = getRequestDateFilterElements(type);
+            if (!buttons.length) return;
 
-            const container = todayBtn.parentElement;
-            
-            // 모든 버튼 비활성화
-            container.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            
-            // 클릭한 버튼 활성화
-            if (filter === 'yesterday') {
-                container.querySelectorAll('.filter-btn')[0].classList.add('active');
-            } else if (filter === 'today') {
-                document.getElementById(`${tbodyId}FilterToday`).classList.add('active');
-            } else if (filter === 'tomorrow') {
-                container.querySelectorAll('.filter-btn')[2].classList.add('active');
-            } else if (filter === 'week') {
-                container.querySelectorAll('.filter-btn')[3].classList.add('active');
-            } else if (filter === 'all') {
-                container.querySelectorAll('.filter-btn')[4].classList.add('active');
-            }
+            resetCustomDateFilterButton(type);
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            const filterIndexMap = {
+                yesterday: 0,
+                today: 1,
+                tomorrow: 2,
+                week: 3,
+                all: 4,
+                custom: 5
+            };
+            const targetBtn = buttons[filterIndexMap[filter]];
+            if (targetBtn) targetBtn.classList.add('active');
             
             window.renderRequestTable(type);
         };
@@ -4210,25 +4316,13 @@ window.closeSecurityModal = function() {
             if (dateStr && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
                 window.customDateFilters[type] = dateStr;
                 window.requestDateFilters[type] = 'custom';
-                
-                //  leave 케이스 추가
-                const tbodyId = type === 'leave' ? 'leave' : (type === 'overtime' ? 'ot' : (type === 'early' ? 'early' : 'special'));
-                
-                const todayBtn = document.getElementById(`${tbodyId}FilterToday`);
-                if(todayBtn) {
-                    const container = todayBtn.parentElement.parentElement; // 버튼 그룹 상위
-                    const dateFilterButtons = container.querySelector('div[style*="flex-wrap"]');
-                    
-                    // 기존 활성화 제거
-                    dateFilterButtons.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-                    
-                    // '날짜 선택' 버튼 찾아서 활성화 및 날짜 표시
-                    dateFilterButtons.querySelectorAll('.filter-btn').forEach(btn => {
-                        if (btn.textContent.includes('날짜 선택') || btn.innerHTML.includes('fa-calendar-check')) {
-                            btn.classList.add('active');
-                            btn.innerHTML = `<i class="fa-solid fa-calendar-check"></i> ${dateStr}`;
-                        }
-                    });
+
+                const { buttons, customBtn } = getRequestDateFilterElements(type);
+                resetCustomDateFilterButton(type);
+                buttons.forEach(btn => btn.classList.remove('active'));
+                if (customBtn) {
+                    customBtn.classList.add('active');
+                    customBtn.innerHTML = `<i class="fa-solid fa-calendar-check"></i> ${dateStr}`;
                 }
                 
                 window.renderRequestTable(type);
