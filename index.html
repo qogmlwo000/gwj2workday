@@ -753,6 +753,36 @@
             border-color: var(--danger); box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
         }
 
+        .modal-warning-note {
+            margin-top: 14px; padding: 12px 14px; border-radius: 18px;
+            background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.16);
+            color: var(--danger); font-size: 0.86rem; font-weight: 700; line-height: 1.45;
+        }
+
+        .delete-request-summary {
+            margin-top: 16px; padding: 16px; border-radius: 20px;
+            background: var(--bg-elevated-strong); border: 1px solid var(--border-strong);
+            display: grid; gap: 10px; text-align: left;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+
+        .delete-request-summary-row {
+            display: grid; grid-template-columns: 80px 1fr; gap: 12px; align-items: start;
+            font-size: 0.92rem;
+        }
+
+        .delete-request-summary-label {
+            color: var(--text-sub); font-weight: 700;
+        }
+
+        .delete-request-summary-value {
+            color: var(--text-main); font-weight: 700; word-break: break-word;
+        }
+
+        .delete-request-summary-reason {
+            margin-top: 4px; padding-top: 12px; border-top: 1px solid var(--border);
+        }
+
         .modal-btns { display: flex; gap: 12px; margin-top: 25px; }
         .modal-btn { flex: 1; padding: 14px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 1rem; }
         .btn-cancel { background: var(--border); color: var(--text-sub); }
@@ -978,6 +1008,687 @@
             .searchable-select-option {
                 padding: 16px;
                 min-height: 56px;
+            }
+        }
+
+        /* Modern SaaS skin overrides */
+        :root {
+            --bg-body: #09090b;
+            --bg-nav: rgba(17, 17, 23, 0.78);
+            --bg-glass: rgba(20, 20, 26, 0.68);
+            --bg-elevated: rgba(255, 255, 255, 0.04);
+            --bg-elevated-strong: rgba(255, 255, 255, 0.06);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-strong: rgba(255, 255, 255, 0.14);
+            --text-main: #fafafa;
+            --text-sub: #a1a1aa;
+            --primary: #4f7cff;
+            --primary-hover: #3f6de8;
+            --primary-soft: rgba(79, 124, 255, 0.18);
+            --card-shadow: 0 28px 80px rgba(0, 0, 0, 0.45);
+            --card-shadow-hover: 0 36px 96px rgba(0, 0, 0, 0.56);
+            --input-bg: rgba(22, 22, 28, 0.82);
+            --table-head: rgba(255, 255, 255, 0.03);
+            --table-row-hover: rgba(255, 255, 255, 0.04);
+            --radius-card: 24px;
+            --radius-pill: 9999px;
+            --radius-control: 18px;
+            --blur-lg: blur(12px) saturate(150%);
+        }
+
+        [data-theme="light"] {
+            --bg-body: #f5f7fb;
+            --bg-nav: rgba(255, 255, 255, 0.8);
+            --bg-glass: rgba(255, 255, 255, 0.7);
+            --bg-elevated: rgba(255, 255, 255, 0.74);
+            --bg-elevated-strong: rgba(255, 255, 255, 0.88);
+            --border: rgba(15, 23, 42, 0.08);
+            --border-strong: rgba(15, 23, 42, 0.12);
+            --text-main: #09090b;
+            --text-sub: #71717a;
+            --primary: #356dff;
+            --primary-hover: #245ae3;
+            --primary-soft: rgba(53, 109, 255, 0.12);
+            --card-shadow: 0 24px 64px rgba(15, 23, 42, 0.12);
+            --card-shadow-hover: 0 32px 76px rgba(15, 23, 42, 0.16);
+            --input-bg: rgba(255, 255, 255, 0.84);
+            --table-head: rgba(255, 255, 255, 0.76);
+            --table-row-hover: rgba(15, 23, 42, 0.04);
+        }
+
+        body {
+            position: relative;
+            background-color: var(--bg-body);
+            background-image:
+                radial-gradient(circle at top left, rgba(79, 124, 255, 0.14), transparent 28%),
+                radial-gradient(circle at top right, rgba(34, 197, 94, 0.08), transparent 24%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 32%);
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::before {
+            background:
+                radial-gradient(circle at 18% 12%, rgba(79, 124, 255, 0.1), transparent 22%),
+                radial-gradient(circle at 82% 10%, rgba(244, 114, 182, 0.08), transparent 20%);
+            opacity: 0.9;
+        }
+
+        body::after {
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 20%),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: auto, 24px 24px, 24px 24px;
+            mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.38), transparent 80%);
+            opacity: 0.35;
+        }
+
+        nav,
+        main {
+            position: relative;
+            z-index: 1;
+        }
+
+        nav {
+            width: 280px;
+            background: var(--bg-glass);
+            border-right: 1px solid var(--border-strong);
+            box-shadow: var(--card-shadow);
+            backdrop-filter: var(--blur-lg);
+            -webkit-backdrop-filter: var(--blur-lg);
+        }
+
+        main {
+            padding: 44px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: clamp(2rem, 3vw, 2.75rem);
+            font-weight: 900;
+            letter-spacing: -0.05em;
+        }
+
+        .logo {
+            border-radius: var(--radius-card);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+            border: 1px solid var(--border-strong);
+            box-shadow: var(--card-shadow);
+            backdrop-filter: var(--blur-lg);
+            -webkit-backdrop-filter: var(--blur-lg);
+        }
+
+        .logo::before {
+            background: linear-gradient(135deg, rgba(79, 124, 255, 0.94), rgba(88, 211, 255, 0.7));
+        }
+
+        .logo-icon {
+            border-radius: 18px;
+            background: linear-gradient(180deg, var(--primary), #1f9cf0);
+            box-shadow: 0 16px 40px rgba(79, 124, 255, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.24);
+        }
+
+        .nav-item {
+            border-radius: var(--radius-pill);
+            padding: 14px 18px;
+            border: 1px solid transparent;
+            backdrop-filter: var(--blur-lg);
+            -webkit-backdrop-filter: var(--blur-lg);
+        }
+
+        .nav-item::before {
+            left: 12px;
+            width: 6px;
+            border-radius: var(--radius-pill);
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--border-strong);
+            box-shadow: 0 18px 36px rgba(0, 0, 0, 0.16);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(180deg, var(--primary), var(--primary-hover));
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 24px 44px rgba(79, 124, 255, 0.28);
+        }
+
+        .connection-badge,
+        .reset-timer-container,
+        .timer-block,
+        .widget-card,
+        .table-card,
+        .form-container,
+        .analysis-panel,
+        .search-filter-bar,
+        .calendar-view-container,
+        .modal-card,
+        .connection-notice,
+        .searchable-select-dropdown,
+        .calendar-dropdown,
+        .time-dropdown {
+            background: var(--bg-glass) !important;
+            border: 1px solid var(--border-strong) !important;
+            box-shadow: var(--card-shadow) !important;
+            backdrop-filter: var(--blur-lg);
+            -webkit-backdrop-filter: var(--blur-lg);
+        }
+
+        .widget-card,
+        .table-card,
+        .form-container,
+        .analysis-panel,
+        .search-filter-bar,
+        .calendar-view-container,
+        .modal-card,
+        .connection-notice,
+        .member-card,
+        .calendar-view-day {
+            border-radius: var(--radius-card) !important;
+        }
+
+        .connection-badge,
+        .status-badge,
+        .reason-tag,
+        .filter-btn,
+        .btn,
+        .submit-btn,
+        .time-preset-btn,
+        .time-confirm-btn,
+        .calendar-view-today-btn,
+        .calendar-view-nav button,
+        .calendar-nav-btn,
+        .clear-filters,
+        .modal-btn,
+        .timer-chip,
+        .btn-del,
+        .btn-edit,
+        .card-badge {
+            border-radius: var(--radius-pill) !important;
+        }
+
+        .connection-badge {
+            padding: 8px 14px;
+        }
+
+        .connection-badge,
+        .timer-block,
+        .filter-btn,
+        .btn,
+        .reason-tag,
+        .status-badge,
+        .timer-chip,
+        .calendar-event,
+        .calendar-nav-btn,
+        .calendar-view-nav button {
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.16) !important;
+        }
+
+        .reset-timer-container {
+            border-radius: var(--radius-card) !important;
+            padding: 10px 12px 10px 18px;
+        }
+
+        .timer-block {
+            background: var(--bg-elevated) !important;
+            border-radius: var(--radius-pill) !important;
+            box-shadow: none !important;
+        }
+
+        .theme-toggle {
+            height: 46px;
+            background: var(--bg-elevated-strong);
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-pill);
+            backdrop-filter: var(--blur-lg);
+            -webkit-backdrop-filter: var(--blur-lg);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.14);
+        }
+
+        .theme-toggle-slider {
+            top: 4px;
+            left: 4px;
+            height: 36px;
+            width: 64px;
+            border-radius: var(--radius-pill);
+            background: linear-gradient(180deg, var(--primary), #1f9cf0);
+            box-shadow: 0 16px 36px rgba(79, 124, 255, 0.32);
+        }
+
+        [data-theme="light"] .theme-toggle-slider {
+            left: calc(100% - 68px);
+            background: linear-gradient(180deg, #2563eb, #1d4ed8);
+        }
+
+        .widget-card,
+        .form-container,
+        .analysis-panel,
+        .search-filter-bar,
+        .calendar-view-container {
+            padding: 28px;
+        }
+
+        .widget-card:hover,
+        .member-card:hover,
+        .calendar-view-day:hover,
+        .table-card:hover,
+        .form-container:hover,
+        .analysis-panel:hover {
+            box-shadow: var(--card-shadow-hover) !important;
+        }
+
+        .widget-icon {
+            border-radius: 20px;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+        }
+
+        .table-card {
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px 24px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent) !important;
+            border-bottom: 1px solid var(--border-strong) !important;
+        }
+
+        .weekly-table th {
+            background: transparent !important;
+            border-bottom: 1px solid var(--border) !important;
+            color: var(--text-sub);
+            letter-spacing: 0.08em;
+        }
+
+        .weekly-table td {
+            background: transparent !important;
+            border-bottom: 1px solid var(--border) !important;
+        }
+
+        .weekly-table tbody tr:hover td {
+            background: var(--table-row-hover) !important;
+        }
+
+        .modern-input-wrapper input,
+        .modern-input-wrapper select,
+        .modern-input-wrapper textarea,
+        .search-box input,
+        .searchable-select-input,
+        .custom-date-input,
+        .custom-time-input,
+        .modal-input-box input,
+        #editRequestModal input[type="date"],
+        #editRequestModal input[type="time"],
+        #editRequestModal textarea {
+            background: var(--input-bg) !important;
+            border: 1px solid var(--border-strong) !important;
+            border-radius: var(--radius-control) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 10px 30px rgba(0, 0, 0, 0.08);
+            backdrop-filter: var(--blur-lg);
+            -webkit-backdrop-filter: var(--blur-lg);
+        }
+
+        .modern-input-wrapper input:focus,
+        .modern-input-wrapper select:focus,
+        .modern-input-wrapper textarea:focus,
+        .search-box input:focus,
+        .searchable-select-input:focus,
+        .modal-input-box input:focus,
+        #editRequestModal input:focus,
+        #editRequestModal textarea:focus,
+        .custom-date-input.active,
+        .custom-time-input.active {
+            border-color: rgba(79, 124, 255, 0.5) !important;
+            background: var(--bg-elevated-strong) !important;
+            box-shadow: 0 0 0 4px rgba(79, 124, 255, 0.12), 0 18px 42px rgba(0, 0, 0, 0.12) !important;
+            transform: none !important;
+        }
+
+        .searchable-select-dropdown,
+        .calendar-dropdown,
+        .time-dropdown {
+            border-radius: var(--radius-card) !important;
+        }
+
+        .searchable-select-option {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .searchable-select-option:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .searchable-select-option.selected {
+            background: var(--primary-soft);
+            color: var(--primary);
+        }
+
+        .btn,
+        .filter-btn,
+        .clear-filters,
+        .calendar-view-nav button,
+        .calendar-nav-btn,
+        .modal-btn,
+        .time-preset-btn {
+            background: var(--bg-elevated-strong);
+            color: var(--text-main);
+            border: 1px solid var(--border-strong) !important;
+            box-shadow: 0 16px 38px rgba(0, 0, 0, 0.14);
+            backdrop-filter: var(--blur-lg);
+            -webkit-backdrop-filter: var(--blur-lg);
+        }
+
+        .submit-btn,
+        .time-confirm-btn,
+        .calendar-view-today-btn,
+        .btn-confirm {
+            background: linear-gradient(180deg, var(--primary), var(--primary-hover)) !important;
+            color: white !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 20px 48px rgba(79, 124, 255, 0.34) !important;
+        }
+
+        .submit-btn {
+            padding: 16px 22px;
+        }
+
+        .btn:hover,
+        .filter-btn:hover,
+        .submit-btn:hover,
+        .time-preset-btn:hover,
+        .time-confirm-btn:hover,
+        .calendar-view-today-btn:hover,
+        .calendar-view-nav button:hover,
+        .calendar-nav-btn:hover,
+        .modal-btn:hover,
+        .clear-filters:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--card-shadow-hover) !important;
+        }
+
+        .btn-capture {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: var(--text-main) !important;
+        }
+
+        [data-theme="light"] .btn-capture {
+            background: rgba(15, 23, 42, 0.05) !important;
+        }
+
+        .btn-excel {
+            background: linear-gradient(180deg, #22c55e, #16a34a) !important;
+            color: white !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 18px 42px rgba(34, 197, 94, 0.28) !important;
+        }
+
+        .btn-del {
+            background: rgba(239, 68, 68, 0.12) !important;
+            color: #ff7b7b !important;
+            border: 1px solid rgba(239, 68, 68, 0.22) !important;
+        }
+
+        .btn-del:hover {
+            background: var(--danger) !important;
+            color: white !important;
+        }
+
+        .btn-edit {
+            background: var(--primary-soft) !important;
+            color: var(--primary) !important;
+            border: 1px solid rgba(79, 124, 255, 0.2) !important;
+        }
+
+        .btn-edit:hover {
+            background: linear-gradient(180deg, var(--primary), var(--primary-hover)) !important;
+            color: white !important;
+        }
+
+        .filter-btn {
+            padding: 10px 18px !important;
+            background: var(--bg-elevated-strong) !important;
+            color: var(--text-sub) !important;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(180deg, var(--primary), var(--primary-hover)) !important;
+            color: white !important;
+            border-color: transparent !important;
+            box-shadow: 0 18px 40px rgba(79, 124, 255, 0.28) !important;
+        }
+
+        .filter-btn.filter-danger.active {
+            background: linear-gradient(180deg, #ef4444, #dc2626) !important;
+        }
+
+        .filter-btn.filter-warning.active {
+            background: linear-gradient(180deg, #f59e0b, #d97706) !important;
+            color: white !important;
+        }
+
+        .filter-btn.filter-safe.active {
+            background: linear-gradient(180deg, #22c55e, #16a34a) !important;
+        }
+
+        .reason-tag,
+        .status-badge,
+        .card-badge,
+        .timer-chip {
+            border: 1px solid var(--border-strong);
+            backdrop-filter: var(--blur-lg);
+            -webkit-backdrop-filter: var(--blur-lg);
+        }
+
+        .reason-tag {
+            background: var(--bg-elevated-strong);
+            padding: 8px 14px;
+        }
+
+        .reason-tag:hover {
+            background: linear-gradient(180deg, var(--primary), var(--primary-hover));
+            color: white;
+        }
+
+        .member-card {
+            background: linear-gradient(180deg, var(--bg-glass), rgba(255, 255, 255, 0.02)) !important;
+            border: 1px solid var(--border-strong) !important;
+            box-shadow: var(--card-shadow) !important;
+            backdrop-filter: var(--blur-lg);
+            -webkit-backdrop-filter: var(--blur-lg);
+        }
+
+        .member-card.manager-card {
+            background: linear-gradient(180deg, rgba(79, 124, 255, 0.14), rgba(79, 124, 255, 0.06)) !important;
+            border-width: 1px !important;
+        }
+
+        .member-card.manager-card::before {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.72), transparent);
+        }
+
+        .member-card.manager-card .card-badge {
+            background: linear-gradient(180deg, var(--primary), var(--primary-hover));
+            box-shadow: 0 16px 34px rgba(79, 124, 255, 0.26);
+        }
+
+        .member-card.captain-card .card-badge,
+        .status-badge {
+            background: var(--bg-elevated-strong);
+            color: var(--text-main);
+        }
+
+        .calendar-view-container {
+            overflow: hidden;
+        }
+
+        .calendar-view-day {
+            background: var(--bg-elevated) !important;
+            border: 1px solid var(--border-strong) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .calendar-view-day.today {
+            border: 1px solid rgba(79, 124, 255, 0.28) !important;
+            background: linear-gradient(180deg, var(--primary-soft), rgba(255, 255, 255, 0.02)) !important;
+        }
+
+        .calendar-view-nav button {
+            width: 44px;
+            height: 44px;
+        }
+
+        .calendar-event {
+            border-radius: var(--radius-pill) !important;
+            border-left: none !important;
+            padding: 6px 10px;
+            backdrop-filter: var(--blur-lg);
+            -webkit-backdrop-filter: var(--blur-lg);
+        }
+
+        .calendar-event.overtime {
+            background: rgba(79, 124, 255, 0.16) !important;
+            box-shadow: inset 0 0 0 1px rgba(79, 124, 255, 0.26);
+        }
+
+        .calendar-event.early {
+            background: rgba(245, 158, 11, 0.16) !important;
+            box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.26);
+        }
+
+        .calendar-event.special {
+            background: rgba(168, 85, 247, 0.16) !important;
+            box-shadow: inset 0 0 0 1px rgba(168, 85, 247, 0.24);
+        }
+
+        .toast {
+            background: var(--bg-glass);
+            color: var(--text-main);
+            border: 1px solid var(--border-strong);
+            box-shadow: var(--card-shadow);
+            backdrop-filter: var(--blur-lg);
+            -webkit-backdrop-filter: var(--blur-lg);
+        }
+
+        .modal-overlay {
+            background: rgba(9, 9, 11, 0.58);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .modal-card {
+            max-width: 440px;
+        }
+
+        .modal-input-box input {
+            letter-spacing: 0.35em;
+        }
+
+        .connection-notice {
+            border-radius: var(--radius-card);
+        }
+
+        .calendar-dropdown,
+        .time-dropdown {
+            max-width: 340px;
+        }
+
+        .team-shift-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px;
+            border-radius: var(--radius-pill);
+            background: var(--bg-elevated-strong);
+            border: 1px solid var(--border-strong);
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.14);
+            backdrop-filter: var(--blur-lg);
+            -webkit-backdrop-filter: var(--blur-lg);
+        }
+
+        .team-shift-toggle-btn {
+            border: none;
+            background: transparent;
+            color: var(--text-sub);
+            padding: 8px 12px;
+            border-radius: var(--radius-pill);
+            font-family: var(--font-main);
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .team-shift-toggle-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .team-shift-toggle-btn.active {
+            color: white;
+            background: linear-gradient(180deg, var(--primary), var(--primary-hover));
+            box-shadow: 0 14px 30px rgba(79, 124, 255, 0.28);
+        }
+
+        .team-shift-toggle-btn.day.active {
+            background: linear-gradient(180deg, #f59e0b, #d97706);
+            box-shadow: 0 14px 30px rgba(245, 158, 11, 0.28);
+        }
+
+        .team-shift-toggle-btn.swing.active {
+            background: linear-gradient(180deg, #4f7cff, #245ae3);
+            box-shadow: 0 14px 30px rgba(79, 124, 255, 0.28);
+        }
+
+        .search-filter-bar,
+        .calendar-view-header,
+        .table-header {
+            gap: 18px;
+        }
+
+        @media (max-width: 968px) {
+            nav {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border-strong);
+                border-radius: 0 0 28px 28px;
+            }
+
+            main {
+                padding: 24px 16px calc(24px + env(safe-area-inset-bottom)) 16px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .widget-card,
+            .form-container,
+            .analysis-panel,
+            .search-filter-bar,
+            .calendar-view-container,
+            .table-card {
+                border-radius: 20px !important;
+            }
+
+            .reset-timer-container {
+                border-radius: 20px !important;
+            }
+
+            .calendar-dropdown,
+            .time-dropdown,
+            .searchable-select-dropdown {
+                border-radius: 20px !important;
             }
         }
     </style>
@@ -2180,6 +2891,48 @@
         </div>
     </div>
 
+    <div id="requestDeleteModal" class="modal-overlay" onclick="if(event.target === this) closeRequestDeleteModal()">
+        <div class="modal-card">
+            <div class="modal-icon-circle">
+                <i class="fa-solid fa-trash-can"></i>
+            </div>
+            <h3 id="requestDeleteTitle" style="margin:0 0 8px 0; font-size:1.4rem;">신청 내역 삭제</h3>
+            <p id="requestDeleteDesc" style="margin:0; color:var(--text-sub); font-size:0.95rem; line-height:1.5;">
+                선택한 신청 내역을 삭제하시겠습니까?
+            </p>
+            <div id="requestDeleteSummary" class="delete-request-summary">
+                <div class="delete-request-summary-row">
+                    <div class="delete-request-summary-label">신청자</div>
+                    <div class="delete-request-summary-value" id="requestDeleteName">-</div>
+                </div>
+                <div class="delete-request-summary-row">
+                    <div class="delete-request-summary-label">신청일</div>
+                    <div class="delete-request-summary-value" id="requestDeleteDate">-</div>
+                </div>
+                <div class="delete-request-summary-row">
+                    <div class="delete-request-summary-label">근무조</div>
+                    <div class="delete-request-summary-value" id="requestDeleteShift">-</div>
+                </div>
+                <div class="delete-request-summary-row">
+                    <div class="delete-request-summary-label">시간</div>
+                    <div class="delete-request-summary-value" id="requestDeleteTime">-</div>
+                </div>
+                <div class="delete-request-summary-row delete-request-summary-reason">
+                    <div class="delete-request-summary-label">사유</div>
+                    <div class="delete-request-summary-value" id="requestDeleteReason">-</div>
+                </div>
+            </div>
+            <div class="modal-warning-note">삭제 후에는 복구할 수 없습니다.</div>
+
+            <div class="modal-btns">
+                <button class="modal-btn btn-cancel" onclick="closeRequestDeleteModal()">취소</button>
+                <button class="modal-btn btn-confirm" id="requestDeleteConfirmBtn" onclick="confirmRequestDelete()">
+                    <i class="fa-solid fa-trash"></i> 삭제하기
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -2336,11 +3089,19 @@
             return new Date(utcMs + (9 * 60 * 60000));
         }
 
+        function getShiftResetConfig(shiftType) {
+            const normalized = getShiftType(shiftType);
+            if (normalized === 'swing') {
+                return { startDay: 0, resetHour: 19 };
+            }
+            return { startDay: 0, resetHour: 0 };
+        }
+
         function getNextShiftResetDate(shiftType, now = getKstNow()) {
-            const resetHour = 0;
+            const { startDay, resetHour } = getShiftResetConfig(shiftType);
             const target = new Date(now);
-            const daysUntilSunday = (7 - now.getDay()) % 7;
-            target.setDate(now.getDate() + daysUntilSunday);
+            const daysUntilResetDay = (startDay - now.getDay() + 7) % 7;
+            target.setDate(now.getDate() + daysUntilResetDay);
             target.setHours(resetHour, 0, 0, 0);
 
             if (target <= now) {
@@ -2424,13 +3185,11 @@
         }
 
         function getWeekStartDay(member) {
-            // 주차 시작은 모든 근무조/멤버에 대해 일요일(0)로 고정한다.
-            return 0;
+            return getShiftResetConfig(member?.shift).startDay;
         }
 
         function getResetHourByShift(shiftType) {
-            // 주차 경계는 회사 기준(일요일 00:00)으로 통일한다.
-            return 0;
+            return getShiftResetConfig(shiftType).resetHour;
         }
 
         function getWeekRangeForMember(member, now = new Date()) {
@@ -2458,10 +3217,13 @@
             const baseDate = parseLocalDate(request?.date);
             if (!baseDate) return null;
 
-            // 주간 경계 계산은 "신청한 날짜" 자체를 기준으로 고정한다.
-            // 시간/근무조에 따른 날짜 이동(전일/익일 보정)은 적용하지 않는다.
+            const shiftType = getShiftType(request?.shiftType || request?.shift || fallbackShiftType);
+            const resetHour = getResetHourByShift(shiftType);
             const refDate = new Date(baseDate);
-            refDate.setHours(12, 0, 0, 0);
+            // 주간 집계는 실제 시각(start/end)이 아니라 "선택한 신청 날짜"를 기준으로 본다.
+            // 특히 SWING 연장(기본 04:00)은 실제 시각으로 계산하면 전 주로 밀리므로
+            // 근무조별 주간 경계 시각(DAY 00:00 / SWING 19:00)에 맞춰 고정한다.
+            refDate.setHours(resetHour, 0, 0, 0);
 
             return refDate;
         }
@@ -2917,6 +3679,7 @@ onSnapshot(docRef, (docSnap) => {
 
         // --- 보안 모달 로직 ---
         let pendingAction = { type: null, target: null, requestId: null, memberCode: null };
+        let pendingRequestDelete = { target: null, requestId: null };
         const ADMIN_PIN_KEY = 'gwj2_admin_pin_hash_v1';
         const ADMIN_PIN_SALT = 'gwj2_admin_salt_v1';
 
@@ -3009,16 +3772,98 @@ onSnapshot(docRef, (docSnap) => {
             return true;
         }
 
+        function formatDeleteRequestDate(dateStr) {
+            const date = parseLocalDate(dateStr);
+            if (!date) return dateStr || '-';
+            return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+        }
+
+        function resetRequestDeleteSummary() {
+            document.getElementById('requestDeleteName').textContent = '-';
+            document.getElementById('requestDeleteDate').textContent = '-';
+            document.getElementById('requestDeleteShift').textContent = '-';
+            document.getElementById('requestDeleteTime').textContent = '-';
+            document.getElementById('requestDeleteReason').textContent = '-';
+        }
+
+        function openRequestDeleteModal(target, requestId) {
+            const modal = document.getElementById('requestDeleteModal');
+            const title = document.getElementById('requestDeleteTitle');
+            const desc = document.getElementById('requestDeleteDesc');
+            const labelMap = {
+                overtime: '연장 신청',
+                early: '조출 신청'
+            };
+            const requests = Array.isArray(window.requests?.[target]) ? window.requests[target] : [];
+            const request = requests.find(r => String(r.id) === String(requestId)) || null;
+
+            pendingRequestDelete = { target, requestId };
+            title.textContent = `${labelMap[target] || '신청'} 삭제 확인`;
+
+            if (request) {
+                const shiftType = getShiftType(request.shiftType || request.shift);
+                const shiftLabel = request.shift || (shiftType === 'swing' ? 'SWING조' : 'DAY조');
+                const start = request.start || '-';
+                const end = request.end || '-';
+                const timeLabel = request.time
+                    ? `${start} ~ ${end} (${request.time})`
+                    : `${start} ~ ${end}`;
+                const reason = String(request.reason || '').trim() || '사유 없음';
+
+                desc.textContent = `${request.name || '선택한 신청자'}님의 ${labelMap[target] || '신청'} 내역을 삭제하려고 합니다. 아래 정보를 다시 확인해주세요.`;
+                document.getElementById('requestDeleteName').textContent = request.name || '-';
+                document.getElementById('requestDeleteDate').textContent = formatDeleteRequestDate(request.date);
+                document.getElementById('requestDeleteShift').textContent = shiftLabel;
+                document.getElementById('requestDeleteTime').textContent = timeLabel;
+                document.getElementById('requestDeleteReason').textContent = reason;
+            } else {
+                desc.textContent = `선택한 ${labelMap[target] || '신청'} 내역을 삭제하시겠습니까?`;
+                resetRequestDeleteSummary();
+            }
+
+            modal.classList.add('open');
+        }
+
+        window.closeRequestDeleteModal = function() {
+            document.getElementById('requestDeleteModal').classList.remove('open');
+            pendingRequestDelete = { target: null, requestId: null };
+            resetRequestDeleteSummary();
+
+            const confirmBtn = document.getElementById('requestDeleteConfirmBtn');
+            if (confirmBtn) {
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = '<i class="fa-solid fa-trash"></i> 삭제하기';
+            }
+        };
+
+        window.confirmRequestDelete = async function() {
+            const { target, requestId } = pendingRequestDelete;
+            if (!target) {
+                closeRequestDeleteModal();
+                return;
+            }
+
+            const confirmBtn = document.getElementById('requestDeleteConfirmBtn');
+            if (confirmBtn) {
+                confirmBtn.disabled = true;
+                confirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 삭제 중';
+            }
+
+            try {
+                await executeRequestDeletion(target, requestId);
+                closeRequestDeleteModal();
+            } catch (e) {
+                if (confirmBtn) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerHTML = '<i class="fa-solid fa-trash"></i> 삭제하기';
+                }
+                alert("Error: " + e.message);
+            }
+        };
+
         window.deleteRequest = async function(t, requestId) {
             if (t === 'overtime' || t === 'early') {
-                const confirmed = confirm("해당 내역을 삭제하시겠습니까?\n\n삭제 후 복구할 수 없습니다.");
-                if (!confirmed) return;
-
-                try {
-                    await executeRequestDeletion(t, requestId);
-                } catch (e) {
-                    alert("Error: " + e.message);
-                }
+                openRequestDeleteModal(t, requestId);
                 return;
             }
 
@@ -4807,10 +5652,14 @@ window.closeSecurityModal = function() {
                 
                 // 근무조 변경 셀렉트 박스 생성
                 const shiftSelectHTML = `
-                    <select onchange="updateMemberShift(${memberCodeArg}, this.value)" style="background:var(--bg-body); color:var(--text-main); border:1px solid var(--border); padding:4px; border-radius:6px; font-family:inherit;">
-                        <option value="day" ${currentShift==='day'?'selected':''}>Day</option>
-                        <option value="swing" ${currentShift==='swing'?'selected':''}>Swing</option>
-                    </select>
+                    <div class="team-shift-toggle" role="group" aria-label="근무조 선택">
+                        <button type="button" class="team-shift-toggle-btn day ${currentShift==='day'?'active':''}" onclick="updateMemberShift(${memberCodeArg}, 'day')">
+                            <i class="fa-solid fa-sun"></i> DAY
+                        </button>
+                        <button type="button" class="team-shift-toggle-btn swing ${currentShift==='swing'?'active':''}" onclick="updateMemberShift(${memberCodeArg}, 'swing')">
+                            <i class="fa-solid fa-moon"></i> SWING
+                        </button>
+                    </div>
                 `;
 
                 // 테이블 행 추가
@@ -4843,13 +5692,19 @@ window.closeSecurityModal = function() {
 
         // 근무조 변경 즉시 저장 함수
         window.updateMemberShift = async function(memberCode, newShift) {
+            const nextShift = newShift === 'swing' ? 'swing' : 'day';
             try {
                 const txResult = await mutateMembersTransaction((members) => {
                     const target = members.find(m => isSameCode(m.code, memberCode));
                     if (!target) {
                         return { apply: false, reason: 'missing' };
                     }
-                    target.shift = newShift;
+
+                    if ((target.shift || 'day') === nextShift) {
+                        return { apply: false, reason: 'no_change' };
+                    }
+
+                    target.shift = nextShift;
                     return { apply: true, reason: 'updated' };
                 });
 
@@ -4858,8 +5713,12 @@ window.closeSecurityModal = function() {
                     return;
                 }
 
+                if (txResult?.reason === 'no_change') {
+                    return;
+                }
+
                 const localMember = findMemberByCode(memberCode);
-                if (localMember) localMember.shift = newShift;
+                if (localMember) localMember.shift = nextShift;
                 showToast("근무조가 변경되었습니다.");
                 refreshUI(); // 대시보드 등 즉시 반영
             } catch(e) { console.error(e); }
