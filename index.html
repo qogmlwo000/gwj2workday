@@ -2919,7 +2919,48 @@ onSnapshot(docRef, (docSnap) => {
             }
         }
 
-        window.deleteRequest = function(t, requestId) {
+        async function executeRequestDeletion(target, requestId, options = {}) {
+            const { closeModal = false } = options;
+
+            const txResult = await mutateRequestsTransaction((requests) => {
+                const list = Array.isArray(requests[target]) ? requests[target] : null;
+                if (!list) {
+                    return { apply: false, reason: 'missing' };
+                }
+
+                const deleteIdx = list.findIndex(r => String(r.id) === String(requestId));
+                if (deleteIdx === -1) {
+                    return { apply: false, reason: 'missing' };
+                }
+
+                list.splice(deleteIdx, 1);
+                return { apply: true, reason: 'deleted' };
+            });
+
+            if (txResult?.reason === 'missing') {
+                alert("삭제 대상 신청건을 찾지 못했습니다.\n목록을 새로 확인해주세요.");
+                if (closeModal) closeSecurityModal();
+                return false;
+            }
+
+            showToast("삭제되었습니다.");
+            if (closeModal) closeSecurityModal();
+            return true;
+        }
+
+        window.deleteRequest = async function(t, requestId) {
+            if (t === 'overtime' || t === 'early') {
+                const confirmed = confirm("해당 내역을 삭제하시겠습니까?\n\n삭제 후 복구할 수 없습니다.");
+                if (!confirmed) return;
+
+                try {
+                    await executeRequestDeletion(t, requestId);
+                } catch (e) {
+                    alert("Error: " + e.message);
+                }
+                return;
+            }
+
             pendingAction = { type: 'delete', target: t, requestId, memberCode: null };
             openSecurityModal("🗑️ 삭제 확인", "해당 내역을 삭제하려면 관리자 PIN을 입력하세요.<br><span style='color:#ef4444; font-size:0.8rem; font-weight:600;'>(주의: 삭제 후 복구 불가)</span>");
         };
@@ -2975,24 +3016,7 @@ window.closeSecurityModal = function() {
             
             // 2. 신청 내역 삭제 (Request Delete)
             else if (type === 'delete' && target) {
-                const txResult = await mutateRequestsTransaction((requests) => {
-                    const list = requests[target];
-                    const deleteIdx = list.findIndex(r => String(r.id) === String(requestId));
-                    if (deleteIdx === -1) {
-                        return { apply: false, reason: 'missing' };
-                    }
-
-                    list.splice(deleteIdx, 1);
-                    return { apply: true, reason: 'deleted' };
-                });
-
-                if (txResult?.reason === 'missing') {
-                    alert("삭제 대상 신청건을 찾지 못했습니다.\n목록을 새로 확인해주세요.");
-                    closeSecurityModal();
-                    return;
-                }
-
-                showToast("삭제되었습니다.");
+                await executeRequestDeletion(target, requestId, { closeModal: true });
             }
             // 3. 멤버 삭제 (Member Delete)
             else if (type === 'member_delete') {
