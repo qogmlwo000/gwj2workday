@@ -855,6 +855,29 @@
         .no-results {
             padding: 20px; text-align: center; color: var(--text-sub); font-size: 0.9rem;
         }
+
+        .selected-members {
+            display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;
+            min-height: 10px;
+        }
+        .selected-member-chip {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 7px 10px 7px 12px; border-radius: 999px;
+            background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.25);
+            color: var(--text-main); font-size: 0.82rem; font-weight: 600;
+        }
+        .selected-member-chip span { color: var(--text-sub); font-weight: 500; }
+        .selected-member-chip button {
+            width: 22px; height: 22px; border: none; border-radius: 50%;
+            background: rgba(99, 102, 241, 0.14); color: var(--primary);
+            cursor: pointer; transition: 0.2s;
+        }
+        .selected-member-chip button:hover {
+            background: rgba(239, 68, 68, 0.14); color: var(--danger);
+        }
+        .multi-select-hint {
+            margin-top: 8px; font-size: 0.78rem; color: var(--text-sub); line-height: 1.5;
+        }
 		
 		.reason-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
         .reason-tag {
@@ -865,6 +888,56 @@
         .reason-tag:hover {
             background: var(--primary); color: white; border-color: var(--primary);
             transform: translateY(-1px);
+        }
+        .reason-template-section {
+            margin-bottom: 12px; padding: 12px; border-radius: 14px;
+            border: 1px dashed var(--border); background: rgba(99, 102, 241, 0.04);
+        }
+        .reason-template-title {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; margin-bottom: 10px; font-size: 0.82rem; font-weight: 700;
+            color: var(--text-sub);
+        }
+        .reason-template-title span:last-child {
+            font-size: 0.74rem; font-weight: 500;
+        }
+        .reason-template-tools {
+            display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+        }
+        .reason-template-input {
+            flex: 1; min-width: 220px; padding: 10px 14px;
+            background: var(--bg-nav); border: 1px solid var(--border); border-radius: 10px;
+            color: var(--text-main); font-family: var(--font-main); font-size: 0.9rem;
+        }
+        .reason-template-input:focus {
+            border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        .reason-template-add-btn {
+            padding: 10px 14px; border: none; border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: white; font-weight: 700; cursor: pointer; transition: 0.2s;
+        }
+        .reason-template-add-btn:hover {
+            transform: translateY(-1px); box-shadow: 0 8px 18px rgba(99, 102, 241, 0.22);
+        }
+        .custom-reason-item {
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .reason-tag.custom {
+            background: rgba(16, 185, 129, 0.08); color: #047857; border-color: rgba(16, 185, 129, 0.2);
+        }
+        .reason-tag.custom:hover {
+            background: #10b981; border-color: #10b981; color: white;
+        }
+        .reason-tag-delete {
+            width: 26px; height: 26px; border-radius: 50%; border: none;
+            background: rgba(239, 68, 68, 0.08); color: var(--danger); cursor: pointer; transition: 0.2s;
+        }
+        .reason-tag-delete:hover {
+            background: rgba(239, 68, 68, 0.18);
+        }
+        .reason-template-empty {
+            margin-bottom: 10px; font-size: 0.8rem; color: var(--text-sub);
         }
 		
 		/* 수정 버튼 스타일 */
@@ -1883,7 +1956,7 @@
                         <h3 style="margin-top:0; margin-bottom:24px; display:flex; align-items:center; gap:10px;"><i class="fa-solid fa-clock" style="color:var(--primary)"></i> 연장 근무 신청</h3>
                         <div class="modern-form">
                             <div class="modern-input-group">
-                                <label><i class="fa-solid fa-user"></i> 관리자 선택</label>
+                                <label><i class="fa-solid fa-user"></i> 관리자 선택 (여러 명 가능)</label>
                                 <div class="searchable-select-wrapper">
                                     <i class="fa-solid fa-user-tie" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--primary); z-index:1; pointer-events:none;"></i>
                                     <input 
@@ -1901,6 +1974,8 @@
                                     <input type="hidden" id="otSelect">
                                     <div class="searchable-select-dropdown" id="otSelectDropdown"></div>
                                 </div>
+                                <div class="selected-members" id="otSelectedMembers"></div>
+                                <div class="multi-select-hint">선택한 관리자 전원에게 동일한 날짜, 시간, 사유로 한 번에 신청됩니다.</div>
                             </div>
 
                             <div class="modern-input-group">
@@ -2016,6 +2091,17 @@
                                     <button class="reason-tag" onclick="setReason('ot', '종업 후 현장정리')">종업 후 현장정리</button>
                                     <button class="reason-tag" onclick="setReason('ot', '단기직 분배 (공정타각)')">단기직 분배 (공정타각)</button>
                                     <button class="reason-tag" onclick="setReason('ot', '시업준비 지원')">시업준비 지원</button>
+                                </div>
+                                <div class="reason-template-section">
+                                    <div class="reason-template-title">
+                                        <span><i class="fa-solid fa-bookmark"></i> 내 템플릿</span>
+                                        <span>이 브라우저에서만 보입니다.</span>
+                                    </div>
+                                    <div class="reason-tags" id="otCustomReasonTags"></div>
+                                    <div class="reason-template-tools">
+                                        <input type="text" id="otReasonTemplateInput" class="reason-template-input" placeholder="자주 쓰는 사유를 저장하세요" onkeydown="handleReasonTemplateKeydown('ot', event)">
+                                        <button class="reason-template-add-btn" onclick="addReasonTemplate('ot')"><i class="fa-solid fa-plus"></i> 내 템플릿 추가</button>
+                                    </div>
                                 </div>
                                 <textarea id="otReason" placeholder="예: 마감 지연으로 인한 추가 근무 필요"></textarea>
                             </div>
@@ -2150,7 +2236,7 @@
                         </h3>
                         <div class="modern-form">
                             <div class="modern-input-group">
-                                <label><i class="fa-solid fa-user"></i> 관리자 선택</label>
+                                <label><i class="fa-solid fa-user"></i> 관리자 선택 (여러 명 가능)</label>
                                 <div class="searchable-select-wrapper">
                                     <i class="fa-solid fa-user-tie" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--primary); z-index:1; pointer-events:none;"></i>
                                     <input 
@@ -2168,6 +2254,8 @@
                                     <input type="hidden" id="earlySelect">
                                     <div class="searchable-select-dropdown" id="earlySelectDropdown"></div>
                                 </div>
+                                <div class="selected-members" id="earlySelectedMembers"></div>
+                                <div class="multi-select-hint">선택한 관리자 전원에게 동일한 날짜, 시간, 사유로 한 번에 신청됩니다.</div>
                             </div>
 
                             <div class="modern-input-group">
@@ -2282,6 +2370,17 @@
                                     <button class="reason-tag" onclick="setReason('early', '픽 메인 전산 셋팅')">픽 메인 전산 셋팅</button>
                                     <button class="reason-tag" onclick="setReason('early', '단기직 분배 (공정타각)')">단기직 분배 (공정타각)</button>
                                     <button class="reason-tag" onclick="setReason('early', '시업 준비 지원')">시업 준비 지원</button>
+                                </div>
+                                <div class="reason-template-section">
+                                    <div class="reason-template-title">
+                                        <span><i class="fa-solid fa-bookmark"></i> 내 템플릿</span>
+                                        <span>이 브라우저에서만 보입니다.</span>
+                                    </div>
+                                    <div class="reason-tags" id="earlyCustomReasonTags"></div>
+                                    <div class="reason-template-tools">
+                                        <input type="text" id="earlyReasonTemplateInput" class="reason-template-input" placeholder="자주 쓰는 사유를 저장하세요" onkeydown="handleReasonTemplateKeydown('early', event)">
+                                        <button class="reason-template-add-btn" onclick="addReasonTemplate('early')"><i class="fa-solid fa-plus"></i> 내 템플릿 추가</button>
+                                    </div>
                                 </div>
                                 <textarea id="earlyReason" placeholder="예: 인원 대응을 위한 조기 출근"></textarea>
                             </div>
@@ -2471,6 +2570,17 @@
                                     <button class="reason-tag" onclick="setReason('leave', '개인 사유')">개인 사유</button>
                                     <button class="reason-tag" onclick="setReason('leave', '병원 진료')">병원 진료</button>
                                     <button class="reason-tag" onclick="setReason('leave', '가족 행사')">가족 행사</button>
+                                </div>
+                                <div class="reason-template-section">
+                                    <div class="reason-template-title">
+                                        <span><i class="fa-solid fa-bookmark"></i> 내 템플릿</span>
+                                        <span>이 브라우저에서만 보입니다.</span>
+                                    </div>
+                                    <div class="reason-tags" id="leaveCustomReasonTags"></div>
+                                    <div class="reason-template-tools">
+                                        <input type="text" id="leaveReasonTemplateInput" class="reason-template-input" placeholder="자주 쓰는 사유를 저장하세요" onkeydown="handleReasonTemplateKeydown('leave', event)">
+                                        <button class="reason-template-add-btn" onclick="addReasonTemplate('leave')"><i class="fa-solid fa-plus"></i> 내 템플릿 추가</button>
+                                    </div>
                                 </div>
                                 <textarea id="leaveReason" placeholder="예: 개인 사정으로 인한 연차 사용"></textarea>
                             </div>
@@ -2712,6 +2822,17 @@
                                 <label><i class="fa-solid fa-comment"></i> 신청 사유</label>
                                 <div class="reason-tags">
                                     <button class="reason-tag" onclick="setReason('special', '현장관리자 부족')">현장관리자 부족</button>
+                                </div>
+                                <div class="reason-template-section">
+                                    <div class="reason-template-title">
+                                        <span><i class="fa-solid fa-bookmark"></i> 내 템플릿</span>
+                                        <span>이 브라우저에서만 보입니다.</span>
+                                    </div>
+                                    <div class="reason-tags" id="specialCustomReasonTags"></div>
+                                    <div class="reason-template-tools">
+                                        <input type="text" id="specialReasonTemplateInput" class="reason-template-input" placeholder="자주 쓰는 사유를 저장하세요" onkeydown="handleReasonTemplateKeydown('special', event)">
+                                        <button class="reason-template-add-btn" onclick="addReasonTemplate('special')"><i class="fa-solid fa-plus"></i> 내 템플릿 추가</button>
+                                    </div>
                                 </div>
                                 <textarea id="specialReason" placeholder="예: 특별 근무 필요"></textarea>
                             </div>
@@ -3113,9 +3234,9 @@
         function getShiftResetConfig(shiftType) {
             const normalized = getShiftType(shiftType);
             if (normalized === 'swing') {
-                return { startDay: 0, resetHour: 19 };
+                return { startDay: 1, resetHour: 4 };
             }
-            return { startDay: 0, resetHour: 0 };
+            return { startDay: 1, resetHour: 0 };
         }
 
         function getNextShiftResetDate(shiftType, now = getKstNow()) {
@@ -3241,9 +3362,9 @@
             const shiftType = getShiftType(request?.shiftType || request?.shift || fallbackShiftType);
             const resetHour = getResetHourByShift(shiftType);
             const refDate = new Date(baseDate);
-            // 주간 집계는 실제 시각(start/end)이 아니라 "선택한 신청 날짜"를 기준으로 본다.
-            // 특히 SWING 연장(기본 04:00)은 실제 시각으로 계산하면 전 주로 밀리므로
-            // 근무조별 주간 경계 시각(DAY 00:00 / SWING 19:00)에 맞춰 고정한다.
+            // 주간 집계는 실제 시각(start/end) 대신 "선택한 신청 날짜가 속한 근무주"를 기준으로 본다.
+            // GWJ2 기준 주간 마감은 DAY조는 월요일 00:00, SWING조는 월요일 04:00이므로
+            // 신청 날짜를 해당 경계 시각으로 고정해 같은 주차 계산을 일관되게 맞춘다.
             refDate.setHours(resetHour, 0, 0, 0);
 
             return refDate;
@@ -3372,15 +3493,168 @@ onSnapshot(docRef, (docSnap) => {
             
             renderWeeklyTable();
             renderCalendarView();
-            if(document.getElementById('otAnalysis').style.display !== 'none') updateAnalysis('ot');
-            if(document.getElementById('earlyAnalysis').style.display !== 'none') updateAnalysis('early');
-            if(document.getElementById('specialAnalysis').style.display !== 'none') updateAnalysis('special');
-            if(document.getElementById('leaveAnalysis') && document.getElementById('leaveAnalysis').style.display !== 'none') updateAnalysis('leave');
+            updateAnalysis('ot');
+            updateAnalysis('early');
+            updateAnalysis('special');
+            if(document.getElementById('leaveAnalysis')) updateAnalysis('leave');
             applyResponsiveTableLabels();
         }
 		
 		// --- Helper Functions ---
-		
+        const PERSONAL_REASON_TEMPLATE_KEY = 'gwj2_personal_reason_templates_v1';
+        const MULTI_SELECT_TYPES = ['ot', 'early'];
+        const REASON_TEMPLATE_TYPES = ['ot', 'early', 'leave', 'special'];
+
+        window.selectedMemberCodes = { ot: [], early: [] };
+        window.personalReasonTemplates = {};
+
+        function isMultiSelectType(type) {
+            return MULTI_SELECT_TYPES.includes(type);
+        }
+
+        function getSelectedMemberCodes(type) {
+            if (isMultiSelectType(type)) {
+                return [...(window.selectedMemberCodes[type] || [])].filter(code => normalizeCode(code));
+            }
+
+            const hiddenInput = document.getElementById(`${type}Select`);
+            const code = hiddenInput ? hiddenInput.value : '';
+            return normalizeCode(code) ? [code] : [];
+        }
+
+        function updateAnalysisPlaceholder(type, message) {
+            const placeholder = document.getElementById(`${type}Placeholder`);
+            if (placeholder) placeholder.innerHTML = message;
+        }
+
+        function syncDropdownSelectionState(type) {
+            const selectedSet = new Set(getSelectedMemberCodes(type).map(code => normalizeCode(code)));
+            document.querySelectorAll(`#${type}SelectDropdown .searchable-select-option`).forEach(option => {
+                const optionCode = normalizeCode(option.getAttribute('data-code'));
+                option.classList.toggle('selected', selectedSet.has(optionCode));
+            });
+        }
+
+        function renderSelectedMemberChips(type) {
+            const container = document.getElementById(`${type}SelectedMembers`);
+            if (!container) return;
+
+            const selectedCodes = getSelectedMemberCodes(type);
+            container.innerHTML = '';
+
+            selectedCodes.forEach(code => {
+                const member = findMemberByCode(code);
+                if (!member) return;
+
+                const chip = document.createElement('div');
+                chip.className = 'selected-member-chip';
+
+                const text = document.createElement('div');
+                text.innerHTML = `${escapeHTML(member.name)} <span>${escapeHTML(member.role)}</span>`;
+
+                const removeBtn = document.createElement('button');
+                removeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                removeBtn.onclick = (evt) => removeSelectedMember(type, member.code, evt);
+
+                chip.appendChild(text);
+                chip.appendChild(removeBtn);
+                container.appendChild(chip);
+            });
+        }
+
+        function syncMultiSelectUI(type) {
+            if (!isMultiSelectType(type)) return;
+
+            const selectedCodes = getSelectedMemberCodes(type);
+            const hiddenInput = document.getElementById(`${type}Select`);
+            const input = document.getElementById(`${type}SelectInput`);
+            const clearBtn = document.getElementById(`${type}ClearBtn`);
+
+            if (hiddenInput) hiddenInput.value = selectedCodes.join(',');
+            if (input) {
+                input.value = '';
+                input.placeholder = selectedCodes.length
+                    ? `${selectedCodes.length}명 선택됨, 계속 검색해서 추가할 수 있어요`
+                    : '이름 또는 직책으로 검색...';
+            }
+            if (clearBtn) clearBtn.style.display = selectedCodes.length ? 'block' : 'none';
+
+            renderSelectedMemberChips(type);
+            syncDropdownSelectionState(type);
+        }
+
+        function normalizeReasonTemplateState(raw) {
+            const state = {};
+            REASON_TEMPLATE_TYPES.forEach(type => {
+                state[type] = Array.isArray(raw?.[type])
+                    ? raw[type]
+                        .map(text => String(text || '').trim())
+                        .filter(Boolean)
+                        .slice(0, 20)
+                    : [];
+            });
+            return state;
+        }
+
+        function loadReasonTemplates() {
+            try {
+                const raw = JSON.parse(localStorage.getItem(PERSONAL_REASON_TEMPLATE_KEY) || '{}');
+                return normalizeReasonTemplateState(raw);
+            } catch (error) {
+                return normalizeReasonTemplateState({});
+            }
+        }
+
+        function saveReasonTemplates() {
+            localStorage.setItem(PERSONAL_REASON_TEMPLATE_KEY, JSON.stringify(window.personalReasonTemplates));
+        }
+
+        function renderReasonTemplateList(type) {
+            const container = document.getElementById(`${type}CustomReasonTags`);
+            if (!container) return;
+
+            container.innerHTML = '';
+            const templates = window.personalReasonTemplates[type] || [];
+
+            if (!templates.length) {
+                const empty = document.createElement('div');
+                empty.className = 'reason-template-empty';
+                empty.textContent = '아직 저장한 개인 템플릿이 없습니다.';
+                container.appendChild(empty);
+                return;
+            }
+
+            templates.forEach((text, index) => {
+                const item = document.createElement('div');
+                item.className = 'custom-reason-item';
+
+                const applyBtn = document.createElement('button');
+                applyBtn.className = 'reason-tag custom';
+                applyBtn.textContent = text;
+                applyBtn.onclick = () => setReason(type, text);
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'reason-tag-delete';
+                deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+                deleteBtn.onclick = (evt) => removeReasonTemplate(type, index, evt);
+
+                item.appendChild(applyBtn);
+                item.appendChild(deleteBtn);
+                container.appendChild(item);
+            });
+        }
+
+        function renderAllReasonTemplates() {
+            REASON_TEMPLATE_TYPES.forEach(renderReasonTemplateList);
+        }
+
+        window.handleReasonTemplateKeydown = function(type, evt) {
+            if (evt.key === 'Enter') {
+                evt.preventDefault();
+                addReasonTemplate(type);
+            }
+        };
+
 		// [추가됨] 사유 자동 입력 함수
         window.setReason = function(type, text) {
             const textarea = document.getElementById(`${type}Reason`);
@@ -3388,6 +3662,72 @@ onSnapshot(docRef, (docSnap) => {
                 textarea.value = text; // 텍스트 입력
                 textarea.focus();      // 입력창 포커스
             }
+        };
+
+        window.addReasonTemplate = function(type) {
+            const input = document.getElementById(`${type}ReasonTemplateInput`);
+            const nextValue = String(input?.value || '').trim().replace(/\s+/g, ' ');
+
+            if (!nextValue) {
+                alert('저장할 템플릿 문구를 입력해주세요.');
+                return;
+            }
+
+            const list = window.personalReasonTemplates[type] || [];
+            if (list.includes(nextValue)) {
+                showToast('이미 저장된 템플릿입니다.', 'error');
+                return;
+            }
+
+            if (list.length >= 20) {
+                alert('개인 템플릿은 최대 20개까지 저장할 수 있습니다.');
+                return;
+            }
+
+            window.personalReasonTemplates[type] = [...list, nextValue];
+            saveReasonTemplates();
+            renderReasonTemplateList(type);
+            if (input) input.value = '';
+            showToast('내 템플릿이 저장되었습니다.', 'success');
+        };
+
+        window.removeReasonTemplate = function(type, index, evt) {
+            if (evt) {
+                evt.stopPropagation();
+                evt.preventDefault();
+            }
+
+            const list = [...(window.personalReasonTemplates[type] || [])];
+            if (index < 0 || index >= list.length) return;
+
+            list.splice(index, 1);
+            window.personalReasonTemplates[type] = list;
+            saveReasonTemplates();
+            renderReasonTemplateList(type);
+            showToast('내 템플릿을 삭제했습니다.', 'success');
+        };
+
+        window.removeSelectedMember = function(type, code, evt) {
+            if (evt) {
+                evt.stopPropagation();
+                evt.preventDefault();
+            }
+            if (!isMultiSelectType(type)) return;
+
+            window.selectedMemberCodes[type] = getSelectedMemberCodes(type)
+                .filter(selectedCode => !isSameCode(selectedCode, code));
+
+            const remainingCodes = getSelectedMemberCodes(type);
+            if (remainingCodes.length === 1) {
+                const remainingMember = findMemberByCode(remainingCodes[0]);
+                const baseInput = document.getElementById(`${type}Base`);
+                if (remainingMember && baseInput) {
+                    baseInput.value = window.calcBaseHours(remainingMember);
+                }
+            }
+
+            syncMultiSelectUI(type);
+            updateAnalysis(type);
         };
         
         // 1. 현재 수정 중인 상태를 저장할 변수
@@ -3538,73 +3878,95 @@ onSnapshot(docRef, (docSnap) => {
             // --- [기존 연장/조출/특근 로직] ---
             const p = t === 'overtime' ? 'ot' : t === 'early' ? 'early' : 'special';
             
-            const selectedCode = document.getElementById(`${p}Select`).value;
+            const selectedCodes = getSelectedMemberCodes(p);
             const date = document.getElementById(`${p}Date`).value;
             const timeText = document.getElementById(`${p}Diff`).innerText || '0.0h';
             const reason = document.getElementById(`${p}Reason`).value;
             const shiftValue = document.getElementById(`${p}Shift`).value;
             
-            if(selectedCode === "") return alert("관리자를 선택하세요!");
+            if(selectedCodes.length === 0) return alert("관리자를 선택하세요!");
             if(!date) return alert("날짜를 선택하세요!");
             if(parseFloat(timeText.replace('h','')) <= 0) return alert("시간을 입력하세요!");
             if(!reason.trim()) return alert("사유를 입력하세요!");
 
-            const m = findMemberByCode(selectedCode);
-            if (!m) return alert("선택한 관리자 정보를 찾을 수 없습니다. 다시 선택해주세요.");
-            const nick = m.role.split(' ')[0];
-            const rank = m.role.includes('Manager') ? 'Manager' : 'T/C';
             const shiftLabel = shiftValue === 'day' ? 'Day조' : shiftValue === 'swing' ? 'Swing조' : '';
             const isEditing = window.editingState.isEditing && window.editingState.type === t;
             const editingId = window.editingState.id;
+            if (isEditing && selectedCodes.length !== 1) {
+                return alert("수정 모드에서는 관리자 1명만 선택할 수 있습니다.");
+            }
+
+            const selectedMembers = selectedCodes
+                .map(code => findMemberByCode(code))
+                .filter(Boolean);
+
+            if (selectedMembers.length !== selectedCodes.length) {
+                return alert("선택한 관리자 정보를 찾을 수 없습니다. 다시 선택해주세요.");
+            }
 
             try {
                 const txResult = await mutateRequestsTransaction((requests) => {
                     const list = requests[t];
 
                     if (!isEditing) {
-                        const isDup = list.some(r => r.code === m.code && r.date === date);
-                        if (isDup) {
-                            return { apply: false, reason: 'duplicate' };
+                        const duplicateMembers = selectedMembers.filter(member =>
+                            list.some(r => isSameCode(r.code, member.code) && r.date === date)
+                        );
+                        if (duplicateMembers.length) {
+                            return {
+                                apply: false,
+                                reason: 'duplicate',
+                                names: duplicateMembers.map(member => member.name)
+                            };
                         }
 
-                        const reqData = {
-                            id: generateRequestId(list),
-                            name: m.name, nick: nick, rank: rank, code: m.code,
-                            shift: shiftLabel, shiftType: shiftValue,
-                            date: date,
-                            start: document.getElementById(`${p}Start`).value,
-                            end: document.getElementById(`${p}End`).value,
-                            time: timeText, reason: reason
-                        };
-                        list.push(reqData);
-                        return { apply: true, reason: 'created' };
+                        selectedMembers.forEach(member => {
+                            const nick = member.role.split(' ')[0];
+                            const rank = member.role.includes('Manager') ? 'Manager' : 'T/C';
+
+                            list.push({
+                                id: generateRequestId(list),
+                                name: member.name, nick: nick, rank: rank, code: member.code,
+                                shift: shiftLabel, shiftType: shiftValue,
+                                date: date,
+                                start: document.getElementById(`${p}Start`).value,
+                                end: document.getElementById(`${p}End`).value,
+                                time: timeText, reason: reason
+                            });
+                        });
+                        return { apply: true, reason: 'created', count: selectedMembers.length };
                     }
+
+                    const member = selectedMembers[0];
+                    const nick = member.role.split(' ')[0];
+                    const rank = member.role.includes('Manager') ? 'Manager' : 'T/C';
 
                     const targetIdx = list.findIndex(r => String(r.id) === String(editingId));
                     if (targetIdx === -1) {
                         return { apply: false, reason: 'missing' };
                     }
 
-                    const isDup = list.some((r, idx) => idx !== targetIdx && r.code === m.code && r.date === date);
+                    const isDup = list.some((r, idx) => idx !== targetIdx && isSameCode(r.code, member.code) && r.date === date);
                     if (isDup) {
-                        return { apply: false, reason: 'duplicate' };
+                        return { apply: false, reason: 'duplicate', names: [member.name] };
                     }
 
                     list[targetIdx] = {
                         ...list[targetIdx],
                         id: editingId,
-                        name: m.name, nick: nick, rank: rank, code: m.code,
+                        name: member.name, nick: nick, rank: rank, code: member.code,
                         shift: shiftLabel, shiftType: shiftValue,
                         date: date,
                         start: document.getElementById(`${p}Start`).value,
                         end: document.getElementById(`${p}End`).value,
                         time: timeText, reason: reason
                     };
-                    return { apply: true, reason: 'updated' };
+                    return { apply: true, reason: 'updated', count: 1 };
                 });
 
                 if (txResult?.reason === 'duplicate') {
-                    return alert("중복신청입니다.\n기존 신청건을 삭제 혹은 수정해주시기 바랍니다.");
+                    const names = Array.isArray(txResult?.names) ? txResult.names.join(', ') : '';
+                    return alert(`중복신청입니다.\n${names ? `${names}\n` : ''}기존 신청건을 삭제 혹은 수정해주시기 바랍니다.`);
                 }
 
                 if (txResult?.reason === 'missing') {
@@ -3613,7 +3975,11 @@ onSnapshot(docRef, (docSnap) => {
                     return;
                 }
 
-                showToast(txResult?.reason === 'updated' ? "수정되었습니다! 📝" : "저장되었습니다! ✅");
+                showToast(
+                    txResult?.reason === 'updated'
+                        ? "수정되었습니다! 📝"
+                        : ((txResult?.count || 0) > 1 ? `${txResult.count}명에게 저장되었습니다! ✅` : "저장되었습니다! ✅")
+                );
                 document.getElementById(`${p}Reason`).value = '';
                 cancelEditMode(t); 
             } catch(e) { alert("Error: " + e.message); }
@@ -3632,16 +3998,28 @@ onSnapshot(docRef, (docSnap) => {
             // 관리자 선택 복원
             const selectedMember = findMemberByCode(req.code);
             if(selectedMember) {
-                document.getElementById(`${p}Select`).value = selectedMember.code;
-                document.getElementById(`${p}SelectInput`).value = `${req.name} (${selectedMember.role})`;
-                document.getElementById(`${p}ClearBtn`).style.display = 'block';
+                if (isMultiSelectType(p)) {
+                    window.selectedMemberCodes[p] = [selectedMember.code];
+                    syncMultiSelectUI(p);
+                } else {
+                    document.getElementById(`${p}Select`).value = selectedMember.code;
+                    document.getElementById(`${p}SelectInput`).value = `${req.name} (${selectedMember.role})`;
+                    document.getElementById(`${p}ClearBtn`).style.display = 'block';
+                    syncDropdownSelectionState(p);
+                }
                 document.getElementById(`${p}Placeholder`).style.display = 'none';
                 document.getElementById(`${p}Analysis`).style.display = 'block';
                 updateAnalysis(p);
             } else {
-                document.getElementById(`${p}Select`).value = req.code || '';
-                document.getElementById(`${p}SelectInput`).value = req.name || '';
-                document.getElementById(`${p}ClearBtn`).style.display = 'block';
+                if (isMultiSelectType(p)) {
+                    window.selectedMemberCodes[p] = req.code ? [req.code] : [];
+                    syncMultiSelectUI(p);
+                } else {
+                    document.getElementById(`${p}Select`).value = req.code || '';
+                    document.getElementById(`${p}SelectInput`).value = req.name || '';
+                    document.getElementById(`${p}ClearBtn`).style.display = 'block';
+                    syncDropdownSelectionState(p);
+                }
             }
 
             // 근무조 복원
@@ -4008,6 +4386,10 @@ window.closeSecurityModal = function() {
     renderSearchableDropdown('early');
     renderSearchableDropdown('special');
     renderSearchableDropdown('leave');
+    syncMultiSelectUI('ot');
+    syncMultiSelectUI('early');
+    syncDropdownSelectionState('special');
+    syncDropdownSelectionState('leave');
 };
 
         window.renderSearchableDropdown = function(type) {
@@ -4046,6 +4428,11 @@ window.closeSecurityModal = function() {
             selectSearchableOption(type, m.code, m.name, m.role, e);
         };
 
+        const selectedSet = new Set(getSelectedMemberCodes(type).map(code => normalizeCode(code)));
+        if (selectedSet.has(normalizeCode(m.code))) {
+            option.classList.add('selected');
+        }
+
         dropdown.appendChild(option);
     });
     
@@ -4063,9 +4450,16 @@ window.closeSecurityModal = function() {
             dropdown.classList.add('show');
             
             const hiddenInput = document.getElementById(`${type}Select`);
-            if (!hiddenInput.value) {
+            if (!isMultiSelectType(type) && hiddenInput && !hiddenInput.value) {
                 document.getElementById(`${type}SelectInput`).value = '';
                 filterSearchableOptions(type);
+                return;
+            }
+
+            if (isMultiSelectType(type)) {
+                filterSearchableOptions(type);
+            } else {
+                syncDropdownSelectionState(type);
             }
         };
 
@@ -4117,24 +4511,47 @@ window.closeSecurityModal = function() {
         alert("멤버 데이터를 찾을 수 없습니다.");
         return;
     }
-    
+
+    const baseInput = document.getElementById(`${type}Base`);
+
+    if (isMultiSelectType(type)) {
+        const currentCodes = getSelectedMemberCodes(type);
+        const exists = currentCodes.some(selectedCode => isSameCode(selectedCode, member.code));
+        window.selectedMemberCodes[type] = exists
+            ? currentCodes.filter(selectedCode => !isSameCode(selectedCode, member.code))
+            : [...currentCodes, member.code];
+
+        const nextCodes = getSelectedMemberCodes(type);
+        if (nextCodes.length === 1) {
+            const remainingMember = findMemberByCode(nextCodes[0]);
+            if (remainingMember && baseInput) {
+                baseInput.value = window.calcBaseHours(remainingMember);
+            }
+        }
+
+        if (!exists && currentCodes.length === 0 && type !== 'leave') {
+            const memShift = member.shift || 'day';
+            const shiftText = memShift === 'day' ? 'DAY조 (09:00 ~ 18:00)' : 'SWING조 (19:00 ~ 04:00)';
+            selectShift(type, memShift, shiftText);
+        }
+
+        syncMultiSelectUI(type);
+        document.getElementById(`${type}SelectDropdown`).classList.add('show');
+        document.getElementById(`${type}SelectInput`).focus();
+        filterSearchableOptions(type);
+        updateAnalysis(type);
+        return;
+    }
+
     // 2. 관리자 입력창 UI 업데이트
     document.getElementById(`${type}Select`).value = String(member.code || '');
     document.getElementById(`${type}SelectInput`).value = `${name} (${role})`;
     document.getElementById(`${type}SelectDropdown`).classList.remove('show');
     document.getElementById(`${type}ClearBtn`).style.display = 'block';
-    
-    // 드롭다운 선택 스타일 처리
-    document.querySelectorAll(`#${type}SelectDropdown .searchable-select-option`).forEach(opt => {
-        opt.classList.remove('selected');
-    });
-    const selectedOption = Array.from(document.querySelectorAll(`#${type}SelectDropdown .searchable-select-option`))
-        .find(opt => String(opt.getAttribute('data-code')) === String(member.code));
-    if (selectedOption) selectedOption.classList.add('selected');
+    syncDropdownSelectionState(type);
 
     // 3. 기본 근무시간(Base) 자동 입력
     const baseHours = window.calcBaseHours(member);
-    const baseInput = document.getElementById(`${type}Base`);
     if(baseInput) baseInput.value = baseHours;
 
     // 4. 근무조(Shift) 자동 선택 로직
@@ -4155,6 +4572,17 @@ window.closeSecurityModal = function() {
 };
 
         window.clearSearchableSelect = function(type) {
+            if (isMultiSelectType(type)) {
+                window.selectedMemberCodes[type] = [];
+                syncMultiSelectUI(type);
+                const panel = document.getElementById(`${type}Analysis`);
+                const placeholder = document.getElementById(`${type}Placeholder`);
+                if (panel) panel.style.display = 'none';
+                if (placeholder) placeholder.style.display = 'block';
+                updateAnalysisPlaceholder(type, '관리자를 선택하세요.');
+                return;
+            }
+
             document.getElementById(`${type}Select`).value = '';
             document.getElementById(`${type}SelectInput`).value = '';
             document.getElementById(`${type}ClearBtn`).style.display = 'none';
@@ -4167,6 +4595,7 @@ window.closeSecurityModal = function() {
             const placeholder = document.getElementById(`${type}Placeholder`);
             if (panel) panel.style.display = 'none';
             if (placeholder) placeholder.style.display = 'block';
+            updateAnalysisPlaceholder(type, '관리자를 선택하세요.');
         };
 
         document.addEventListener('click', function(e) {
@@ -4709,24 +5138,38 @@ window.closeSecurityModal = function() {
             const idxElement = document.getElementById(`${type}Select`);
             if (!idxElement) return; 
             
-            const selectedCode = idxElement.value;
+            const selectedCodes = getSelectedMemberCodes(type);
             const panel = document.getElementById(`${type}Analysis`);
             const ph = document.getElementById(`${type}Placeholder`);
             
             // 선택된 멤버가 없으면 패널 숨김
-            if (selectedCode === "") { 
+            if (!selectedCodes.length) { 
                 if(panel) panel.style.display='none'; 
                 if(ph) ph.style.display='block'; 
+                updateAnalysisPlaceholder(type, '관리자를 선택하세요.');
                 return; 
+            }
+
+            if (isMultiSelectType(type) && selectedCodes.length > 1) {
+                if(panel) panel.style.display='none';
+                if(ph) ph.style.display='block';
+                updateAnalysisPlaceholder(
+                    type,
+                    `${selectedCodes.length}명이 선택되었습니다.<br>다중 선택에서는 개인별 주간 예상 근무시간이 표시되지 않습니다.`
+                );
+                return;
             }
             
             if(panel) panel.style.display='block'; 
             if(ph) ph.style.display='none';
+
+            const selectedCode = selectedCodes[0];
             
             const m = findMemberByCode(selectedCode);
             if (!m) {
                 if(panel) panel.style.display='none';
                 if(ph) ph.style.display='block';
+                updateAnalysisPlaceholder(type, '선택한 관리자 정보를 찾을 수 없습니다.');
                 return;
             }
             
@@ -5907,6 +6350,11 @@ window.syncAllShiftsToFirebase = async function() {
     // 테마 설정
     const savedTheme = localStorage.getItem('gwj2_theme') || 'light'; 
     document.documentElement.setAttribute('data-theme', savedTheme);
+
+    window.personalReasonTemplates = loadReasonTemplates();
+    renderAllReasonTemplates();
+    syncMultiSelectUI('ot');
+    syncMultiSelectUI('early');
     
     // 팝업 초기화 등 나머지 코드...
     document.addEventListener('click', function(e) {
