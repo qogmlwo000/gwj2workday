@@ -3362,20 +3362,8 @@
             const shiftType = getShiftType(request?.shiftType || request?.shift || fallbackShiftType);
             const resetHour = getResetHourByShift(shiftType);
             const refDate = new Date(baseDate);
-
-            const isSundaySwingOvertime =
-                request?.requestType === 'overtime' &&
-                shiftType === 'swing' &&
-                baseDate.getDay() === 0;
-
-            // 주간 초기화는 기존처럼 일요일 기준을 유지한다.
-            // 다만 "일요일 스윙 연장"만 예외로 전주에 포함되어야 하므로
-            // 해당 건은 리셋 직전 시각(일요일 18:59:59.999)으로 보정한다.
-            if (isSundaySwingOvertime) {
-                refDate.setHours(18, 59, 59, 999);
-                return refDate;
-            }
-
+            // 주간 초기화는 기존처럼 일요일 기준이다.
+            // 따라서 04/04 토요일 스윙 연장은 전주, 04/05 일요일 신청은 새 주로 계산된다.
             refDate.setHours(resetHour, 0, 0, 0);
 
             return refDate;
