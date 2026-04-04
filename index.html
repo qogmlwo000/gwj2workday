@@ -3234,9 +3234,9 @@
         function getShiftResetConfig(shiftType) {
             const normalized = getShiftType(shiftType);
             if (normalized === 'swing') {
-                return { startDay: 1, resetHour: 4 };
+                return { startDay: 0, resetHour: 19 };
             }
-            return { startDay: 1, resetHour: 0 };
+            return { startDay: 0, resetHour: 0 };
         }
 
         function getNextShiftResetDate(shiftType, now = getKstNow()) {
@@ -3362,9 +3362,20 @@
             const shiftType = getShiftType(request?.shiftType || request?.shift || fallbackShiftType);
             const resetHour = getResetHourByShift(shiftType);
             const refDate = new Date(baseDate);
-            // 주간 집계는 실제 시각(start/end) 대신 "선택한 신청 날짜가 속한 근무주"를 기준으로 본다.
-            // GWJ2 기준 주간 마감은 DAY조는 월요일 00:00, SWING조는 월요일 04:00이므로
-            // 신청 날짜를 해당 경계 시각으로 고정해 같은 주차 계산을 일관되게 맞춘다.
+
+            const isSundaySwingOvertime =
+                request?.requestType === 'overtime' &&
+                shiftType === 'swing' &&
+                baseDate.getDay() === 0;
+
+            // 주간 초기화는 기존처럼 일요일 기준을 유지한다.
+            // 다만 "일요일 스윙 연장"만 예외로 전주에 포함되어야 하므로
+            // 해당 건은 리셋 직전 시각(일요일 18:59:59.999)으로 보정한다.
+            if (isSundaySwingOvertime) {
+                refDate.setHours(18, 59, 59, 999);
+                return refDate;
+            }
+
             refDate.setHours(resetHour, 0, 0, 0);
 
             return refDate;
@@ -5099,7 +5110,11 @@ window.closeSecurityModal = function() {
             let t = 0;
             
             // 2. 근무 시간 더하기 (+)
-            const allReqs = [...window.requests.overtime, ...window.requests.early, ...(window.requests.special || [])];
+            const allReqs = [
+                ...window.requests.overtime.map(r => ({ ...r, requestType: 'overtime' })),
+                ...window.requests.early.map(r => ({ ...r, requestType: 'early' })),
+                ...(window.requests.special || []).map(r => ({ ...r, requestType: 'special' }))
+            ];
             allReqs.forEach(r => { 
                 const sameMember = isSameCode(r.code, targetCode) || (!r.code && r.name === m.name);
                 if (sameMember) { 
@@ -5237,7 +5252,8 @@ window.closeSecurityModal = function() {
                 const refDate = getRequestReferenceDateTime({
                     date: inputDate,
                     start: startValue,
-                    shiftType: shiftValue
+                    shiftType: shiftValue,
+                    requestType: type === 'ot' ? 'overtime' : (type === 'early' ? 'early' : 'special')
                 }, m);
                 approved = window.calcTotalApprovedTime(m.code, refDate); 
             }
@@ -5446,7 +5462,7 @@ window.closeSecurityModal = function() {
                 const member = window.members.find(m => isSameCode(m.code, r.code))
                     || window.members.find(m => m.name === r.name);
                 const base = window.calcBaseHours(member);
-                const refDate = getRequestReferenceDateTime(r, member);
+                const refDate = getRequestReferenceDateTime({ ...r, requestType: requestKey }, member);
                 const total = base + window.calcTotalApprovedTime(r.code || r.name, refDate);
                 const percent = Math.min((total / 52) * 100, 100);
                 const safeName = escapeHTML(r.name);
@@ -5729,7 +5745,7 @@ window.closeSecurityModal = function() {
                         const member = window.members.find(m => isSameCode(m.code, r.code))
                             || window.members.find(m => m.name === r.name);
                         const base = member ? window.calcBaseHours(member) : 40;
-                        const refDate = getRequestReferenceDateTime(r, member);
+                        const refDate = getRequestReferenceDateTime({ ...r, requestType: type }, member);
                         const total = base + window.calcTotalApprovedTime(r.code || r.name, refDate);
                         let status = total >= 52 ? '초과' : (total >= 45 ? '주의' : '안전');
                         ws_data.push([r.name, r.nick, r.rank, r.code, r.shift||'Day조', r.date, r.start, r.end, r.time, total.toFixed(1)+'h', status, r.reason]);
@@ -5750,7 +5766,7 @@ window.closeSecurityModal = function() {
                         const member = window.members.find(m => isSameCode(m.code, r.code))
                             || window.members.find(m => m.name === r.name);
                         const base = member ? window.calcBaseHours(member) : 40;
-                        const refDate = getRequestReferenceDateTime(r, member);
+                        const refDate = getRequestReferenceDateTime({ ...r, requestType: type }, member);
                         const total = base + window.calcTotalApprovedTime(r.code || r.name, refDate);
                         let status = total >= 52 ? '초과' : (total >= 45 ? '주의' : '안전');
                         ws_data.push([r.name, r.nick, r.rank, r.code, r.shift||'Swing조', r.date, r.start, r.end, r.time, total.toFixed(1)+'h', status, r.reason]);
