@@ -358,6 +358,39 @@
         .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .card-info div:first-child { font-size: 1.1rem; font-weight: 800; color: var(--text-main); }
         .card-info div:last-child { font-size: 0.85rem; color: var(--text-sub); margin-top: 4px; }
+
+        /* 카드 호버 시 가운데 등장하는 근무시간 수정 버튼 */
+        .card-edit-btn {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.92);
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 18px; border: none; border-radius: 999px;
+            background: linear-gradient(135deg, var(--primary), #a78bfa);
+            color: #fff; font-size: 0.9rem; font-weight: 700; cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+            opacity: 0; pointer-events: none; white-space: nowrap;
+            transition: opacity 0.2s ease, transform 0.2s ease; z-index: 5;
+        }
+        .member-card:hover .card-edit-btn { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
+        .card-edit-btn:hover { filter: brightness(1.08); box-shadow: 0 10px 28px rgba(99,102,241,0.45); }
+
+        /* 근무시간 수정 모달 - 숫자 입력 & 커스텀 스텝퍼 */
+        #hoursEditNumber::-webkit-outer-spin-button,
+        #hoursEditNumber::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        #hoursEditNumber { -moz-appearance: textfield; appearance: textfield; }
+        .hours-stepper { display: inline-flex; flex-direction: column; gap: 5px; }
+        .hours-step-btn {
+            width: 32px; height: 24px; display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--border); border-radius: 8px; cursor: pointer;
+            background: var(--bg-body); color: var(--text-sub); font-size: 0.72rem;
+            transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+        }
+        .hours-step-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); transform: translateY(-1px); }
+        .hours-step-btn:active { transform: translateY(0) scale(0.94); }
+
+        /* 근무시간 수정 모달 - 비밀번호 폰트 (모노스페이스/과한 자간 제거) */
+        #hoursEditPw { font-family: var(--font-main); letter-spacing: normal; font-size: 1rem; }
+        #hoursEditPw::placeholder { letter-spacing: normal; font-weight: 500; opacity: 0.55; }
         
         .progress-container { margin-top: 15px; }
         .progress-labels { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 6px; color: var(--text-sub); }
@@ -3033,6 +3066,53 @@
         </div>
     </div>
 
+    <!-- 근무시간 수정 모달 -->
+    <div id="hoursEditModal" class="modal-overlay" onclick="if(event.target === this) closeHoursEditor()">
+        <div class="modal-card" style="max-width:420px;">
+            <div class="modal-icon-circle" style="background:rgba(99,102,241,0.12); color:var(--primary);">
+                <i class="fa-solid fa-user-clock"></i>
+            </div>
+            <h3 style="margin:0 0 4px 0; font-size:1.4rem;">근무시간 수정</h3>
+            <p id="hoursEditWho" style="margin:0 0 4px 0; color:var(--text-main); font-weight:700; font-size:1rem;"></p>
+            <p style="margin:0; color:var(--text-sub); font-size:0.85rem;">총 예상 주간 근무시간을 조정하세요.</p>
+
+            <div style="margin:20px 0 6px 0; display:flex; align-items:center; justify-content:center; gap:10px;">
+                <input type="number" id="hoursEditNumber" min="0" max="60" step="0.5"
+                       oninput="syncHoursEditor('number')"
+                       onkeypress="if(event.key==='Enter') saveHoursEditor()"
+                       style="width:100px; text-align:center; font-size:1.8rem; font-weight:800; color:var(--primary); background:transparent; border:none; border-bottom:2px solid var(--border); padding:4px 0;">
+                <div class="hours-stepper">
+                    <button type="button" class="hours-step-btn" onclick="stepHoursEditor(0.5)" aria-label="30분 증가"><i class="fa-solid fa-chevron-up"></i></button>
+                    <button type="button" class="hours-step-btn" onclick="stepHoursEditor(-0.5)" aria-label="30분 감소"><i class="fa-solid fa-chevron-down"></i></button>
+                </div>
+                <span style="font-size:1.3rem; font-weight:800; color:var(--primary);">h</span>
+            </div>
+
+            <input type="range" id="hoursEditSlider" min="0" max="60" step="0.5"
+                   oninput="syncHoursEditor('slider')"
+                   style="width:100%; margin:8px 0 4px 0; accent-color:var(--primary); cursor:pointer;">
+            <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-sub);">
+                <span>0h</span><span>30h</span><span>60h</span>
+            </div>
+
+            <div id="hoursEditBreakdown" style="margin-top:14px; font-size:0.82rem; color:var(--text-sub); line-height:1.5;"></div>
+
+            <div class="modal-input-box" style="margin-top:14px;">
+                <input type="password" id="hoursEditPw" placeholder="비밀번호 (0000)" maxlength="8"
+                       onkeypress="if(event.key==='Enter') saveHoursEditor()">
+            </div>
+
+            <div class="modal-btns">
+                <button class="modal-btn btn-cancel" onclick="closeHoursEditor()">취소</button>
+                <button class="modal-btn btn-confirm" onclick="saveHoursEditor()">저장</button>
+            </div>
+            <button type="button" onclick="resetHoursOverride()"
+                    style="margin-top:12px; background:none; border:none; color:var(--text-sub); font-size:0.8rem; text-decoration:underline; cursor:pointer;">
+                자동계산으로 초기화
+            </button>
+        </div>
+    </div>
+
     <div id="requestDeleteModal" class="modal-overlay" onclick="if(event.target === this) closeRequestDeleteModal()">
         <div class="modal-card">
             <div class="modal-icon-circle">
@@ -4364,6 +4444,166 @@ window.closeSecurityModal = function() {
     }
 };
 
+        // ===== 근무시간 직접 수정 (메인화면 카드) =====
+        const HOURS_EDIT_PW = '0000';
+        let hoursEditState = { code: null, approved: 0 };
+
+        window.openHoursEditor = function(code) {
+            const m = findMemberByCode(code);
+            if (!m) { alert("멤버 데이터를 찾을 수 없습니다."); return; }
+
+            const approved = window.calcTotalApprovedTime(m.code);
+            const base = window.calcBaseHours(m);
+            const currentTotal = base + approved;
+
+            hoursEditState = { code: m.code, approved };
+
+            const nick = (m.role || '').split(' ')[0];
+            document.getElementById('hoursEditWho').innerText = `${m.name} (${nick})`;
+
+            const numberEl = document.getElementById('hoursEditNumber');
+            const sliderEl = document.getElementById('hoursEditSlider');
+            numberEl.value = currentTotal.toFixed(1);
+            sliderEl.value = Math.max(0, Math.min(60, currentTotal));
+
+            const pwEl = document.getElementById('hoursEditPw');
+            pwEl.value = '';
+            pwEl.style.borderColor = '';
+
+            updateHoursBreakdown();
+            document.getElementById('hoursEditModal').classList.add('open');
+            setTimeout(() => numberEl.focus(), 100);
+        };
+
+        window.syncHoursEditor = function(source) {
+            const numberEl = document.getElementById('hoursEditNumber');
+            const sliderEl = document.getElementById('hoursEditSlider');
+            if (source === 'slider') {
+                numberEl.value = parseFloat(sliderEl.value).toFixed(1);
+            } else {
+                const val = parseFloat(numberEl.value);
+                if (!isNaN(val)) sliderEl.value = Math.max(0, Math.min(60, val));
+            }
+            updateHoursBreakdown();
+        };
+
+        // 커스텀 ▲▼ 스텝퍼: 0.5h 단위로 증감 (0~60 범위)
+        window.stepHoursEditor = function(delta) {
+            const numberEl = document.getElementById('hoursEditNumber');
+            const current = parseFloat(numberEl.value);
+            const base = isNaN(current) ? 0 : current;
+            const next = Math.max(0, Math.min(60, Math.round((base + delta) * 2) / 2));
+            numberEl.value = next.toFixed(1);
+            syncHoursEditor('number');
+        };
+
+        function updateHoursBreakdown() {
+            const total = parseFloat(document.getElementById('hoursEditNumber').value);
+            const approved = hoursEditState.approved || 0;
+            const el = document.getElementById('hoursEditBreakdown');
+            if (isNaN(total)) { el.innerHTML = ''; return; }
+            const base = Math.max(0, total - approved);
+            let html = `기준 근무시간: <b style="color:var(--text-main)">${base.toFixed(1)}h</b>`
+                + ` &middot; 승인 연장/조출: <b style="color:var(--text-main)">${approved.toFixed(1)}h</b> (자동 포함)`;
+            if (total < approved) {
+                html += `<br><span style="color:var(--warning)">⚠️ 입력값이 승인된 연장/조출보다 적어 기준 근무시간은 0h로 처리됩니다.</span>`;
+            }
+            el.innerHTML = html;
+        }
+
+        window.closeHoursEditor = function() {
+            document.getElementById('hoursEditModal').classList.remove('open');
+            hoursEditState = { code: null, approved: 0 };
+        };
+
+        function checkHoursEditPw() {
+            const pwEl = document.getElementById('hoursEditPw');
+            if (String(pwEl.value).trim() === HOURS_EDIT_PW) return true;
+            pwEl.style.borderColor = 'var(--danger)';
+            setTimeout(() => {
+                alert("⛔ 비밀번호가 올바르지 않습니다.");
+                pwEl.value = '';
+                pwEl.style.borderColor = '';
+                pwEl.focus();
+            }, 50);
+            return false;
+        }
+
+        // 현재 선택돼 있는 탭의 Base 입력값을 보정값 기준으로 다시 채워 즉시 반영
+        function resyncSelectedBaseInputs(member) {
+            if (!member) return;
+            ['ot', 'early', 'special', 'leave'].forEach(p => {
+                const baseInput = document.getElementById(`${p}Base`);
+                if (!baseInput) return;
+                const codes = getSelectedMemberCodes(p);
+                if (codes.some(c => isSameCode(c, member.code))) {
+                    baseInput.value = window.calcBaseHours(member);
+                }
+            });
+        }
+
+        async function persistBaseOverride(code, value) {
+            // value === null 이면 오버라이드 제거(자동계산 복귀)
+            const txResult = await mutateMembersTransaction((members) => {
+                const target = members.find(m => isSameCode(m.code, code));
+                if (!target) return { apply: false, reason: 'missing' };
+                if (value === null) delete target.baseHoursOverride;
+                else target.baseHoursOverride = value;
+                return { apply: true, reason: 'updated', name: target.name };
+            });
+
+            if (txResult?.reason === 'missing') {
+                alert("멤버 데이터를 찾을 수 없습니다. 목록을 새로고침 후 다시 시도해주세요.");
+                return null;
+            }
+
+            const local = findMemberByCode(code);
+            if (local) {
+                if (value === null) delete local.baseHoursOverride;
+                else local.baseHoursOverride = value;
+                resyncSelectedBaseInputs(local);
+            }
+            refreshUI();
+            return txResult;
+        }
+
+        window.saveHoursEditor = async function() {
+            if (!hoursEditState.code) return;
+            if (!checkHoursEditPw()) return;
+
+            const total = parseFloat(document.getElementById('hoursEditNumber').value);
+            if (isNaN(total)) { alert("시간을 입력하세요."); return; }
+
+            try {
+                const code = hoursEditState.code;
+                // 저장 시점 기준 승인시간 재계산 후 기준 근무시간으로 환산
+                const approved = window.calcTotalApprovedTime(code);
+                const newBase = Math.max(0, total - approved);
+
+                const res = await persistBaseOverride(code, newBase);
+                if (res) {
+                    showToast(`${res.name || '선택 멤버'}의 근무시간이 수정되었습니다. ⏱️`, 'success');
+                    closeHoursEditor();
+                }
+            } catch (e) {
+                alert("Error: " + e.message);
+            }
+        };
+
+        window.resetHoursOverride = async function() {
+            if (!hoursEditState.code) return;
+            if (!checkHoursEditPw()) return;
+            try {
+                const res = await persistBaseOverride(hoursEditState.code, null);
+                if (res) {
+                    showToast(`${res.name || '선택 멤버'}의 근무시간을 자동계산으로 초기화했습니다.`, 'success');
+                    closeHoursEditor();
+                }
+            } catch (e) {
+                alert("Error: " + e.message);
+            }
+        };
+
         window.toggleTheme = function() {
             const n = document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
             document.documentElement.setAttribute('data-theme',n);
@@ -4912,6 +5152,11 @@ window.closeSecurityModal = function() {
 		
 		window.calcBaseHours = function(m) {
             if (!m) return 40;
+            // 사용자가 메인화면에서 직접 보정한 기준 근무시간이 있으면 우선 사용
+            if (m.baseHoursOverride !== undefined && m.baseHoursOverride !== null
+                && !isNaN(m.baseHoursOverride)) {
+                return Number(m.baseHoursOverride);
+            }
             const daysOffCount = (m.daysOff && m.daysOff.length > 0) ? m.daysOff.length : 2;
             const workDays = 7 - daysOffCount;
             return workDays * 8;
@@ -5037,6 +5282,9 @@ window.closeSecurityModal = function() {
                 const leaveClass = d.onLeave ? 'on-leave' : '';
                 const safeName = escapeHTML(d.name);
                 const safeRole = escapeHTML(d.role);
+                const memberCodeArg = `'${String(d.code || '')
+                    .replace(/\\/g, '\\\\')
+                    .replace(/'/g, "\\'")}'`;
 
                 const card = document.createElement('div');
                 card.className = `member-card ${d.statusClass} ${cardClass} ${leaveClass}`;
@@ -5056,7 +5304,8 @@ window.closeSecurityModal = function() {
                         <div class="progress-track">
                             <div class="progress-fill" style="width:${d.percent}%"></div>
                         </div>
-                    </div>`;
+                    </div>
+                    ${d.onLeave ? '' : `<button class="card-edit-btn" type="button" onclick="openHoursEditor(${memberCodeArg})"><i class="fa-solid fa-pen"></i> 근무시간 수정</button>`}`;
                 
                 // 근무조에 따라 다른 구역에 추가
                 if (memShift === 'swing') {
