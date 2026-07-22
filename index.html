@@ -3314,7 +3314,7 @@
         function getShiftResetConfig(shiftType) {
             const normalized = getShiftType(shiftType);
             if (normalized === 'swing') {
-                return { startDay: 0, resetHour: 19 };
+                return { startDay: 0, resetHour: 9 };
             }
             return { startDay: 0, resetHour: 0 };
         }
@@ -3433,6 +3433,13 @@
             weekEnd.setMilliseconds(weekEnd.getMilliseconds() - 1);
 
             return { weekStart, weekEnd };
+        }
+
+        // 멤버의 현재 주를 식별하는 키 (예: DAY조 "2026-07-19T00", SWING조 "2026-07-19T19")
+        // baseHoursOverride가 저장된 주에만 유효하도록 판별하는 데 사용
+        function getWeekKeyForMember(member, now = new Date()) {
+            const { weekStart } = getWeekRangeForMember(member, now);
+            return `${formatDateYMD(weekStart)}T${String(weekStart.getHours()).padStart(2, '0')}`;
         }
 
         function getRequestDateTime(request, fallbackShiftType = 'day') {
@@ -4547,8 +4554,13 @@ window.closeSecurityModal = function() {
             const txResult = await mutateMembersTransaction((members) => {
                 const target = members.find(m => isSameCode(m.code, code));
                 if (!target) return { apply: false, reason: 'missing' };
-                if (value === null) delete target.baseHoursOverride;
-                else target.baseHoursOverride = value;
+                if (value === null) {
+                    delete target.baseHoursOverride;
+                    delete target.baseHoursOverrideWeek;
+                } else {
+                    target.baseHoursOverride = value;
+                    target.baseHoursOverrideWeek = getWeekKeyForMember(target);
+                }
                 return { apply: true, reason: 'updated', name: target.name };
             });
 
@@ -4559,8 +4571,13 @@ window.closeSecurityModal = function() {
 
             const local = findMemberByCode(code);
             if (local) {
-                if (value === null) delete local.baseHoursOverride;
-                else local.baseHoursOverride = value;
+                if (value === null) {
+                    delete local.baseHoursOverride;
+                    delete local.baseHoursOverrideWeek;
+                } else {
+                    local.baseHoursOverride = value;
+                    local.baseHoursOverrideWeek = getWeekKeyForMember(local);
+                }
                 resyncSelectedBaseInputs(local);
             }
             refreshUI();
@@ -5150,11 +5167,14 @@ window.closeSecurityModal = function() {
             updateAnalysis(t);
         };
 		
-		window.calcBaseHours = function(m) {
+		window.calcBaseHours = function(m, now = new Date()) {
             if (!m) return 40;
             // 사용자가 메인화면에서 직접 보정한 기준 근무시간이 있으면 우선 사용
+            // 단, 저장 당시의 주(baseHoursOverrideWeek)와 현재 주가 같을 때만 —
+            // 주가 바뀌면(DAY 일 00:00 / SWING 일 09:00) 자동계산으로 복귀
             if (m.baseHoursOverride !== undefined && m.baseHoursOverride !== null
-                && !isNaN(m.baseHoursOverride)) {
+                && !isNaN(m.baseHoursOverride)
+                && m.baseHoursOverrideWeek === getWeekKeyForMember(m, now)) {
                 return Number(m.baseHoursOverride);
             }
             const daysOffCount = (m.daysOff && m.daysOff.length > 0) ? m.daysOff.length : 2;
